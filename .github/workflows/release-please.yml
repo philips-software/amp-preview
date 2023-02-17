@@ -1,0 +1,35 @@
+---
+name: Create Release
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}
+  cancel-in-progress: true
+
+jobs:
+  release_please:
+    name: Create Release
+    runs-on: ubuntu-latest
+    outputs:
+      releases_created: ${{ steps.release.outputs.releases_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+    steps:
+      #- uses: philips-software/app-token-action@a37926571e4cec6f219e06727136efdd073d8657 # v1.1.2
+      #  id: token
+      #  with:
+      #    app_id: ${{ secrets.FOREST_RELEASER_APP_ID }}
+      #    app_base64_private_key: ${{ secrets.FOREST_RELEASER_APP_PRIVATE_KEY_BASE64 }}
+      #    auth_type: installation
+      - uses: google-github-actions/release-please-action@d3c71f9a0a55385580de793de58da057b3560862 # v3.7.4
+        id: release
+        with:
+          command: manifest
+          #token: ${{ steps.token.outputs.token }}
+          token: ${{ secrets.AUTOMATIC_RELEASE_TOKEN }}

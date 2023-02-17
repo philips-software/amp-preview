@@ -1,0 +1,6 @@
+add_subdirectory(interfaces)
+add_subdirectory(sdl)
+add_subdirectory(stm32fxxx)
+add_subdirectory(fonts)
+add_subdirectory(views)
+add_subdirectory(touch)

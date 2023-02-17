@@ -1,0 +1,67 @@
+---
+name: Linting & Formatting
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}
+  cancel-in-progress: true
+
+jobs:
+  formatter:
+    name: Formatting
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c
+        with:
+          persist-credentials: false
+      - uses: DoozyX/clang-format-lint-action@c3b2c943e924028b93a707a5b1b017976ab8d50c
+        with:
+          clangFormatVersion: 14
+          inplace: true
+          extensions: "cpp,hpp"
+      #- uses: reviewdog/action-suggester@8f83d27e749053b2029600995c115026a010408e
+      #  with:
+      #    tool_name: clang-format
+      #    filter_mode: diff_context
+  linter:
+    name: Linting
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      security-events: write
+    steps:
+      - uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: oxsecurity/megalinter@e7a797f9d8354b35d6580620b2af79efa0748ddf
+        env:
+          APPLY_FIXES: all
+          VALIDATE_ALL_CODEBASE: true
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #- uses: github/codeql-action/upload-sarif@a34ca99b4610d924e04c68db79e503e1f79f9f02 # v2.1.39
+      #  if: ${{ success() }} || ${{ failure() }}
+      #  with:
+      #    sarif_file: megalinter-reports/megalinter-report.sarif
+      - uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce
+        if: ${{ success() }} || ${{ failure() }}
+        with:
+          name: linter
+          path: |
+            megalinter-reports
+      #- uses: reviewdog/action-suggester@8f83d27e749053b2029600995c115026a010408e
+      #  with:
+      #    tool_name: MegaLinter
+      #    filter_mode: diff_context

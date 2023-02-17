@@ -1,0 +1,128 @@
+{
+  "version": 3,
+  "configurePresets": [
+    {
+      "name": "defaults",
+      "hidden": true,
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "cacheVariables": {
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "On"
+      }
+    },
+    {
+      "name": "ContinuousIntegration",
+      "displayName": "Configuration for Continuous Integration",
+      "inherits": "defaults",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "EMIL_ENABLE_DOCKER_TOOLS": "Off"
+      }
+    },
+    {
+      "name": "Coverage",
+      "displayName": "Configuration for Code Coverage",
+      "inherits": "ContinuousIntegration",
+      "cacheVariables": {
+        "EMIL_ENABLE_COVERAGE": "On"
+      },
+      "generator": "Ninja"
+    },
+    {
+      "name": "host",
+      "displayName": "Configuration for Host Tooling",
+      "inherits": "defaults",
+      "generator": "Ninja Multi-Config",
+      "cacheVariables": {
+        "CMAKE_CONFIGURATION_TYPES": "Debug;Release;RelWithDebInfo;MinSizeRel",
+        "PREVIEW_BUILD_TESTS": "Off"
+      }
+    },
+    {
+      "name": "stm32",
+      "hidden": true,
+      "inherits": "defaults",
+      "generator": "Ninja Multi-Config",
+      "cacheVariables": {
+        "emil_DIR": "${sourceDir}/build/host/_deps/emil-build/cmake",
+        "EMIL_GENERATE_PACKAGE_CONFIG": false,
+        "TARGET_MCU_VENDOR": "st"
+      }
+    },
+    {
+      "name": "stm32f407",
+      "displayName": "stm32f407",
+      "description": "Build for stm32f407",
+      "inherits": "stm32",
+      "toolchainFile": "${sourceDir}/cmake/toolchain-arm-gcc-m4-fpv4-sp-d16.cmake",
+      "cacheVariables": {
+        "TARGET_CORTEX": "m4",
+        "TARGET_MCU_FAMILY": "stm32f4xx",
+        "TARGET_MCU": "stm32f407"
+      }
+    },
+    {
+      "name": "stm32f767",
+      "displayName": "stm32f767",
+      "description": "Build for stm32f767",
+      "inherits": "stm32",
+      "toolchainFile": "${sourceDir}/cmake/toolchain-arm-gcc-m7-fpv5-d16.cmake",
+      "cacheVariables": {
+        "TARGET_CORTEX": "m7",
+        "TARGET_MCU_FAMILY": "stm32f7xx",
+        "TARGET_MCU": "stm32f767"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "ContinuousIntegration",
+      "configuration": "Debug",
+      "configurePreset": "ContinuousIntegration"
+    },
+    {
+      "name": "Coverage",
+      "configuration": "Debug",
+      "configurePreset": "Coverage"
+    },
+    {
+      "name": "host-RelWithDebInfo",
+      "configuration": "RelWithDebInfo",
+      "configurePreset": "host"
+    },
+    {
+      "name": "stm32f407-RelWithDebInfo",
+      "configuration": "RelWithDebInfo",
+      "configurePreset": "stm32f407"
+    },
+    {
+      "name": "stm32f767-RelWithDebInfo",
+      "configuration": "RelWithDebInfo",
+      "configurePreset": "stm32f767"
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "defaults",
+      "hidden": true,
+      "output": {
+        "outputOnFailure": true
+      },
+      "execution": {
+        "noTestsAction": "error",
+        "stopOnFailure": true
+      }
+    },
+    {
+      "name": "ContinuousIntegration",
+      "configurePreset": "ContinuousIntegration",
+      "configuration": "Debug",
+      "inherits": "defaults"
+    },
+    {
+      "name": "Coverage",
+      "configurePreset": "Coverage",
+      "configuration": "Debug",
+      "inherits": "defaults"
+    }
+  ]
+}
