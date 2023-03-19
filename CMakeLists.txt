@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.24)
 
+project(preview LANGUAGES C CXX VERSION 1.0.0) # x-release-please-version
+
 if (CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
     set(PREVIEW_STANDALONE On)
 endif()
@@ -24,8 +26,6 @@ option(CMAKE_COMPILE_WARNINGS_AS_ERROR "Enable warnings-as-error" On)
 option(PREVIEW_BUILD_TESTS "Enable building the tests" ${PREVIEW_DEFAULTOPT})
 option(PREVIEW_BUILD_EXAMPLES "Enable building the examples" ${PREVIEW_DEFAULTOPT})
 option(PREVIEW_INCLUDE_SDL "Include SDL support" ${PREVIEW_DEFAULTOPT})
-
-project(preview LANGUAGES C CXX VERSION 1.0.0) # x-release-please-version
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED On)
