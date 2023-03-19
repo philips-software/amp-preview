@@ -15,7 +15,10 @@
       "inherits": "defaults",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
-        "EMIL_ENABLE_DOCKER_TOOLS": "Off"
+        "EMIL_ENABLE_DOCKER_TOOLS": "Off",
+        "PREVIEW_BUILD_TESTS": "On",
+        "PREVIEW_BUILD_EXAMPLES": "On",
+        "PREVIEW_INCLUDE_SDL": "On"
       }
     },
     {
@@ -33,8 +36,7 @@
       "inherits": "defaults",
       "generator": "Ninja Multi-Config",
       "cacheVariables": {
-        "CMAKE_CONFIGURATION_TYPES": "Debug;Release;RelWithDebInfo;MinSizeRel",
-        "PREVIEW_BUILD_TESTS": "Off"
+        "CMAKE_CONFIGURATION_TYPES": "Debug;Release;RelWithDebInfo;MinSizeRel"
       }
     },
     {
