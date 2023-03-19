@@ -10,7 +10,9 @@ option(PREVIEW_BUILD_EXAMPLES "Enable building the examples" Off)
 option(PREVIEW_INCLUDE_SDL "Include SDL support" Off)
 
 if (PREVIEW_BUILD_TESTS)
-    include(CTest)
+    # CTest cannot be included before the first project() statement, but Embedded Infastructure
+    # Library needs to see that test utilities need to be built.
+    set(BUILD_TESTING On)
 endif()
 
 if (PREVIEW_STANDALONE)
@@ -43,6 +45,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED On)
 set_directory_properties(PROPERTY USE_FOLDERS On)
 
 if (PREVIEW_BUILD_TESTS)
+    include(CTest)
     emil_enable_testing()
 endif()
 
