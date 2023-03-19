@@ -1,16 +1,11 @@
 cmake_minimum_required(VERSION 3.24)
 
-project(preview LANGUAGES C CXX VERSION 1.0.0) # x-release-please-version
-
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED On)
-
-if (CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
+if (CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
     set(PREVIEW_STANDALONE On)
 endif()
 
 # Before Embedded Infrastructure Library can be included, we must
-# first decide whether or not to build tests
+# first decide whether or not to build tests.
 if (CMAKE_SYSTEM_NAME STREQUAL "Windows" OR CMAKE_SYSTEM_NAME STREQUAL "Linux" OR CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     set(PREVIEW_HOST_BUILD On)
 endif()
@@ -29,6 +24,13 @@ option(CMAKE_COMPILE_WARNINGS_AS_ERROR "Enable warnings-as-error" On)
 option(PREVIEW_BUILD_TESTS "Enable building the tests" ${PREVIEW_DEFAULTOPT})
 option(PREVIEW_BUILD_EXAMPLES "Enable building the examples" ${PREVIEW_DEFAULTOPT})
 option(PREVIEW_INCLUDE_SDL "Include SDL support" ${PREVIEW_DEFAULTOPT})
+
+project(preview LANGUAGES C CXX VERSION 1.0.0) # x-release-please-version
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED On)
+
+set_directory_properties(PROPERTY USE_FOLDERS On)
 
 if (PREVIEW_BUILD_TESTS)
     include(CTest)
@@ -64,8 +66,6 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     # Suppress warnings about parameter passing for argument of type '...' changed in GCC 7.1
     add_compile_options(-Wno-psabi)
 endif()
-
-set_directory_properties(PROPERTY USE_FOLDERS On)
 
 emil_exclude_directory_from_clang_format(.)
 
