@@ -1,4 +1,4 @@
-add_library(preview.interfaces EXCLUDE_FROM_ALL STATIC)
+add_library(preview.interfaces ${PREVIEW_EXCLUDE_FROM_ALL} STATIC)
 install(TARGETS preview.interfaces EXPORT previewTargets)
 
 target_include_directories(preview.interfaces PUBLIC

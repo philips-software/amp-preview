@@ -15,7 +15,10 @@
       "inherits": "defaults",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
-        "EMIL_ENABLE_DOCKER_TOOLS": "Off"
+        "EMIL_ENABLE_DOCKER_TOOLS": "Off",
+        "PREVIEW_BUILD_TESTS": "On",
+        "PREVIEW_BUILD_EXAMPLES": "On",
+        "PREVIEW_INCLUDE_SDL": "On"
       }
     },
     {
@@ -33,8 +36,7 @@
       "inherits": "defaults",
       "generator": "Ninja Multi-Config",
       "cacheVariables": {
-        "CMAKE_CONFIGURATION_TYPES": "Debug;Release;RelWithDebInfo;MinSizeRel",
-        "PREVIEW_BUILD_TESTS": "Off"
+        "CMAKE_CONFIGURATION_TYPES": "Debug;Release;RelWithDebInfo;MinSizeRel"
       }
     },
     {
@@ -42,6 +44,10 @@
       "hidden": true,
       "inherits": "defaults",
       "generator": "Ninja Multi-Config",
+      "environment": {
+        "explain_CMAKE_TOOLCHAIN_FILE": "Needed as workaround for not requiring the toolchain before fetching EmIL",
+        "CMAKE_TOOLCHAIN_FILE": ""
+      },
       "cacheVariables": {
         "emil_DIR": "${sourceDir}/build/host/_deps/emil-build/cmake",
         "EMIL_GENERATE_PACKAGE_CONFIG": false,
@@ -53,7 +59,7 @@
       "displayName": "stm32f407",
       "description": "Build for stm32f407",
       "inherits": "stm32",
-      "toolchainFile": "${sourceDir}/cmake/toolchain-arm-gcc-m4-fpv4-sp-d16.cmake",
+      "toolchainFile": "${sourceDir}/build/stm32f407/_deps/emil-src/cmake/toolchain-arm-gcc-m4-fpv4-sp-d16.cmake",
       "cacheVariables": {
         "TARGET_CORTEX": "m4",
         "TARGET_MCU_FAMILY": "stm32f4xx",
@@ -65,11 +71,24 @@
       "displayName": "stm32f767",
       "description": "Build for stm32f767",
       "inherits": "stm32",
-      "toolchainFile": "${sourceDir}/cmake/toolchain-arm-gcc-m7-fpv5-d16.cmake",
+      "toolchainFile": "${sourceDir}/build/stm32f767/_deps/emil-src/cmake/toolchain-arm-gcc-m7-fpv5-d16.cmake",
       "cacheVariables": {
         "TARGET_CORTEX": "m7",
         "TARGET_MCU_FAMILY": "stm32f7xx",
         "TARGET_MCU": "stm32f767"
+      }
+    },
+    {
+      "name": "stm32f746",
+      "displayName": "stm32f746",
+      "description": "Build for stm32f746",
+      "inherits": "stm32",
+      "toolchainFile": "${sourceDir}/build/stm32f746/_deps/emil-src/cmake/toolchain-arm-gcc-m7-fpv5-sp-d16.cmake",
+      "cacheVariables": {
+        "PREVIEW_BUILD_EXAMPLES": "On",
+        "TARGET_CORTEX": "m7",
+        "TARGET_MCU_FAMILY": "stm32f7xx",
+        "TARGET_MCU": "stm32f746"
       }
     }
   ],
@@ -98,6 +117,11 @@
       "name": "stm32f767-RelWithDebInfo",
       "configuration": "RelWithDebInfo",
       "configurePreset": "stm32f767"
+    },
+    {
+      "name": "stm32f746-RelWithDebInfo",
+      "configuration": "RelWithDebInfo",
+      "configurePreset": "stm32f746"
     }
   ],
   "testPresets": [

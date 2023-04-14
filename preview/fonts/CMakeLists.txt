@@ -1,4 +1,4 @@
-add_library(preview.fonts EXCLUDE_FROM_ALL STATIC)
+add_library(preview.fonts ${PREVIEW_EXCLUDE_FROM_ALL} STATIC)
 install(TARGETS preview.fonts EXPORT previewTargets)
 
 target_include_directories(preview.fonts PUBLIC

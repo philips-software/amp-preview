@@ -11,7 +11,7 @@ if (EMIL_BUILD_WIN AND PREVIEW_INCLUDE_SDL)
 
     emil_exclude_directory_from_clang_format(.)
 
-    add_library(preview.sdl EXCLUDE_FROM_ALL STATIC)
+    add_library(preview.sdl ${PREVIEW_EXCLUDE_FROM_ALL} STATIC)
     install(TARGETS preview.sdl EXPORT previewTargets)
 
     target_include_directories(preview.sdl PUBLIC

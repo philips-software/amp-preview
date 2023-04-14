@@ -1,37 +1,18 @@
 cmake_minimum_required(VERSION 3.24)
 
-project(preview LANGUAGES C CXX VERSION 1.0.0) # x-release-please-version
-
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED On)
-
-if (CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
+if (CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
     set(PREVIEW_STANDALONE On)
 endif()
 
-# Before Embedded Infrastructure Library can be included, we must
-# first decide whether or not to build tests
-if (CMAKE_SYSTEM_NAME STREQUAL "Windows" OR CMAKE_SYSTEM_NAME STREQUAL "Linux" OR CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-    set(PREVIEW_HOST_BUILD On)
-endif()
-
-# When building Preview by itself the examples and tests will be built
-# by default. When consuming Preview as a dependency the tests and
-# examples are disabled. This behavior can be overridden by below
-# options.
-if (PREVIEW_STANDALONE AND PREVIEW_HOST_BUILD)
-    set(PREVIEW_DEFAULTOPT On)
-else()
-    set(PREVIEW_DEFAULTOPT Off)
-endif()
-
 option(CMAKE_COMPILE_WARNINGS_AS_ERROR "Enable warnings-as-error" On)
-option(PREVIEW_BUILD_TESTS "Enable building the tests" ${PREVIEW_DEFAULTOPT})
-option(PREVIEW_BUILD_EXAMPLES "Enable building the examples" ${PREVIEW_DEFAULTOPT})
-option(PREVIEW_INCLUDE_SDL "Include SDL support" ${PREVIEW_DEFAULTOPT})
+option(PREVIEW_BUILD_TESTS "Enable building the tests" Off)
+option(PREVIEW_BUILD_EXAMPLES "Enable building the examples" Off)
+option(PREVIEW_INCLUDE_SDL "Include SDL support" Off)
 
 if (PREVIEW_BUILD_TESTS)
-    include(CTest)
+    # CTest cannot be included before the first project() statement, but Embedded Infastructure
+    # Library needs to see that test utilities need to be built.
+    set(BUILD_TESTING On)
 endif()
 
 if (PREVIEW_STANDALONE)
@@ -40,7 +21,7 @@ if (PREVIEW_STANDALONE)
     FetchContent_Declare(
         emil
         GIT_REPOSITORY https://github.com/philips-software/amp-embedded-infra-lib
-        GIT_TAG        modern-cmake
+        GIT_TAG        11f07b8add4d5c45ae930cb4145c2591e7ffbb1d # v3.1.0
     )
 
     FetchContent_MakeAvailable(emil)
@@ -49,14 +30,30 @@ if (PREVIEW_STANDALONE)
         FetchContent_Declare(
             halst
             GIT_REPOSITORY https://github.com/philips-software/amp-hal-st
-            GIT_TAG        main
+            GIT_TAG        bd008d492e8d5ceb5321ece689e58724f427334f # v1.1.0
         )
 
         FetchContent_MakeAvailable(halst)
     endif()
 endif()
 
+project(preview LANGUAGES C CXX VERSION 1.0.0) # x-release-please-version
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED On)
+
+set_directory_properties(PROPERTY USE_FOLDERS On)
+
+# When building amp-preview by itself do not exclude any targets from all
+# Libraries will only be excluded from all when amp-preview is a consumed as a dependency.
+if (PREVIEW_STANDALONE)
+    set(PREVIEW_EXCLUDE_FROM_ALL "")
+else()
+    set(PREVIEW_EXCLUDE_FROM_ALL "EXCLUDE_FROM_ALL")
+endif()
+
 if (PREVIEW_BUILD_TESTS)
+    include(CTest)
     emil_enable_testing()
 endif()
 
@@ -64,8 +61,6 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     # Suppress warnings about parameter passing for argument of type '...' changed in GCC 7.1
     add_compile_options(-Wno-psabi)
 endif()
-
-set_directory_properties(PROPERTY USE_FOLDERS On)
 
 emil_exclude_directory_from_clang_format(.)
 
