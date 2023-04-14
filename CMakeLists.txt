@@ -44,6 +44,14 @@ set(CMAKE_CXX_STANDARD_REQUIRED On)
 
 set_directory_properties(PROPERTY USE_FOLDERS On)
 
+# When building amp-preview by itself do not exclude any targets from all
+# Libraries will only be excluded from all when amp-preview is a consumed as a dependency.
+if (PREVIEW_STANDALONE)
+    set(PREVIEW_EXCLUDE_FROM_ALL "")
+else()
+    set(PREVIEW_EXCLUDE_FROM_ALL "EXCLUDE_FROM_ALL")
+endif()
+
 if (PREVIEW_BUILD_TESTS)
     include(CTest)
     emil_enable_testing()

@@ -1,4 +1,4 @@
-add_library(preview.stm32fxxx EXCLUDE_FROM_ALL STATIC)
+add_library(preview.stm32fxxx ${PREVIEW_EXCLUDE_FROM_ALL} STATIC)
 install(TARGETS preview.stm32fxxx EXPORT previewTargets)
 
 target_include_directories(preview.stm32fxxx PUBLIC

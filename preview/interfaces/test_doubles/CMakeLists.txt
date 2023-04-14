@@ -1,4 +1,4 @@
-add_library(preview.interfaces.test_doubles EXCLUDE_FROM_ALL INTERFACE)
+add_library(preview.interfaces.test_doubles ${PREVIEW_EXCLUDE_FROM_ALL} INTERFACE)
 
 target_link_libraries(preview.interfaces.test_doubles INTERFACE
     gmock
