@@ -1,5 +1,7 @@
-add_library(preview.stm32fxxx ${PREVIEW_EXCLUDE_FROM_ALL} STATIC)
+add_library(preview.stm32fxxx STATIC)
 install(TARGETS preview.stm32fxxx EXPORT previewTargets)
+
+set_target_properties(preview.stm32fxxx PROPERTIES EXCLUDE_FROM_ALL $<NOT:$<AND:$<STREQUAL:${TARGET_MCU_VENDOR},st>,$<BOOL:${PREVIEW_STANDALONE}>>>)
 
 target_include_directories(preview.stm32fxxx PUBLIC
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/../..>"
