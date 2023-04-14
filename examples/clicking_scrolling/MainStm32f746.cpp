@@ -1,5 +1,6 @@
 #include "examples/clicking_scrolling/TouchViewClickingScrolling.hpp"
 #include "generated/stm32fxxx/PinoutTableDefault.hpp"
+#include "hal_st/stm32fxxx/DefaultClockDiscoveryF746G.hpp"
 #include "hal_st/stm32fxxx/GpioStm.hpp"
 #include "hal_st/stm32fxxx/I2cStm.hpp"
 #include "hal_st/stm32fxxx/SdRamStm.hpp"
@@ -12,15 +13,7 @@
 #include "preview/touch/TouchFt5x06.hpp"
 #include "services/util/DebugLed.hpp"
 
-uint32_t GetHseValue()
-{
-    return 25000000;
-}
-
-extern "C" void Default_Handler()
-{
-    hal::InterruptTable::Instance().Invoke(hal::ActiveInterrupt());
-}
+unsigned int hse_value = 25000000;
 
 namespace main_
 {
@@ -56,6 +49,9 @@ namespace main_
 
 int main()
 {
+    HAL_Init();
+    ConfigureDefaultClockDiscoveryF746G();
+
     static hal::InterruptTable::WithStorage<128> interruptTable;
     static infra::EventDispatcherWithWeakPtr::WithSize<50> eventDispatcher;
     static hal::GpioStm gpio(hal::pinoutTableDefaultStm);

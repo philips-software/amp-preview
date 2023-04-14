@@ -23,3 +23,8 @@ target_link_libraries(examples.clicking_scrolling PUBLIC
     preview.touch
     preview.views
 )
+
+if(TARGET_MCU STREQUAL stm32f746)
+    halst_target_default_linker_scripts(examples.clicking_scrolling)
+    halst_target_default_init(examples.clicking_scrolling)
+endif()

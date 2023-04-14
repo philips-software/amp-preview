@@ -1,3 +1,4 @@
 .vs/
 [Bb]uild/
 out/
+.vscode/.cortex-debug.registers.state.json
