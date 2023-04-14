@@ -45,6 +45,7 @@
       "inherits": "defaults",
       "generator": "Ninja Multi-Config",
       "environment": {
+        "explain_CMAKE_TOOLCHAIN_FILE": "Needed as workaround for not requiring the toolchain before fetching EmIL",
         "CMAKE_TOOLCHAIN_FILE": ""
       },
       "cacheVariables": {
@@ -76,6 +77,19 @@
         "TARGET_MCU_FAMILY": "stm32f7xx",
         "TARGET_MCU": "stm32f767"
       }
+    },
+    {
+      "name": "stm32f746",
+      "displayName": "stm32f746",
+      "description": "Build for stm32f746",
+      "inherits": "stm32",
+      "toolchainFile": "${sourceDir}/build/stm32f746/_deps/emil-src/cmake/toolchain-arm-gcc-m7-fpv5-sp-d16.cmake",
+      "cacheVariables": {
+        "PREVIEW_BUILD_EXAMPLES": "On",
+        "TARGET_CORTEX": "m7",
+        "TARGET_MCU_FAMILY": "stm32f7xx",
+        "TARGET_MCU": "stm32f746"
+      }
     }
   ],
   "buildPresets": [
@@ -103,6 +117,11 @@
       "name": "stm32f767-RelWithDebInfo",
       "configuration": "RelWithDebInfo",
       "configurePreset": "stm32f767"
+    },
+    {
+      "name": "stm32f746-RelWithDebInfo",
+      "configuration": "RelWithDebInfo",
+      "configurePreset": "stm32f746"
     }
   ],
   "testPresets": [
