@@ -1,6 +1,6 @@
 add_executable(examples.clicking_scrolling)
 
-set_target_properties(examples.clicking_scrolling PROPERTIES EXCLUDE_FROM_ALL $<NOT:$<OR:$<BOOL:${EMIL_BUILD_WIN}>,$<STREQUAL:${TARGET_MCU},stm32f746>>>)
+emil_build_for(examples.clicking_scrolling HOST Windows TARGET_MCU stm32f746 PREREQUISITE_BOOL PREVIEW_BUILD_EXAMPLES)
 set_target_properties(examples.clicking_scrolling PROPERTIES WIN32_EXECUTABLE $<BOOL:${EMIL_BUILD_WIN}>)
 
 target_include_directories(examples.clicking_scrolling PUBLIC
