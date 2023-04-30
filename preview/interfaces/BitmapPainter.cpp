@@ -298,17 +298,18 @@ namespace hal
     void BitmapPainterCanonical::DrawBitmap(infra::Bitmap& bitmap, infra::Point position, const infra::Bitmap& sourceBitmap, infra::Region boundingBox)
     {
         assert(bitmap.pixelFormat == sourceBitmap.pixelFormat);
+        auto bitmapDestination = infra::Region(position, sourceBitmap.size);
+        auto boundedDestination = bitmapDestination & boundingBox;
 
-        infra::Region destination = infra::Region(position, sourceBitmap.size) & boundingBox;
-
-        if (!destination.Empty())
+        if (!boundedDestination.Empty())
         {
-            infra::Vector bitmapShift = destination.TopLeft() - position;
             WaitUntilDrawingFinished();
-
-            for (auto y = 0; y != destination.Height(); ++y)
-                for (auto x = 0; x != destination.Width(); ++x)
-                    std::memcpy(bitmap.BufferAddress(destination.TopLeft() + infra::Vector(x, y)), sourceBitmap.BufferAddress(infra::Point(x, y) + bitmapShift), infra::PixelSize(bitmap.pixelFormat));
+            for (auto y = boundedDestination.Top() - bitmapDestination.Top(); y != boundedDestination.Bottom() - bitmapDestination.Top(); ++y)
+                for (auto x = boundedDestination.Left() - bitmapDestination.Left(); x != boundedDestination.Right() - bitmapDestination.Left(); ++x)
+                {
+                    auto colour = sourceBitmap.PixelColour(infra::Point(x, y));
+                    DrawPixel(bitmap, bitmapDestination.TopLeft() + infra::Vector(x, y), colour);
+                }
         }
     }
 
@@ -320,14 +321,13 @@ namespace hal
 
         if (!boundedDestination.Empty())
         {
-            infra::Vector bitmapShift = boundedDestination.TopLeft() - position;
             WaitUntilDrawingFinished();
             for (auto y = boundedDestination.Top() - bitmapDestination.Top(); y != boundedDestination.Bottom() - bitmapDestination.Top(); ++y)
                 for (auto x = boundedDestination.Left() - bitmapDestination.Left(); x != boundedDestination.Right() - bitmapDestination.Left(); ++x)
                 {
                     auto colour = sourceBitmap.PixelColour(infra::Point(x, y));
                     if (colour != transparencyColour)
-                        DrawPixel(bitmap, boundedDestination.TopLeft() + infra::Vector(x, y), sourceBitmap.PixelColour(infra::Point(x, y) + bitmapShift));
+                        DrawPixel(bitmap, bitmapDestination.TopLeft() + infra::Vector(x, y), colour);
                 }
         }
     }
@@ -346,7 +346,7 @@ namespace hal
                 for (auto x = boundedDestination.Left() - iconDestination.Left(); x != boundedDestination.Right() - iconDestination.Left(); ++x)
                 {
                     if (sourceBitmap.BlackAndWhitePixel(infra::Point(x, y)))
-                        DrawPixel(bitmap, boundedDestination.TopLeft() + infra::Vector(x, y), convertedColour);
+                        DrawPixel(bitmap, iconDestination.TopLeft() + infra::Vector(x, y), convertedColour);
                 }
         }
     }
