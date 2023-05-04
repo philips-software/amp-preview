@@ -1,4 +1,5 @@
 add_executable(preview.interfaces.test)
+emil_build_for(preview.interfaces.test BOOL PREVIEW_BUILD_TESTS)
 add_test(NAME preview.interfaces.test COMMAND preview.interfaces.test)
 
 target_link_libraries(preview.interfaces.test PUBLIC

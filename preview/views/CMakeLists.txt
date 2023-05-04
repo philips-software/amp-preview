@@ -61,6 +61,4 @@ target_sources(preview.views PRIVATE
     ViewTitledFrame.hpp
 )
 
-if (PREVIEW_BUILD_TESTS)
-    add_subdirectory(test)
-endif()
+add_subdirectory(test)
