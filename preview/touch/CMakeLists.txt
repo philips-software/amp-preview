@@ -41,6 +41,4 @@ target_sources(preview.touch PRIVATE
     TouchViewSelector.cpp
 )
 
-if (PREVIEW_BUILD_TESTS)
-    add_subdirectory(test)
-endif()
+add_subdirectory(test)

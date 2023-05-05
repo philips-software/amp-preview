@@ -1,4 +1,5 @@
 add_executable(preview.touch.test)
+emil_build_for(preview.touch.test BOOL PREVIEW_BUILD_TESTS)
 add_test(NAME preview.touch.test COMMAND preview.touch.test)
 
 target_link_libraries(preview.touch.test PUBLIC
