@@ -1,8 +1,8 @@
 #ifndef PREVIEW_TOUCH_RECIPIENT_MOCK_HPP
 #define PREVIEW_TOUCH_RECIPIENT_MOCK_HPP
 
-#include "preview/touch/TouchRecipient.hpp"
 #include "preview/interfaces/test_doubles/ViewMock.hpp"
+#include "preview/touch/TouchRecipient.hpp"
 
 namespace services
 {

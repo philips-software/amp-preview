@@ -1,7 +1,7 @@
-#include "gmock/gmock.h"
-#include "preview/views/ViewTitledFrame.hpp"
 #include "preview/interfaces/test_doubles/CanvasMock.hpp"
 #include "preview/interfaces/test_doubles/ViewMock.hpp"
+#include "preview/views/ViewTitledFrame.hpp"
+#include "gmock/gmock.h"
 
 class ViewTitledFrameTest
     : public testing::Test

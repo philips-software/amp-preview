@@ -1,14 +1,18 @@
-#include "gmock/gmock.h"
 #include "infra/util/test_helper/MockCallback.hpp"
 #include "preview/interfaces/test_doubles/ButtonMock.hpp"
 #include "preview/touch/TouchButton.hpp"
+#include "gmock/gmock.h"
 
 class TouchButtonTest
     : public testing::Test
 {
 public:
     TouchButtonTest()
-        : touchButton([this]() { callback.callback(); }, infra::Vector(1, 2))
+        : touchButton([this]()
+              {
+                  callback.callback();
+              },
+              infra::Vector(1, 2))
     {}
 
     testing::StrictMock<infra::MockCallback<void()>> callback;

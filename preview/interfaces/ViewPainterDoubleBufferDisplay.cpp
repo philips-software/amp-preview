@@ -18,9 +18,10 @@ namespace services
         bitmapPainter.WaitUntilDrawingFinished();
         display.SwapLayers([this]()
             {
-            services::BitmapCanvas copyCanvas(display.DrawingBitmap(), bitmapPainter);
-            copyCanvas.DrawBitmap(infra::Point(), display.ViewingBitmap(), drawRegion);
+                services::BitmapCanvas copyCanvas(display.DrawingBitmap(), bitmapPainter);
+                copyCanvas.DrawBitmap(infra::Point(), display.ViewingBitmap(), drawRegion);
 
-            infra::EventDispatcher::Instance().Schedule(this->onDone); });
+                infra::EventDispatcher::Instance().Schedule(this->onDone);
+            });
     }
 }

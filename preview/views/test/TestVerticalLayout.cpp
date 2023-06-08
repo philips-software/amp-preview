@@ -1,7 +1,7 @@
-#include "gmock/gmock.h"
 #include "preview/interfaces/test_doubles/CanvasMock.hpp"
 #include "preview/interfaces/test_doubles/ViewMock.hpp"
 #include "preview/views/VerticalLayout.hpp"
+#include "gmock/gmock.h"
 
 class VerticalLayoutTest
     : public testing::Test

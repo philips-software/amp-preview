@@ -28,8 +28,12 @@ namespace services
         , xPlusAnalogPin(touchScreen.xPlusAnalogPin)
         , yPlusAnalogPin(touchScreen.yPlusAnalogPin)
         , startConversion(std::chrono::microseconds(100), [this]()
-              { xPlusAnalogPin->Measure([this](PixelPosition pixelPosition)
-                    { OnMeasurementXDone(pixelPosition.Value()); }); })
+              {
+                  xPlusAnalogPin->Measure([this](PixelPosition pixelPosition)
+                      {
+                          OnMeasurementXDone(pixelPosition.Value());
+                      });
+              })
         , finalMeasurement(finalMeasurement)
     {}
 
@@ -37,7 +41,9 @@ namespace services
     {
         this->xTouchResult = xTouchResult;
         yPlusAnalogPin->Measure([this](PixelPosition pixelPosition)
-            { OnMeasurementYDone(pixelPosition.Value()); });
+            {
+                OnMeasurementYDone(pixelPosition.Value());
+            });
     }
 
     void TouchScreen::StateTouchMeasurement::OnMeasurementYDone(uint32_t yTouchResult)
@@ -62,8 +68,12 @@ namespace services
         , yMinus(touchScreen.yMinus, false)
         , xPlusAnalogPin(touchScreen.xPlusAnalogPin)
         , startConversion(std::chrono::microseconds(100), [this]()
-              { xPlusAnalogPin->Measure([this](PixelPosition pixelPosition)
-                    { OnMeasurementDone(pixelPosition.Value()); }); })
+              {
+                  xPlusAnalogPin->Measure([this](PixelPosition pixelPosition)
+                      {
+                          OnMeasurementDone(pixelPosition.Value());
+                      });
+              })
     {}
 
     void TouchScreen::StateXMeasurement::OnMeasurementDone(uint32_t pixelPosition)
@@ -78,8 +88,12 @@ namespace services
         , xMinus(touchScreen.xMinus, false)
         , yPlusAnalogPin(touchScreen.yPlusAnalogPin)
         , startConversion(std::chrono::microseconds(100), [this]()
-              { yPlusAnalogPin->Measure([this](PixelPosition pixelPosition)
-                    { OnMeasurementDone(pixelPosition.Value()); }); })
+              {
+                  yPlusAnalogPin->Measure([this](PixelPosition pixelPosition)
+                      {
+                          OnMeasurementDone(pixelPosition.Value());
+                      });
+              })
     {}
 
     void TouchScreen::StateYMeasurement::OnMeasurementDone(uint32_t pixelPosition)

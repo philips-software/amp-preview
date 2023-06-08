@@ -8,7 +8,9 @@ namespace services
         , displaySize(displaySize)
         , touchOffset(touchOffset)
         , measureTimer(std::chrono::milliseconds(25), [this]()
-              { MeasureTouch(); })
+              {
+                  MeasureTouch();
+              })
     {}
 
     void TouchScreenToTouchRecipientInteractor::MeasureTouch()
@@ -18,15 +20,16 @@ namespace services
             measurementBusy = true;
             touchScreen.Measure([this](infra::Optional<infra::Point> position)
                 {
-                if (position)
-                {
-                    infra::Point viewPosition = infra::Point(-position->x, position->y) + infra::DeltaX(displaySize.deltaX) + touchOffset;
-                    HandleTouch(viewPosition);
-                }
-                else
-                    HandleNoTouch();
+                    if (position)
+                    {
+                        infra::Point viewPosition = infra::Point(-position->x, position->y) + infra::DeltaX(displaySize.deltaX) + touchOffset;
+                        HandleTouch(viewPosition);
+                    }
+                    else
+                        HandleNoTouch();
 
-                measurementBusy = false; });
+                    measurementBusy = false;
+                });
         }
     }
 

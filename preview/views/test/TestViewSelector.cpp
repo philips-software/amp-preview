@@ -1,7 +1,7 @@
-#include "gmock/gmock.h"
 #include "preview/interfaces/test_doubles/CanvasMock.hpp"
 #include "preview/interfaces/test_doubles/ViewMock.hpp"
 #include "preview/views/ViewSelector.hpp"
+#include "gmock/gmock.h"
 
 class SelectorTest
     : public testing::Test
@@ -48,13 +48,13 @@ TEST_F(SelectorTest, PaintWithViews)
 }
 
 TEST_F(SelectorTest, MinimumSize)
-{   
+{
     EXPECT_EQ(infra::Vector(0, 0), view.MinimumSize());
 
     view.Add(view1);
     view.Add(view2);
     EXPECT_EQ(infra::Vector(5, 5), view.MinimumSize());
-    
+
     EXPECT_CALL(topView, Dirty(infra::Region()));
     view.Next();
     EXPECT_EQ(infra::Vector(10, 10), view.MinimumSize());

@@ -1,7 +1,7 @@
-#include "gmock/gmock.h"
-#include "preview/views/ViewText.hpp"
 #include "preview/interfaces/test_doubles/CanvasMock.hpp"
 #include "preview/interfaces/test_doubles/ViewMock.hpp"
+#include "preview/views/ViewText.hpp"
+#include "gmock/gmock.h"
 
 class ViewTextTest
     : public testing::Test

@@ -9,7 +9,9 @@ namespace hal
         , backlightEnable(backlightEnable)
         , displaySize(config.width, config.height)
         , reload(LTDC_IRQn, [this]()
-              { OnReload(); })
+              {
+                  OnReload();
+              })
         , layers{ { { *LTDC_Layer1, buffer0, layers[1] }, { *LTDC_Layer2, buffer1, layers[0] } } }
     {
         assert(buffer0.size() == infra::Bitmap::BufferSize(config.width, config.height, config.pixelFormat));

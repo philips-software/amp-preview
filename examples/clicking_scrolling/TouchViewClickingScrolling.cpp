@@ -7,7 +7,9 @@ namespace application
         , layout(20)
         , scrollingText(std::chrono::milliseconds(250), 4, std::chrono::seconds(2), services::TextAttributes{ infra::Colour::blue }, "This is an example of scrolling text. It continuously scrolls to the left until it is reset.")
         , button([this]()
-              { OnTouched(); },
+              {
+                  OnTouched();
+              },
               services::FramedTextButtonAttributes{ infra::Colour::red, infra::Colour::white, infra::Colour::lightGray, infra::Colour::blue }, "Change text colour")
     {
         SetSubView(layout);
