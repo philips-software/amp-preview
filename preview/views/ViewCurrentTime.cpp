@@ -7,7 +7,9 @@ namespace services
     ViewCurrentTime::ViewCurrentTime(uint32_t timerServiceId, TextAttributes attributes)
         : ViewText(attributes)
         , timer([this]()
-              { Update(); },
+              {
+                  Update();
+              },
               timerServiceId)
     {}
 

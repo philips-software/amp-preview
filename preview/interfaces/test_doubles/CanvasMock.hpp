@@ -2,6 +2,7 @@
 #define PREVIEW_CANVAS_MOCK_HPP
 
 #include "preview/interfaces/Canvas.hpp"
+#include "gmock/gmock.h"
 
 namespace hal
 {

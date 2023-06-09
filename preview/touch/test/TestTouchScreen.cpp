@@ -1,8 +1,8 @@
-#include "gmock/gmock.h"
-#include "preview/touch/TouchScreen.hpp"
 #include "hal/interfaces/test_doubles/GpioMock.hpp"
 #include "infra/timer/test_helper/ClockFixture.hpp"
 #include "infra/util/test_helper/MockCallback.hpp"
+#include "preview/touch/TouchScreen.hpp"
+#include "gmock/gmock.h"
 
 class AnalogToDigitalPinMock
     : public services::TouchScreen::AnalogToDigitalPin
@@ -82,9 +82,8 @@ public:
         EXPECT_CALL(xMinus, ResetConfig());
     }
 
-
 public:
-    testing::StrictMock<hal::GpioPinMock> xPlus; 
+    testing::StrictMock<hal::GpioPinMock> xPlus;
     testing::StrictMock<hal::GpioPinMock> xMinus;
     testing::StrictMock<hal::GpioPinMock> yPlus;
     testing::StrictMock<hal::GpioPinMock> yMinus;
@@ -142,7 +141,7 @@ TEST_F(TouchScreenTest, after_measurement_is_done_y_measurement_starts)
 {
     DoTouchMeasurement();
     DoXMeasurement();
-    
+
     EXPECT_CALL(xPlus, Config(hal::PinConfigType::output, true));
     EXPECT_CALL(xMinus, Config(hal::PinConfigType::output, false));
 

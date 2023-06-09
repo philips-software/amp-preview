@@ -1,6 +1,6 @@
-#include "gmock/gmock.h"
 #include "preview/interfaces/WindowBitmapCanvas.hpp"
 #include "preview/interfaces/test_doubles/BitmapPainterMock.hpp"
+#include "gmock/gmock.h"
 
 class WindowBitmapCanvasTest
     : public testing::Test

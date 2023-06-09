@@ -104,11 +104,15 @@ namespace services
     void VerticalLayout::BringToFront(View& view)
     {
         std::size_t viewIndex = std::distance(views.begin(), std::find_if(views.begin(), views.end(), [&view](const detail::LayoutViewInfo& info)
-                                                                 { return info.view == &view; }));
+                                                                 {
+                                                                     return info.view == &view;
+                                                                 }));
         assert(viewIndex != views.size());
 
         std::size_t viewPaintOrder = std::distance(views.begin(), std::find_if(views.begin(), views.end(), [&view, this](const detail::LayoutViewInfo& info)
-                                                                      { return views[info.paintOrder].view == &view; }));
+                                                                      {
+                                                                          return views[info.paintOrder].view == &view;
+                                                                      }));
         for (std::size_t i = viewPaintOrder; i != 0; --i)
             views[i].paintOrder = views[i - 1].paintOrder;
         views[0].paintOrder = static_cast<uint8_t>(viewIndex);

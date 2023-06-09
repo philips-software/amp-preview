@@ -1,8 +1,8 @@
-#include "gmock/gmock.h"
 #include "infra/event/test_helper/EventDispatcherFixture.hpp"
 #include "preview/interfaces/ViewRepainter.hpp"
-#include "preview/interfaces/test_doubles/ViewPainterMock.hpp"
 #include "preview/interfaces/test_doubles/ViewMock.hpp"
+#include "preview/interfaces/test_doubles/ViewPainterMock.hpp"
+#include "gmock/gmock.h"
 
 namespace
 {

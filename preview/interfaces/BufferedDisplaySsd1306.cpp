@@ -27,10 +27,11 @@ namespace services
 
         i2c.SendData(address, initCommands, hal::Action::stop, [this](hal::Result result, uint32_t numberOfBytesSent)
             {
-            assert(result == hal::Result::complete);
-            initializing = false;
-            if (onDone != nullptr)
-                DoDrawBitmap(); });
+                assert(result == hal::Result::complete);
+                initializing = false;
+                if (onDone != nullptr)
+                    DoDrawBitmap();
+            });
     }
 
     infra::Region BufferedDisplaySsd1306::DisplayRegion() const
@@ -68,14 +69,15 @@ namespace services
 
         i2c.SendData(address, infra::MakeByteRange(resetPosition), hal::Action::repeatedStart, [this](hal::Result result, uint32_t numberOfBytesSent)
             {
-            static const uint8_t data = 0x40;
-            i2c.SendData(address, infra::MakeByteRange(data), hal::Action::continueSession, [this](hal::Result result, uint32_t numberOfBytesSent)
-            {
-                i2c.SendData(address, bitmap->buffer, hal::Action::stop, [this](hal::Result result, uint32_t numberOfBytesSent)
-                {
-                    this->onDone();
-                });
-            }); });
+                static const uint8_t data = 0x40;
+                i2c.SendData(address, infra::MakeByteRange(data), hal::Action::continueSession, [this](hal::Result result, uint32_t numberOfBytesSent)
+                    {
+                        i2c.SendData(address, bitmap->buffer, hal::Action::stop, [this](hal::Result result, uint32_t numberOfBytesSent)
+                            {
+                                this->onDone();
+                            });
+                    });
+            });
     }
 
     ViewPainterAlignedForSsd1306::ViewPainterAlignedForSsd1306(ViewPainter& painter)

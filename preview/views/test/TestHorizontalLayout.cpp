@@ -1,7 +1,7 @@
-#include "gmock/gmock.h"
 #include "preview/interfaces/test_doubles/CanvasMock.hpp"
 #include "preview/interfaces/test_doubles/ViewMock.hpp"
 #include "preview/views/HorizontalLayout.hpp"
+#include "gmock/gmock.h"
 
 class HorizontalLayoutTest
     : public testing::Test
@@ -255,9 +255,9 @@ TEST_F(HorizontalLayoutTest, MinimumSize_is_respected)
     EXPECT_CALL(view1, ResetSize());
     EXPECT_CALL(view1, MinimumSize()).WillRepeatedly(testing::Return(infra::Vector(100, 100)));
     EXPECT_CALL(view1, MaximumSize()).WillRepeatedly(testing::Return(infra::Vector::Maximum()));
-    
+
     EXPECT_EQ(infra::Vector(106, 104), layout.MinimumSize());
- 
+
     EXPECT_CALL(view1, ViewRegionChanged());
     EXPECT_CALL(topView, Dirty(infra::Region(infra::Point(), infra::Vector(104, 101))));
     layout.ResetLayout();

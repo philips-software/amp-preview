@@ -1,7 +1,7 @@
-#include "gmock/gmock.h"
-#include "preview/views/RestrictPaint.hpp"
 #include "preview/interfaces/test_doubles/CanvasMock.hpp"
 #include "preview/interfaces/test_doubles/ViewMock.hpp"
+#include "preview/views/RestrictPaint.hpp"
+#include "gmock/gmock.h"
 
 class RestrictPaintTest
     : public testing::Test

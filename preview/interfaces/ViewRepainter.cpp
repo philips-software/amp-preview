@@ -25,8 +25,12 @@ namespace services
         {
             busy = true;
             infra::EventDispatcher::Instance().Schedule([this]()
-                { painter.Paint(topView, infra::PostAssign(dirty, infra::Region()), [this]()
-                      { RepaintDone(); }); });
+                {
+                    painter.Paint(topView, infra::PostAssign(dirty, infra::Region()), [this]()
+                        {
+                            RepaintDone();
+                        });
+                });
         }
     }
 

@@ -1,9 +1,9 @@
-#include "gmock/gmock.h"
 #include "infra/event/test_helper/EventDispatcherFixture.hpp"
 #include "preview/interfaces/ViewPainterBufferedDisplay.hpp"
 #include "preview/interfaces/test_doubles/BitmapPainterMock.hpp"
 #include "preview/interfaces/test_doubles/BufferedDisplayMock.hpp"
 #include "preview/interfaces/test_doubles/ViewMock.hpp"
+#include "gmock/gmock.h"
 
 class ViewPainterBufferedDisplayTest
     : public testing::Test
