@@ -1,5 +1,4 @@
 add_library(preview.touch ${PREVIEW_EXCLUDE_FROM_ALL} STATIC)
-install(TARGETS preview.touch EXPORT previewTargets)
 
 target_include_directories(preview.touch PUBLIC
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/../..>"

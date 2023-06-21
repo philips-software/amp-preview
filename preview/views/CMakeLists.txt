@@ -1,5 +1,4 @@
 add_library(preview.views ${PREVIEW_EXCLUDE_FROM_ALL} STATIC)
-install(TARGETS preview.views EXPORT previewTargets)
 
 target_include_directories(preview.views PUBLIC
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/../..>"

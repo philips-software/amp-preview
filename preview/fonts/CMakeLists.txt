@@ -1,5 +1,4 @@
 add_library(preview.fonts ${PREVIEW_EXCLUDE_FROM_ALL} STATIC)
-install(TARGETS preview.fonts EXPORT previewTargets)
 
 target_include_directories(preview.fonts PUBLIC
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/../..>"
