@@ -1,6 +1,5 @@
 add_library(preview.stm32fxxx STATIC)
 emil_build_for(preview.stm32fxxx TARGET_MCU_FAMILY stm32f7xx PREREQUISITE_BOOL PREVIEW_STANDALONE)
-install(TARGETS preview.stm32fxxx EXPORT previewTargets)
 
 target_include_directories(preview.stm32fxxx PUBLIC
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/../..>"
