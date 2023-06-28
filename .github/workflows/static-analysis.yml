@@ -52,31 +52,30 @@ jobs:
         run: |
           { echo '<testExecutions version="1">'; xsltproc .github/formatters/gtest-to-generic-execution.xslt testresults/*.xml; echo '</testExecutions>'; } | tee execution.xml > /dev/null
           cp build/Coverage/compile_commands.json compile_commands.json
-      #- name: Run Analysis
-      #  # skip the analysis step for dependabot PRs since dependabot does not have access to secrets
-      #  if: ${{ github.actor != 'dependabot[bot]' }}
-      #  env:
-      #    # to get access to secrets.SONAR_TOKEN, provide GITHUB_TOKEN
-      #    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #    SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      #  run: sonar-scanner -D sonar.host.url="${{ env.SONAR_SERVER_URL }}"
-  #codeql:
-  #  name: CodeQL
-  #  runs-on: ubuntu-latest
-  #  permissions:
-  #    security-events: write
-  #  steps:
-  #    - uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
-  #      with:
-  #        persist-credentials: false
-  #    - run: sudo apt-get update && sudo apt-get install ninja-build
-  #    - uses: hendrikmuhs/ccache-action@ca3acd2731eef11f1572ccb126356c2f9298d35e # v1.2.9
-  #      with:
-  #        key: ${{ github.job }}
-  #    - uses: github/codeql-action/init@3ebbd71c74ef574dbc558c82f70e52732c8b44fe # v2.2.1
-  #      with:
-  #        languages: cpp
-  #    - run: |
-  #        cmake --preset ContinuousIntegration -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
-  #        cmake --build --preset ContinuousIntegration
-  #    - uses: github/codeql-action/analyze@3ebbd71c74ef574dbc558c82f70e52732c8b44fe # v2.2.1
+      - name: Run Analysis
+        env:
+          # to get access to secrets.SONAR_TOKEN, provide GITHUB_TOKEN
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: sonar-scanner -D sonar.host.url="${{ env.SONAR_SERVER_URL }}"
+  codeql:
+    name: CodeQL
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+    steps:
+      - uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab # v3.5.2
+        with:
+          persist-credentials: false
+      - run: sudo apt-get update && sudo apt-get install ninja-build
+      - uses: hendrikmuhs/ccache-action@ca3acd2731eef11f1572ccb126356c2f9298d35e # v1.2.9
+        with:
+          key: ${{ github.job }}
+      - uses: github/codeql-action/init@b2c19fb9a2a485599ccf4ed5d65527d94bc57226 # v2.3.0
+        with:
+          languages: cpp
+      - run: |
+          cmake --preset ContinuousIntegration -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+          cmake --build --preset ContinuousIntegration
+      - uses: github/codeql-action/analyze@b2c19fb9a2a485599ccf4ed5d65527d94bc57226 # v2.3.0
+
