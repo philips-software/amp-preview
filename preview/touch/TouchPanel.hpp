@@ -13,7 +13,7 @@ namespace services
         template<class View>
         class WithView;
 
-        TouchPanel(infra::Colour colour);
+        explicit TouchPanel(infra::Colour colour);
 
         void StartTouch(infra::Point point) override;
         void DragIn(infra::Point point) override;

@@ -58,12 +58,12 @@ namespace infra
         : Bitmap(storage, infra::Vector(width_, height_), pixelFormat_)
     {}
 
-    inline constexpr uint32_t Bitmap::BufferSize(int32_t width, int32_t height, PixelFormat pixelFormat)
+    constexpr uint32_t Bitmap::BufferSize(int32_t width, int32_t height, PixelFormat pixelFormat)
     {
         return pixelFormat == PixelFormat::blackandwhite ? BufferSizeBlackAndWhite(width, height) : static_cast<std::size_t>(width * height) * PixelSize(pixelFormat);
     }
 
-    inline constexpr uint32_t Bitmap::BufferSizeBlackAndWhite(int32_t width, int32_t height)
+    constexpr uint32_t Bitmap::BufferSizeBlackAndWhite(int32_t width, int32_t height)
     {
         return static_cast<std::size_t>((width * height) / 8 + (((width * height) % 8) == 0 ? 0 : 1));
     }

@@ -18,7 +18,7 @@ namespace services
         : public View
     {
     public:
-        ViewText(TextAttributes attributes);
+        explicit ViewText(TextAttributes attributes);
         ViewText(TextAttributes attributes, infra::BoundedConstString text);
 
         void Paint(hal::Canvas& canvas, infra::Region boundingRegion) override;

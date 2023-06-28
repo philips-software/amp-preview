@@ -28,7 +28,7 @@ namespace services
     {
         if (fadeTimer.Armed())
         {
-            uint16_t proportion = static_cast<uint16_t>(std::min<uint64_t>(std::chrono::duration_cast<std::chrono::milliseconds>(infra::Now() - fadeStart).count() * 256 / 250, 256));
+            auto proportion = static_cast<uint16_t>(std::min<uint64_t>(std::chrono::duration_cast<std::chrono::milliseconds>(infra::Now() - fadeStart).count() * 256 / 250, 256));
             if (proportion < 256)
             {
                 auto textOrigin = TextRegion().TopLeft() + infra::DeltaY(Font().cursorToTop);
@@ -77,7 +77,7 @@ namespace services
     {
         if (fadeTimer.Armed())
         {
-            uint16_t proportion = static_cast<uint16_t>(std::chrono::duration_cast<std::chrono::milliseconds>(infra::Now() - fadeStart).count() * 256 / 250);
+            auto proportion = static_cast<uint16_t>(std::chrono::duration_cast<std::chrono::milliseconds>(infra::Now() - fadeStart).count() * 256 / 250);
             if (proportion < 256)
             {
                 int16_t offset = Font().newlineDistance * proportion / 256;
@@ -97,7 +97,7 @@ namespace services
     {
         if (fadeTimer.Armed())
         {
-            uint16_t proportion = static_cast<uint16_t>(std::chrono::duration_cast<std::chrono::milliseconds>(infra::Now() - fadeStart).count() * 256 / 250);
+            auto proportion = static_cast<uint16_t>(std::chrono::duration_cast<std::chrono::milliseconds>(infra::Now() - fadeStart).count() * 256 / 250);
             if (proportion < 256)
             {
                 int16_t offset = Font().newlineDistance * proportion / 256;

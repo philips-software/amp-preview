@@ -10,9 +10,9 @@ namespace infra
     {}
 
     Font::Font(infra::MemoryRange<const Glyph> glyphs, char begin, char end, int16_t newlineDistance, int16_t cursorToTop)
-        : glyphs(glyphs)
-        , begin(begin)
+        : begin(begin)
         , end(end)
+        , glyphs(glyphs)
         , newlineDistance(newlineDistance)
         , cursorToTop(cursorToTop)
     {}

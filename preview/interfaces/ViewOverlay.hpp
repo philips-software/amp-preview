@@ -9,7 +9,7 @@ namespace services
         : public View
     {
     public:
-        ViewOverlay(View& underView);
+        explicit ViewOverlay(View& underView);
 
         infra::Vector MinimumSize() const override;
         infra::Vector MaximumSize() const override;

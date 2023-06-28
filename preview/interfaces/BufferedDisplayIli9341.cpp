@@ -56,8 +56,6 @@
 
 namespace services
 {
-    static std::array<uint8_t, 4> displayIdentification;
-
     BufferedDisplayIli9341::BufferedDisplayIli9341(hal::SpiMaster& spi, hal::GpioPin& dataCommandPin, hal::CommunicationConfigurator& spiWidth16Configurator)
         : spi(spi)
         , dataCommandPin(dataCommandPin)

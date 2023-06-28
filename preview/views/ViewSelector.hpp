@@ -13,7 +13,7 @@ namespace services
         template<std::size_t N>
         using WithMaxViews = infra::WithStorage<ViewSelector, infra::BoundedVector<View*>::WithMaxSize<N>>;
 
-        ViewSelector(infra::BoundedVector<View*>& views);
+        explicit ViewSelector(infra::BoundedVector<View*>& views);
 
         void Add(View& screen);
         void Remove(View& screen);

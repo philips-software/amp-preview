@@ -13,7 +13,7 @@ namespace services
         template<class T>
         class WithView;
 
-        ViewRotating(infra::RightAngle angle);
+        explicit ViewRotating(infra::RightAngle angle);
 
         // Implementation of View
         infra::Vector MinimumSize() const override;

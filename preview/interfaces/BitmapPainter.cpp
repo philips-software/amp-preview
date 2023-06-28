@@ -492,7 +492,7 @@ namespace hal
                     *(reinterpret_cast<volatile uint8_t*>(bitmap.BufferAddress(position)) + 2) = static_cast<uint8_t>(colour >> 16);
                     break;
                 case 4:
-                    *reinterpret_cast<volatile uint32_t*>(bitmap.BufferAddress(position)) = static_cast<uint32_t>(colour);
+                    *reinterpret_cast<volatile uint32_t*>(bitmap.BufferAddress(position)) = colour;
                     break;
                 default:
                     std::abort();

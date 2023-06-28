@@ -12,7 +12,7 @@ namespace services
         template<class T>
         class WithView;
 
-        ViewOffsetRegion(infra::RegionOffset regionOffset);
+        explicit ViewOffsetRegion(infra::RegionOffset regionOffset);
 
         infra::Vector MinimumSize() const override;
         infra::Vector MaximumSize() const override;

@@ -89,7 +89,7 @@ namespace services
             infra::BoundedVector<LayoutViewInfo>& views;
             uint8_t interMargin;
             uint16_t totalProportion;
-            uint16_t availableResizableX;
+            uint16_t availableResizableX = 0;
         };
     }
 }

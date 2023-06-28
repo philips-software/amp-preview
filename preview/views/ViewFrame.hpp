@@ -18,7 +18,7 @@ namespace services
         template<class T>
         class WithView;
 
-        ViewFrame(FrameAttributes attributes);
+        explicit ViewFrame(FrameAttributes attributes);
 
         infra::Vector MinimumSize() const override;
         infra::Vector MaximumSize() const override;

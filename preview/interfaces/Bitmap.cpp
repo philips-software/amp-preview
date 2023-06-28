@@ -86,7 +86,7 @@ namespace infra
         for (int i = 0; i < colorBitmap.size.deltaX; i++)
             for (int j = 0; j < colorBitmap.size.deltaY; j++)
             {
-                uint32_t pixelColour = static_cast<uint32_t>(*reinterpret_cast<uint16_t*>(colorBitmap.BufferAddress(infra::Point(i, j))));
+                auto pixelColour = static_cast<uint32_t>(*reinterpret_cast<uint16_t*>(colorBitmap.BufferAddress(infra::Point(i, j))));
 
                 uint32_t bitIndex = j * size.deltaX + i;
 

@@ -61,7 +61,7 @@ namespace services
             : public State
         {
         public:
-            StateXMeasurement(TouchScreen& touchScreen);
+            explicit StateXMeasurement(TouchScreen& touchScreen);
 
         private:
             void OnMeasurementDone(uint32_t pixelPosition);
@@ -78,7 +78,7 @@ namespace services
             : public State
         {
         public:
-            StateYMeasurement(TouchScreen& touchScreen);
+            explicit StateYMeasurement(TouchScreen& touchScreen);
 
         private:
             void OnMeasurementDone(uint32_t pixelPosition);

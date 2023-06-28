@@ -70,12 +70,9 @@ namespace services
 
     void HorizontalLayout::Paint(hal::Canvas& canvas, infra::Region boundingRegion)
     {
-        for (auto& viewInfo : infra::MakeReverseRange(views))
-        {
-            auto& vi = views[viewInfo.paintOrder];
+        for (const auto& viewInfo : infra::MakeReverseRange(views))
             if (views[viewInfo.paintOrder].view != nullptr && !infra::Intersection(views[viewInfo.paintOrder].drawRegion, boundingRegion).Empty())
                 views[viewInfo.paintOrder].view->Paint(canvas, boundingRegion);
-        }
     }
 
     infra::Region HorizontalLayout::DrawRegion() const
