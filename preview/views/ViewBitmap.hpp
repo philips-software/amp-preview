@@ -12,7 +12,8 @@ namespace services
     public:
         ViewBitmap(infra::Bitmap& bitmap);
 
-        virtual void Paint(hal::Canvas& canvas, infra::Region boundingRegion) override;
+        // Implementation of View
+        void Paint(hal::Canvas& canvas, infra::Region boundingRegion) override;
 
         void Source(infra::Bitmap& source);
         infra::Bitmap& Source() const;

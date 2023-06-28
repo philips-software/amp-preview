@@ -36,7 +36,7 @@ namespace services
         template<class... Args>
         WithView(Args&&... args);
 
-        virtual T& GetView() override;
+        T& GetView() override;
 
     private:
         T view;

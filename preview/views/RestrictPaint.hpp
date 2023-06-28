@@ -12,7 +12,7 @@ namespace services
     public:
         using T::T;
 
-        virtual void Paint(hal::Canvas& canvas, infra::Region boundingRegion) override;
+        void Paint(hal::Canvas& canvas, infra::Region boundingRegion) override;
     };
 
     template<class T>

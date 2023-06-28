@@ -13,21 +13,22 @@ namespace services
         class WithViewText;
         class WithViewFadingText;
 
-        template<class TheView>
+        template<class ViewType>
         class WithViewTextDescendant;
-        template<class TheView>
+        template<class ViewType>
         class WithViewFadingTextDescendant;
 
         TouchSpinInteger(View& view, int32_t start, int32_t from, int32_t to, bool circular, uint16_t distancePerIncrement);
         TouchSpinInteger(View& view, int32_t start, int32_t from, int32_t to, bool circular, uint16_t distancePerIncrement, uint8_t width);
 
-        virtual void StartTouch(infra::Point point) override;
-        virtual void DragIn(infra::Point point) override;
-        virtual void DragTo(infra::Point point) override;
-        virtual void DragOut() override;
-        virtual void StopTouch() override;
-        virtual void Swipe(Direction direction) override;
-        virtual View& GetView() override;
+        // Implementation of TouchRecipient
+        void StartTouch(infra::Point point) override;
+        void DragIn(infra::Point point) override;
+        void DragTo(infra::Point point) override;
+        void DragOut() override;
+        void StopTouch() override;
+        void Swipe(Direction direction) override;
+        View& GetView() override;
 
         int32_t Value() const;
         void SetValue(int32_t newValue);
@@ -68,8 +69,8 @@ namespace services
         WithViewText(int32_t start, int32_t from, int32_t to, bool circular, uint16_t distancePerIncrement, TextAttributes attributes);
         WithViewText(int32_t start, int32_t from, int32_t to, bool circular, uint16_t distancePerIncrement, uint8_t width, TextAttributes attributes);
 
-        virtual void SetText(infra::BoundedConstString text) override;
-        virtual void SetText(infra::BoundedConstString text, Direction from) override;
+        void SetText(infra::BoundedConstString text) override;
+        void SetText(infra::BoundedConstString text, Direction from) override;
     };
 
     class TouchSpinInteger::WithViewFadingText
@@ -83,13 +84,13 @@ namespace services
         WithViewFadingText(infra::BoundedString& buffer1, infra::BoundedString& buffer2, int32_t start, int32_t from, int32_t to, bool circular, uint16_t distancePerIncrement, FadingTextAttributes attributes);
         WithViewFadingText(infra::BoundedString& buffer1, infra::BoundedString& buffer2, int32_t start, int32_t from, int32_t to, bool circular, uint16_t distancePerIncrement, uint8_t width, FadingTextAttributes attributes);
 
-        virtual void SetText(infra::BoundedConstString text) override;
-        virtual void SetText(infra::BoundedConstString text, Direction from) override;
+        void SetText(infra::BoundedConstString text) override;
+        void SetText(infra::BoundedConstString text, Direction from) override;
     };
 
-    template<class TheView>
+    template<class ViewType>
     class TouchSpinInteger::WithViewTextDescendant
-        : public TheView
+        : public ViewType
         , public TouchSpinInteger
     {
     public:
@@ -98,14 +99,14 @@ namespace services
         template<class... Args>
         WithViewTextDescendant(int32_t start, int32_t from, int32_t to, bool circular, uint16_t distancePerIncrement, uint8_t width, Args&&... args);
 
-        virtual TheView& GetView() override;
-        virtual void SetText(infra::BoundedConstString text) override;
-        virtual void SetText(infra::BoundedConstString text, Direction from) override;
+        ViewType& GetView() override;
+        void SetText(infra::BoundedConstString text) override;
+        void SetText(infra::BoundedConstString text, Direction from) override;
     };
 
-    template<class TheView>
+    template<class ViewType>
     class TouchSpinInteger::WithViewFadingTextDescendant
-        : public TheView
+        : public ViewType
         , public TouchSpinInteger
     {
     public:
@@ -117,9 +118,9 @@ namespace services
         template<class... Args>
         WithViewFadingTextDescendant(infra::BoundedString& buffer1, infra::BoundedString& buffer2, int32_t start, int32_t from, int32_t to, bool circular, uint16_t distancePerIncrement, uint8_t width, Args&&... args);
 
-        virtual TheView& GetView() override;
-        virtual void SetText(infra::BoundedConstString text) override;
-        virtual void SetText(infra::BoundedConstString text, Direction from) override;
+        ViewType& GetView() override;
+        void SetText(infra::BoundedConstString text) override;
+        void SetText(infra::BoundedConstString text, Direction from) override;
     };
 
     ////    Implementation    ////

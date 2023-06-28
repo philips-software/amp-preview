@@ -17,8 +17,8 @@ namespace services
         ViewButtonPanel(infra::Colour inactiveColour, infra::Colour activeColour);
 
         // Implementation of Button
-        virtual void Activate() override;
-        virtual void Deactivate() override;
+        void Activate() override;
+        void Deactivate() override;
 
     private:
         infra::Colour inactiveColour;

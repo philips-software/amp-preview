@@ -14,15 +14,15 @@ namespace services
         ViewFramedTextButtonWithPopOut(FramedTextButtonAttributes attributes, infra::BoundedConstString text, infra::RegionOffset regionOffset);
 
         // Implementation of Button
-        virtual void Activate() override;
-        virtual void Deactivate() override;
+        void Activate() override;
+        void Deactivate() override;
 
         // Implementation of View
-        virtual void Paint(hal::Canvas& canvas, infra::Region boundingRegion) override;
-        virtual void ResetSize() override;
+        void Paint(hal::Canvas& canvas, infra::Region boundingRegion) override;
+        void ResetSize() override;
 
     protected:
-        virtual void ViewRegionChanged() override;
+        void ViewRegionChanged() override;
 
     private:
         infra::RegionOffset regionOffset;

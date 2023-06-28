@@ -11,12 +11,12 @@ namespace services
     public:
         ViewOverlay(View& underView);
 
-        virtual infra::Vector MinimumSize() const override;
-        virtual infra::Vector MaximumSize() const override;
-        virtual void Paint(hal::Canvas& canvas, infra::Region boundingRegion) override;
+        infra::Vector MinimumSize() const override;
+        infra::Vector MaximumSize() const override;
+        void Paint(hal::Canvas& canvas, infra::Region boundingRegion) override;
 
     protected:
-        virtual void ViewRegionChanged() override;
+        void ViewRegionChanged() override;
 
     private:
         View& underView;

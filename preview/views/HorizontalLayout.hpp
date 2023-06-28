@@ -22,11 +22,11 @@ namespace services
 
         HorizontalLayout(infra::BoundedVector<detail::LayoutViewInfo>& views, uint8_t interMargin = 0, uint8_t topMargin = 0, uint8_t rightMargin = 0, uint8_t bottomMargin = 0, uint8_t leftMargin = 0);
 
-        virtual infra::Vector MinimumSize() const override;
-        virtual infra::Vector MaximumSize() const override;
-        virtual void Paint(hal::Canvas& canvas, infra::Region boundingRegion) override;
-        virtual infra::Region DrawRegion() const override;
-        virtual void ResetSize() override;
+        infra::Vector MinimumSize() const override;
+        infra::Vector MaximumSize() const override;
+        void Paint(hal::Canvas& canvas, infra::Region boundingRegion) override;
+        infra::Region DrawRegion() const override;
+        void ResetSize() override;
 
         void Add(View& view, uint16_t proportion = 0, VerticalAlignment alignment = VerticalAlignment::top);
         void AddFill(View& view, uint16_t proportion = 0);
@@ -35,7 +35,7 @@ namespace services
         void BringToFront(View& view);
 
     protected:
-        virtual void ViewRegionChanged() override;
+        void ViewRegionChanged() override;
 
     private:
         infra::BoundedVector<detail::LayoutViewInfo>& views;

@@ -16,13 +16,13 @@ namespace services
 
         TouchButton(View& view, Button& button, infra::Function<void()> onPressed);
 
-        virtual void StartTouch(infra::Point point) override;
-        virtual void DragIn(infra::Point point) override;
-        virtual void DragTo(infra::Point point) override;
-        virtual void DragOut() override;
-        virtual void StopTouch() override;
-        virtual void Swipe(Direction direction) override;
-        virtual View& GetView() override;
+        void StartTouch(infra::Point point) override;
+        void DragIn(infra::Point point) override;
+        void DragTo(infra::Point point) override;
+        void DragOut() override;
+        void StopTouch() override;
+        void Swipe(Direction direction) override;
+        View& GetView() override;
 
     private:
         View& view;

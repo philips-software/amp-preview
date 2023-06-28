@@ -12,7 +12,7 @@ namespace services
     public:
         ViewIcon(const infra::Bitmap& bitmap, infra::Colour colour);
 
-        virtual void Paint(hal::Canvas& canvas, infra::Region boundingRegion) override;
+        void Paint(hal::Canvas& canvas, infra::Region boundingRegion) override;
 
         void Source(const infra::Bitmap& newSource);
         const infra::Bitmap& Source() const;
@@ -23,4 +23,5 @@ namespace services
         infra::Colour colour;
     };
 }
+
 #endif

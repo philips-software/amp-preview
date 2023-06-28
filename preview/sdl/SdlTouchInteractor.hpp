@@ -13,9 +13,9 @@ namespace services
     public:
         SdlTouchInteractor(SdlMouseSubject& subject, services::TouchRecipient& touchRecipient);
 
-        virtual void MouseDown(infra::Point point) override;
-        virtual void MouseMoveTo(infra::Point point) override;
-        virtual void MouseUp() override;
+        void MouseDown(infra::Point point) override;
+        void MouseMoveTo(infra::Point point) override;
+        void MouseUp() override;
 
     private:
         services::TouchRecipient& touchRecipient;

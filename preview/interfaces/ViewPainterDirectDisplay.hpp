@@ -12,7 +12,7 @@ namespace services
     public:
         ViewPainterDirectDisplay(hal::DirectDisplay& canvas);
 
-        virtual void Paint(View& view, infra::Region region, infra::Function<void()> onDone) override;
+        void Paint(View& view, infra::Region region, infra::Function<void()> onDone) override;
 
     private:
         hal::DirectDisplay& display;

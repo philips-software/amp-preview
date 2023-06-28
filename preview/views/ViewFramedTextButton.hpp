@@ -25,8 +25,8 @@ namespace services
         ViewFramedTextButton(FramedTextButtonAttributes attributes, infra::BoundedConstString text);
 
         // Implementation of Button
-        virtual void Activate() override;
-        virtual void Deactivate() override;
+        void Activate() override;
+        void Deactivate() override;
 
         FramedTextButtonAttributes Attributes() const;
 

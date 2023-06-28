@@ -16,9 +16,9 @@ namespace services
         BufferedDisplayIli9341(hal::SpiMaster& spi, hal::GpioPin& dataCommandPin, hal::CommunicationConfigurator& spiWidth16Configurator);
 
     public:
-        virtual infra::Region DisplayRegion() const override;
-        virtual infra::PixelFormat PixelFormat() const override;
-        virtual void DrawBitmap(const infra::Bitmap& bitmap, infra::Point position, infra::Function<void()> onDone) override;
+        infra::Region DisplayRegion() const override;
+        infra::PixelFormat PixelFormat() const override;
+        void DrawBitmap(const infra::Bitmap& bitmap, infra::Point position, infra::Function<void()> onDone) override;
 
     private:
         void InitDisplay();
