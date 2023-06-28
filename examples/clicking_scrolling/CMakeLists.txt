@@ -1,7 +1,8 @@
 add_executable(examples.clicking_scrolling)
-
 emil_build_for(examples.clicking_scrolling HOST Windows TARGET_MCU stm32f746 PREREQUISITE_BOOL PREVIEW_BUILD_EXAMPLES)
+
 set_target_properties(examples.clicking_scrolling PROPERTIES WIN32_EXECUTABLE $<BOOL:${EMIL_BUILD_WIN}>)
+target_compile_definitions(examples.clicking_scrolling PUBLIC NOMINMAX)
 
 target_include_directories(examples.clicking_scrolling PUBLIC
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/../..>"

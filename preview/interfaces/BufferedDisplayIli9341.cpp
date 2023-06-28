@@ -141,53 +141,56 @@ namespace services
         static const std::array<uint8_t, 1> initCommand19{ ILI9341_SLPOUT };
         static const std::array<uint8_t, 1> initCommand20{ ILI9341_DISPON };
 
+        // clang-format off
         sequencer.Load([this]()
             {
-            sequencer.Step([this]() { delayTimer.Start(std::chrono::milliseconds(150), [this]() { sequencer.Continue(); }); });
-            sequencer.Step([this]() { SendCommand(initCommand0); });
-            sequencer.Step([this]() { SendData(initData0); });
-            sequencer.Step([this]() { SendCommand(initCommand1); });
-            sequencer.Step([this]() { SendData(initData1); });
-            sequencer.Step([this]() { SendCommand(initCommand2); });
-            sequencer.Step([this]() { SendData(initData2); });
-            sequencer.Step([this]() { SendCommand(initCommand3); });
-            sequencer.Step([this]() { SendData(initData3); });
-            sequencer.Step([this]() { SendCommand(initCommand4); });
-            sequencer.Step([this]() { SendData(initData4); });
-            sequencer.Step([this]() { SendCommand(initCommand5); });
-            sequencer.Step([this]() { SendData(initData5); });
-            sequencer.Step([this]() { SendCommand(initCommand6); });
-            sequencer.Step([this]() { SendData(initData6); });
-            sequencer.Step([this]() { SendCommand(initCommand7); });
-            sequencer.Step([this]() { SendData(initData7); });
-            sequencer.Step([this]() { SendCommand(initCommand8); });
-            sequencer.Step([this]() { SendData(initData8); });
-            sequencer.Step([this]() { SendCommand(initCommand9); });
-            sequencer.Step([this]() { SendData(initData9); });
-            sequencer.Step([this]() { SendCommand(initCommand10); });
-            sequencer.Step([this]() { SendData(initData10); });
-            sequencer.Step([this]() { SendCommand(initCommand11); });
-            sequencer.Step([this]() { SendData(initData11); });
-            sequencer.Step([this]() { SendCommand(initCommand12); });
-            sequencer.Step([this]() { SendData(initData12); });
-            sequencer.Step([this]() { SendCommand(initCommand13); });
-            sequencer.Step([this]() { SendData(initData13); });
-            sequencer.Step([this]() { SendCommand(initCommand14); });
-            sequencer.Step([this]() { SendData(initData14); });
-            sequencer.Step([this]() { SendCommand(initCommand15); });
-            sequencer.Step([this]() { SendData(initData15); });
-            sequencer.Step([this]() { SendCommand(initCommand16); });
-            sequencer.Step([this]() { SendData(initData16); });
-            sequencer.Step([this]() { SendCommand(initCommand17); });
-            sequencer.Step([this]() { SendData(initData17); });
-            sequencer.Step([this]() { SendCommand(initCommand18); });
-            sequencer.Step([this]() { SendData(initData18); });
-            sequencer.Step([this]() { SendCommand(initCommandEndian); });
-            sequencer.Step([this]() { SendData(initDataEndian); });
-            sequencer.Step([this]() { SendCommand(initCommand19); });
-            sequencer.Step([this]() { delayTimer.Start(std::chrono::milliseconds(120), [this]() { sequencer.Continue(); }); });
-            sequencer.Step([this]() { SendCommand(initCommand20); });
-            sequencer.Execute([this]() { if (onDone) infra::EventDispatcher::Instance().Schedule([this]() { SendBitmap(); }); }); });
+                sequencer.Step([this]() { delayTimer.Start(std::chrono::milliseconds(150), [this]() { sequencer.Continue(); }); });
+                sequencer.Step([this]() { SendCommand(initCommand0); });
+                sequencer.Step([this]() { SendData(initData0); });
+                sequencer.Step([this]() { SendCommand(initCommand1); });
+                sequencer.Step([this]() { SendData(initData1); });
+                sequencer.Step([this]() { SendCommand(initCommand2); });
+                sequencer.Step([this]() { SendData(initData2); });
+                sequencer.Step([this]() { SendCommand(initCommand3); });
+                sequencer.Step([this]() { SendData(initData3); });
+                sequencer.Step([this]() { SendCommand(initCommand4); });
+                sequencer.Step([this]() { SendData(initData4); });
+                sequencer.Step([this]() { SendCommand(initCommand5); });
+                sequencer.Step([this]() { SendData(initData5); });
+                sequencer.Step([this]() { SendCommand(initCommand6); });
+                sequencer.Step([this]() { SendData(initData6); });
+                sequencer.Step([this]() { SendCommand(initCommand7); });
+                sequencer.Step([this]() { SendData(initData7); });
+                sequencer.Step([this]() { SendCommand(initCommand8); });
+                sequencer.Step([this]() { SendData(initData8); });
+                sequencer.Step([this]() { SendCommand(initCommand9); });
+                sequencer.Step([this]() { SendData(initData9); });
+                sequencer.Step([this]() { SendCommand(initCommand10); });
+                sequencer.Step([this]() { SendData(initData10); });
+                sequencer.Step([this]() { SendCommand(initCommand11); });
+                sequencer.Step([this]() { SendData(initData11); });
+                sequencer.Step([this]() { SendCommand(initCommand12); });
+                sequencer.Step([this]() { SendData(initData12); });
+                sequencer.Step([this]() { SendCommand(initCommand13); });
+                sequencer.Step([this]() { SendData(initData13); });
+                sequencer.Step([this]() { SendCommand(initCommand14); });
+                sequencer.Step([this]() { SendData(initData14); });
+                sequencer.Step([this]() { SendCommand(initCommand15); });
+                sequencer.Step([this]() { SendData(initData15); });
+                sequencer.Step([this]() { SendCommand(initCommand16); });
+                sequencer.Step([this]() { SendData(initData16); });
+                sequencer.Step([this]() { SendCommand(initCommand17); });
+                sequencer.Step([this]() { SendData(initData17); });
+                sequencer.Step([this]() { SendCommand(initCommand18); });
+                sequencer.Step([this]() { SendData(initData18); });
+                sequencer.Step([this]() { SendCommand(initCommandEndian); });
+                sequencer.Step([this]() { SendData(initDataEndian); });
+                sequencer.Step([this]() { SendCommand(initCommand19); });
+                sequencer.Step([this]() { delayTimer.Start(std::chrono::milliseconds(120), [this]() { sequencer.Continue(); }); });
+                sequencer.Step([this]() { SendCommand(initCommand20); });
+                sequencer.Execute([this]() { if (onDone) infra::EventDispatcher::Instance().Schedule([this]() { SendBitmap(); }); });
+            });
+        // clang-format on
     }
 
     void BufferedDisplayIli9341::SendBitmap()
@@ -196,32 +199,39 @@ namespace services
         static const uint8_t commandPageAddressSet = ILI9341_PASET;
         static const uint8_t commandRamWrite = ILI9341_RAMWR;
 
+        // clang-format off
         sequencer.Load([this]()
             {
-            sequencer.Step([this]() { SendCommand(infra::MakeByteRange(commandColumnAddressSet)); });
-            sequencer.Step([this]() { SendData(infra::MakeByteRange(x0)); });
-            sequencer.Step([this]() { SendData(infra::MakeByteRange(x1)); });
-            sequencer.Step([this]() { SendCommand(infra::MakeByteRange(commandPageAddressSet)); });
-            sequencer.Step([this]() { SendData(infra::MakeByteRange(y0)); });
-            sequencer.Step([this]() { SendData(infra::MakeByteRange(y1)); });
-            sequencer.Step([this]() { SendCommand(infra::MakeByteRange(commandRamWrite)); });
-            sequencer.Execute([this]() { spi.SetCommunicationConfigurator(spiWidth16Configurator); });
-            sequencer.Step([this]() { SendData(bitmapBuffer); });
-            sequencer.Execute([this]() { spi.ResetCommunicationConfigurator(); });
-            sequencer.Execute([this]() { infra::EventDispatcher::Instance().Schedule(onDone); onDone = nullptr; }); });
+                sequencer.Step([this]() { SendCommand(infra::MakeByteRange(commandColumnAddressSet)); });
+                sequencer.Step([this]() { SendData(infra::MakeByteRange(x0)); });
+                sequencer.Step([this]() { SendData(infra::MakeByteRange(x1)); });
+                sequencer.Step([this]() { SendCommand(infra::MakeByteRange(commandPageAddressSet)); });
+                sequencer.Step([this]() { SendData(infra::MakeByteRange(y0)); });
+                sequencer.Step([this]() { SendData(infra::MakeByteRange(y1)); });
+                sequencer.Step([this]() { SendCommand(infra::MakeByteRange(commandRamWrite)); });
+                sequencer.Execute([this]() { spi.SetCommunicationConfigurator(spiWidth16Configurator); });
+                sequencer.Step([this]() { SendData(bitmapBuffer); });
+                sequencer.Execute([this]() { spi.ResetCommunicationConfigurator(); });
+                sequencer.Execute([this]() { infra::EventDispatcher::Instance().Schedule(onDone); onDone = nullptr; });
+            });
+        // clang-format on
     }
 
     void BufferedDisplayIli9341::SendCommand(infra::ConstByteRange command)
     {
         dataCommandPin.Set(false);
         spi.SendData(command, hal::SpiAction::stop, [this]()
-            { sequencer.Continue(); });
+            {
+                sequencer.Continue();
+            });
     }
 
     void BufferedDisplayIli9341::SendData(infra::ConstByteRange data)
     {
         dataCommandPin.Set(true);
         spi.SendData(data, hal::SpiAction::stop, [this]()
-            { sequencer.Continue(); });
+            {
+                sequencer.Continue();
+            });
     }
 }

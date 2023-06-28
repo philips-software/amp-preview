@@ -1,7 +1,7 @@
-#include "gmock/gmock.h"
+#include "preview/interfaces/test_doubles/ViewMock.hpp"
 #include "preview/touch/TouchHorizontalLayout.hpp"
 #include "preview/touch/test/TouchRecipientMock.hpp"
-#include "preview/interfaces/test_doubles/ViewMock.hpp"
+#include "gmock/gmock.h"
 
 class TouchHorizontalLayoutTest
     : public testing::Test

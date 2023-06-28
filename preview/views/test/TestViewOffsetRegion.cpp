@@ -1,7 +1,7 @@
-#include "gmock/gmock.h"
-#include "preview/views/ViewOffsetRegion.hpp"
 #include "preview/interfaces/test_doubles/CanvasMock.hpp"
 #include "preview/interfaces/test_doubles/ViewMock.hpp"
+#include "preview/views/ViewOffsetRegion.hpp"
+#include "gmock/gmock.h"
 
 TEST(ViewOffsetRegionWithoutSubViewTest, nothing_really_happens)
 {

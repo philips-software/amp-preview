@@ -1,5 +1,5 @@
-#include "gmock/gmock.h"
 #include "preview/interfaces/Geometry.hpp"
+#include "gmock/gmock.h"
 
 TEST(GeometryTest, vector_construction)
 {
@@ -14,7 +14,7 @@ TEST(GeometryTest, vector_construction)
     EXPECT_EQ(std::numeric_limits<int16_t>::max(), infra::Vector::Maximum().deltaX);
     EXPECT_EQ(std::numeric_limits<int16_t>::max(), infra::Vector::Maximum().deltaY);
 }
- 
+
 TEST(GeometryTest, vector_equality)
 {
     EXPECT_TRUE(infra::Vector(2, 3) == infra::Vector(2, 3));
@@ -242,4 +242,9 @@ TEST(GeometryTest, Rotated)
     EXPECT_EQ(infra::Vector(-2, 1), infra::Rotated(infra::Vector(1, 2), infra::RightAngle::angle_90));
     EXPECT_EQ(infra::Vector(-1, -2), infra::Rotated(infra::Vector(1, 2), infra::RightAngle::angle_180));
     EXPECT_EQ(infra::Vector(2, -1), infra::Rotated(infra::Vector(1, 2), infra::RightAngle::angle_270));
+}
+
+TEST(GeometryTest, Mid)
+{
+    EXPECT_EQ(infra::Point(1, 2), infra::Mid(infra::Point(0, 0), infra::Point(2, 4)));
 }

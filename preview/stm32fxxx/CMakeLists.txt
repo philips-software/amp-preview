@@ -1,6 +1,4 @@
 add_library(preview.stm32fxxx STATIC)
-install(TARGETS preview.stm32fxxx EXPORT previewTargets)
-
 emil_build_for(preview.stm32fxxx TARGET_MCU_FAMILY stm32f7xx PREREQUISITE_BOOL PREVIEW_STANDALONE)
 
 target_include_directories(preview.stm32fxxx PUBLIC

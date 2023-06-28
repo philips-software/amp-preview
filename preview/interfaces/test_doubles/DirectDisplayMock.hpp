@@ -2,6 +2,7 @@
 #define PREVIEW_DIRECT_DISPLAY_MOCK_HPP
 
 #include "preview/interfaces/DirectDisplay.hpp"
+#include "gmock/gmock.h"
 
 namespace hal
 {

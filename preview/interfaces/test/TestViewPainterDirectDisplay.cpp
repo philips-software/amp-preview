@@ -1,8 +1,8 @@
-#include "gmock/gmock.h"
 #include "infra/event/test_helper/EventDispatcherFixture.hpp"
 #include "preview/interfaces/ViewPainterDirectDisplay.hpp"
 #include "preview/interfaces/test_doubles/DirectDisplayMock.hpp"
 #include "preview/interfaces/test_doubles/ViewMock.hpp"
+#include "gmock/gmock.h"
 
 class ViewPainterDirectDisplay
     : public testing::Test

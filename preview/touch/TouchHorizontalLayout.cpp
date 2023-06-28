@@ -30,7 +30,9 @@ namespace services
         GetView().BringToFront(view.GetView());
 
         auto recipientIndex = std::find_if(touchRecipients.begin(), touchRecipients.end(), [&view](TouchRecipient* recipient)
-            { return recipient == &view; });
+            {
+                return recipient == &view;
+            });
         assert(recipientIndex != touchRecipients.end());
 
         TouchRecipient* recipient = *recipientIndex;

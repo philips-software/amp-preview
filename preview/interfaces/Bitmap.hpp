@@ -23,6 +23,7 @@ namespace infra
         const uint8_t* BufferAddress(infra::Point position) const;
         uint8_t* BufferAddress(infra::Point position);
         void SetBlackAndWhitePixel(infra::Point position, bool pixel);
+        bool BlackAndWhitePixel(infra::Point position) const;
         uint32_t PixelColour(infra::Point position) const;
 
         infra::ByteRange buffer;

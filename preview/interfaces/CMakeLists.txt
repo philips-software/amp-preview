@@ -1,5 +1,4 @@
 add_library(preview.interfaces ${PREVIEW_EXCLUDE_FROM_ALL} STATIC)
-install(TARGETS preview.interfaces EXPORT previewTargets)
 
 target_include_directories(preview.interfaces PUBLIC
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/../..>"
@@ -53,9 +52,5 @@ target_sources(preview.interfaces PRIVATE
     WindowBitmapCanvas.hpp
 )
 
-if (BUILD_TESTING)
-    add_subdirectory(test_doubles)
-endif()
-if (PREVIEW_BUILD_TESTS)
-    add_subdirectory(test)
-endif()
+add_subdirectory(test_doubles)
+add_subdirectory(test)

@@ -43,8 +43,12 @@ namespace services
     {
         SetOffset(0);
         timer.Start(hold, [this]()
-            { timer.Start(pixelSpeed / pixelsPerStep, [this]()
-                  { Step(); }); });
+            {
+                timer.Start(pixelSpeed / pixelsPerStep, [this]()
+                    {
+                        Step();
+                    });
+            });
     }
 
     void ViewScrolling::Step()
@@ -52,7 +56,9 @@ namespace services
         auto maxScroll = subView.ViewRegion().Width() - ViewRegion().Width();
         if (offset >= maxScroll)
             timer.Start(hold, [this]()
-                { FirstStep(); });
+                {
+                    FirstStep();
+                });
         else
             SetOffset(std::min(offset + pixelsPerStep, maxScroll));
     }

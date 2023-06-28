@@ -1,5 +1,4 @@
 add_library(preview.touch ${PREVIEW_EXCLUDE_FROM_ALL} STATIC)
-install(TARGETS preview.touch EXPORT previewTargets)
 
 target_include_directories(preview.touch PUBLIC
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/../..>"
@@ -41,6 +40,4 @@ target_sources(preview.touch PRIVATE
     TouchViewSelector.cpp
 )
 
-if (PREVIEW_BUILD_TESTS)
-    add_subdirectory(test)
-endif()
+add_subdirectory(test)

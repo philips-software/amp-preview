@@ -1,7 +1,7 @@
-#include "gmock/gmock.h"
-#include "preview/views/ViewPanel.hpp"
 #include "preview/interfaces/test_doubles/CanvasMock.hpp"
 #include "preview/interfaces/test_doubles/ViewMock.hpp"
+#include "preview/views/ViewPanel.hpp"
+#include "gmock/gmock.h"
 
 class ViewPanelWithoutSubViewTest
     : public testing::Test
@@ -22,14 +22,14 @@ public:
 
 TEST_F(ViewPanelWithoutSubViewTest, Paint_paints_view)
 {
-    EXPECT_CALL(canvas, DrawFilledRectangle(infra::Region(infra::Point(0, 0), infra::Vector(10, 20)), infra::Colour::blue, infra::Region(infra::Point(0, 0), infra::Vector(100, 100)))); 
+    EXPECT_CALL(canvas, DrawFilledRectangle(infra::Region(infra::Point(0, 0), infra::Vector(10, 20)), infra::Colour::blue, infra::Region(infra::Point(0, 0), infra::Vector(100, 100))));
     view.Paint(canvas, infra::Region(infra::Point(0, 0), infra::Vector(100, 100)));
 }
 
 TEST_F(ViewPanelWithoutSubViewTest, SetColour_makes_bitmap_dirty)
 {
     // build
-    EXPECT_CALL(canvas, DrawFilledRectangle(infra::Region(infra::Point(0, 0), infra::Vector(10, 20)), infra::Colour::blue, infra::Region(infra::Point(0, 0), infra::Vector(100, 100)))); 
+    EXPECT_CALL(canvas, DrawFilledRectangle(infra::Region(infra::Point(0, 0), infra::Vector(10, 20)), infra::Colour::blue, infra::Region(infra::Point(0, 0), infra::Vector(100, 100))));
     view.Paint(canvas, infra::Region(0, 0, 100, 100));
 
     // operate
@@ -37,7 +37,7 @@ TEST_F(ViewPanelWithoutSubViewTest, SetColour_makes_bitmap_dirty)
     view.SetColour(infra::Colour::green);
 
     // check
-    EXPECT_CALL(canvas, DrawFilledRectangle(infra::Region(infra::Point(0, 0), infra::Vector(10, 20)), infra::Colour::green, infra::Region(infra::Point(0, 0), infra::Vector(100, 100)))); 
+    EXPECT_CALL(canvas, DrawFilledRectangle(infra::Region(infra::Point(0, 0), infra::Vector(10, 20)), infra::Colour::green, infra::Region(infra::Point(0, 0), infra::Vector(100, 100))));
     view.Paint(canvas, infra::Region(0, 0, 100, 100));
 }
 
@@ -81,7 +81,7 @@ TEST_F(ViewPanelTest, Paint_paints_view_and_subview)
 {
     testing::InSequence s;
 
-    EXPECT_CALL(canvas, DrawFilledRectangle(infra::Region(infra::Point(0, 0), infra::Vector(10, 20)), infra::Colour::blue, infra::Region(infra::Point(0, 0), infra::Vector(100, 100)))); 
+    EXPECT_CALL(canvas, DrawFilledRectangle(infra::Region(infra::Point(0, 0), infra::Vector(10, 20)), infra::Colour::blue, infra::Region(infra::Point(0, 0), infra::Vector(100, 100))));
     EXPECT_CALL(view.SubView(), Paint(testing::Ref(canvas), infra::Region(infra::Point(0, 0), infra::Vector(100, 100))));
     view.Paint(canvas, infra::Region(infra::Point(0, 0), infra::Vector(100, 100)));
 }
@@ -89,7 +89,7 @@ TEST_F(ViewPanelTest, Paint_paints_view_and_subview)
 TEST_F(ViewPanelTest, SetColour_makes_bitmap_dirty)
 {
     // build
-    EXPECT_CALL(canvas, DrawFilledRectangle(infra::Region(infra::Point(0, 0), infra::Vector(10, 20)), infra::Colour::blue, infra::Region(infra::Point(0, 0), infra::Vector(100, 100)))); 
+    EXPECT_CALL(canvas, DrawFilledRectangle(infra::Region(infra::Point(0, 0), infra::Vector(10, 20)), infra::Colour::blue, infra::Region(infra::Point(0, 0), infra::Vector(100, 100))));
     EXPECT_CALL(view.SubView(), Paint(testing::Ref(canvas), infra::Region(infra::Point(0, 0), infra::Vector(100, 100))));
     view.Paint(canvas, infra::Region(0, 0, 100, 100));
 
@@ -97,7 +97,7 @@ TEST_F(ViewPanelTest, SetColour_makes_bitmap_dirty)
     view.SetColour(infra::Colour::green);
 
     // check
-    EXPECT_CALL(canvas, DrawFilledRectangle(infra::Region(infra::Point(0, 0), infra::Vector(10, 20)), infra::Colour::green, infra::Region(infra::Point(0, 0), infra::Vector(100, 100)))); 
+    EXPECT_CALL(canvas, DrawFilledRectangle(infra::Region(infra::Point(0, 0), infra::Vector(10, 20)), infra::Colour::green, infra::Region(infra::Point(0, 0), infra::Vector(100, 100))));
     EXPECT_CALL(view.SubView(), Paint(testing::Ref(canvas), infra::Region(infra::Point(0, 0), infra::Vector(100, 100))));
     view.Paint(canvas, infra::Region(0, 0, 100, 100));
 }

@@ -22,7 +22,9 @@ namespace services
                 {
                     SDL_MouseMotionEvent& mouseEvent = reinterpret_cast<SDL_MouseMotionEvent&>(event);
                     NotifyObservers([&mouseEvent](SdlMouseObserver& observer)
-                        { observer.MouseMoveTo(infra::Point(mouseEvent.x, mouseEvent.y)); });
+                        {
+                            observer.MouseMoveTo(infra::Point(mouseEvent.x, mouseEvent.y));
+                        });
                     break;
                 }
                 case SDL_MOUSEBUTTONDOWN:
@@ -30,7 +32,9 @@ namespace services
                     SDL_MouseButtonEvent& mouseEvent = reinterpret_cast<SDL_MouseButtonEvent&>(event);
                     if (mouseEvent.button == 1)
                         NotifyObservers([&mouseEvent](SdlMouseObserver& observer)
-                            { observer.MouseDown(infra::Point(mouseEvent.x, mouseEvent.y)); });
+                            {
+                                observer.MouseDown(infra::Point(mouseEvent.x, mouseEvent.y));
+                            });
                     break;
                 }
                 case SDL_MOUSEBUTTONUP:
@@ -38,7 +42,9 @@ namespace services
                     SDL_MouseButtonEvent& mouseEvent = reinterpret_cast<SDL_MouseButtonEvent&>(event);
                     if (mouseEvent.button == 1)
                         NotifyObservers([](SdlMouseObserver& observer)
-                            { observer.MouseUp(); });
+                            {
+                                observer.MouseUp();
+                            });
                     break;
                 }
             }

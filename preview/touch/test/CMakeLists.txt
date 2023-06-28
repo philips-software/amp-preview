@@ -1,5 +1,6 @@
 add_executable(preview.touch.test)
-add_test(NAME preview.touch.test COMMAND preview.touch.test)
+emil_build_for(preview.touch.test BOOL PREVIEW_BUILD_TESTS)
+emil_add_test(preview.touch.test)
 
 target_link_libraries(preview.touch.test PUBLIC
     preview.interfaces.test_doubles

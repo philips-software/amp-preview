@@ -67,7 +67,9 @@ namespace services
         fadeDirection = from;
         fadeTimer.Start(
             std::chrono::milliseconds(40), [this]()
-            { Dirty(ViewRegion()); },
+            {
+                Dirty(ViewRegion());
+            },
             infra::triggerImmediately);
     }
 
