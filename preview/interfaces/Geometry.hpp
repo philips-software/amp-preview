@@ -212,6 +212,8 @@ namespace infra
     Vector RotatedVectorInRegion(Vector vector, RightAngle angle, Region region);
     Region RotatedRegionInRegion(Region rotatingRegion, RightAngle angle, Region region);
 
+    Point Mid(Point x, Point y);
+
 #ifdef _MSC_VER
     // gtest uses PrintTo to display the contents of a class
     void PrintTo(Vector vector, std::ostream* os);

@@ -700,6 +700,11 @@ namespace infra
         }
     }
 
+    Point Mid(Point x, Point y)
+    {
+        return x + (y - x) / 2;
+    }
+
 #ifdef _MSC_VER
     void PrintTo(Vector vector, std::ostream* os)
     {
