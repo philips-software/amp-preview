@@ -24,7 +24,7 @@ namespace services
         ViewFadingText(infra::BoundedString& buffer1, infra::BoundedString& buffer2, FadingTextAttributes attributes);
         ViewFadingText(infra::BoundedString& buffer1, infra::BoundedString& buffer2, FadingTextAttributes attributes, infra::BoundedConstString text);
 
-        virtual void Paint(hal::Canvas& canvas, infra::Region boundingRegion) override;
+        void Paint(hal::Canvas& canvas, infra::Region boundingRegion) override;
 
         void SetText(infra::BoundedConstString newText);
         void SetTextAndResize(infra::BoundedConstString newText);

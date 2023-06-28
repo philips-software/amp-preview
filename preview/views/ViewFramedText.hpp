@@ -21,8 +21,8 @@ namespace services
     public:
         ViewFramedText(FramedTextAttributes attributes, infra::BoundedConstString text);
 
-        virtual infra::Vector MinimumSize() const override;
-        virtual void Paint(hal::Canvas& canvas, infra::Region boundingRegion) override;
+        infra::Vector MinimumSize() const override;
+        void Paint(hal::Canvas& canvas, infra::Region boundingRegion) override;
 
         void SetFrameColour(infra::Colour newFrameColour);
         void SetBackgroundColour(infra::Colour newBackgroundColour);

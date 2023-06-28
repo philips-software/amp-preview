@@ -36,8 +36,8 @@ namespace services
         TouchFt5x06OnTouchRecipient(hal::I2cMaster& i2c, hal::GpioPin& interrupt, services::TouchRecipient& touchRecipient);
 
     protected:
-        virtual void Touched(infra::Point position) override;
-        virtual void NoTouch() override;
+        void Touched(infra::Point position) override;
+        void NoTouch() override;
 
     private:
         services::TouchRecipient& touchRecipient;

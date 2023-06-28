@@ -15,16 +15,17 @@ namespace services
 
         ViewPanel(infra::Colour colour);
 
-        virtual infra::Vector MinimumSize() const override;
-        virtual infra::Vector MaximumSize() const override;
-        virtual void Paint(hal::Canvas& canvas, infra::Region boundingRegion) override;
-        virtual void ResetSize() override;
+        // Implementation of View
+        infra::Vector MinimumSize() const override;
+        infra::Vector MaximumSize() const override;
+        void Paint(hal::Canvas& canvas, infra::Region boundingRegion) override;
+        void ResetSize() override;
 
         void SetSubView(View& newSubView);
         void SetColour(infra::Colour newColour);
 
     protected:
-        virtual void ViewRegionChanged() override;
+        void ViewRegionChanged() override;
 
     private:
         services::View* subView = nullptr;

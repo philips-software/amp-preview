@@ -11,10 +11,10 @@ namespace services
     public:
         ViewRepainterPaintWhenDirty(ViewPainter& painter, View& topView);
 
-        virtual void Paint(hal::Canvas& canvas, infra::Region boundingRegion) override;
+        void Paint(hal::Canvas& canvas, infra::Region boundingRegion) override;
 
     protected:
-        virtual void Dirty(infra::Region region) override;
+        void Dirty(infra::Region region) override;
 
     private:
         void RepaintDone();

@@ -14,8 +14,8 @@ namespace services
     public:
         LowPowerStrategySdl(infra::TimerService& timerService);
 
-        virtual void RequestExecution() override;
-        virtual void Idle(const infra::EventDispatcherWorker& eventDispatcher) override;
+        void RequestExecution() override;
+        void Idle(const infra::EventDispatcherWorker& eventDispatcher) override;
 
     private:
         infra::TimerService& timerService;

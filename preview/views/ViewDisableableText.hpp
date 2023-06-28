@@ -11,7 +11,7 @@ namespace services
     public:
         using ViewText::ViewText;
 
-        virtual void Paint(hal::Canvas& canvas, infra::Region boundingRegion) override;
+        void Paint(hal::Canvas& canvas, infra::Region boundingRegion) override;
 
         void Enable(bool newEnabled);
 
@@ -25,7 +25,7 @@ namespace services
     public:
         using ViewFadingText::ViewFadingText;
 
-        virtual void Paint(hal::Canvas& canvas, infra::Region boundingRegion) override;
+        void Paint(hal::Canvas& canvas, infra::Region boundingRegion) override;
 
         void Enable(bool newEnabled);
 

@@ -21,7 +21,7 @@ namespace services
         ViewText(TextAttributes attributes);
         ViewText(TextAttributes attributes, infra::BoundedConstString text);
 
-        virtual void Paint(hal::Canvas& canvas, infra::Region boundingRegion) override;
+        void Paint(hal::Canvas& canvas, infra::Region boundingRegion) override;
 
         void SetHorizontalAlignment(HorizontalAlignment newHorizontalAlignment);
         void SetVerticalAlignment(VerticalAlignment newVerticalAlignment);
@@ -38,7 +38,7 @@ namespace services
         const infra::Font& Font() const;
 
     protected:
-        virtual void ViewRegionChanged() override;
+        void ViewRegionChanged() override;
 
     private:
         void ComputeTextOrigin();

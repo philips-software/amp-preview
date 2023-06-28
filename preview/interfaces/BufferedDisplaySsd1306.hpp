@@ -17,11 +17,11 @@ namespace services
 
     public:
         // Implementation of BufferedDisplay
-        virtual infra::Region DisplayRegion() const override;
-        virtual infra::PixelFormat PixelFormat() const override;
+        infra::Region DisplayRegion() const override;
+        infra::PixelFormat PixelFormat() const override;
 
         // Additional restrictions: bitmap width and position.x must be a multiple of 8, position.y must be a multiple of 16
-        virtual void DrawBitmap(const infra::Bitmap& bitmap, infra::Point position, infra::Function<void()> onDone) override;
+        void DrawBitmap(const infra::Bitmap& bitmap, infra::Point position, infra::Function<void()> onDone) override;
 
     private:
         void DoDrawBitmap();
@@ -47,7 +47,7 @@ namespace services
     public:
         ViewPainterAlignedForSsd1306(ViewPainter& painter);
 
-        virtual void Paint(services::View& view, infra::Region region, infra::Function<void()> onDone) override;
+        void Paint(services::View& view, infra::Region region, infra::Function<void()> onDone) override;
 
     private:
         ViewPainter& painter;

@@ -14,17 +14,17 @@ namespace services
 
         ViewOffsetRegion(infra::RegionOffset regionOffset);
 
-        virtual infra::Vector MinimumSize() const override;
-        virtual infra::Vector MaximumSize() const override;
-        virtual void Paint(hal::Canvas& canvas, infra::Region boundingRegion) override;
-        virtual infra::Region DrawRegion() const override;
-        virtual void ResetSize() override;
+        infra::Vector MinimumSize() const override;
+        infra::Vector MaximumSize() const override;
+        void Paint(hal::Canvas& canvas, infra::Region boundingRegion) override;
+        infra::Region DrawRegion() const override;
+        void ResetSize() override;
 
         void SetSubView(View& newSubView);
         void SetOffset(infra::RegionOffset newRegionOffset);
 
     protected:
-        virtual void ViewRegionChanged() override;
+        void ViewRegionChanged() override;
 
     private:
         View* subView = nullptr;

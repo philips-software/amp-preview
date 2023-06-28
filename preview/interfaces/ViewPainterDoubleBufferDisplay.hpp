@@ -13,7 +13,7 @@ namespace services
     public:
         ViewPainterDoubleBufferDisplay(hal::DoubleBufferDisplay& display, hal::BitmapPainter& bitmapPainter);
 
-        virtual void Paint(View& view, infra::Region region, infra::Function<void()> onDone) override;
+        void Paint(View& view, infra::Region region, infra::Function<void()> onDone) override;
 
     private:
         hal::DoubleBufferDisplay& display;

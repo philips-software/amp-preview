@@ -22,8 +22,9 @@ namespace services
         public:
             TimerEachMinute(const infra::Function<void()>& action, uint32_t timerServiceId);
 
-            virtual void ComputeNextTriggerTime() override;
-            virtual void Jumped(infra::TimePoint from, infra::TimePoint to) override;
+            // Implementation of infra::Timer
+            void ComputeNextTriggerTime() override;
+            void Jumped(infra::TimePoint from, infra::TimePoint to) override;
 
         private:
             void SetNextTrigger(infra::TimePoint time, const infra::Function<void()>& action);

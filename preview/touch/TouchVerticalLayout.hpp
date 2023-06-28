@@ -22,12 +22,12 @@ namespace services
         void BringToFront(TouchRecipient& view);
 
         // Implementation of TouchRecipient
-        virtual void StartTouch(infra::Point point) override;
-        virtual void DragIn(infra::Point point) override;
-        virtual void DragTo(infra::Point point) override;
-        virtual void DragOut() override;
-        virtual void StopTouch() override;
-        virtual void Swipe(Direction direction) override;
+        void StartTouch(infra::Point point) override;
+        void DragIn(infra::Point point) override;
+        void DragTo(infra::Point point) override;
+        void DragOut() override;
+        void StopTouch() override;
+        void Swipe(Direction direction) override;
 
     private:
         infra::BoundedVector<TouchRecipient*>& touchRecipients;

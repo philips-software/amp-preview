@@ -21,24 +21,24 @@ namespace hal
 
     public:
         // From hal::Canvas
-        virtual infra::Vector Size() const override final;
+        infra::Vector Size() const override final;
 
-        virtual void DrawPixel(infra::Point position, infra::Colour colour, infra::Region boundingBox) override final;
-        virtual void DrawLine(infra::Point from, infra::Point to, infra::Colour colour, infra::Region boundingBox) override final;
-        virtual void DrawRectangle(infra::Region position, infra::Colour colour, infra::Region boundingBox) override final;
-        virtual void DrawFilledRectangle(infra::Region position, infra::Colour colour, infra::Region boundingBox) override final;
-        virtual void DrawRoundedRectangle(infra::Region position, uint16_t r, infra::Colour colour, infra::Region boundingBox) override final;
-        virtual void DrawFilledRoundedRectangle(infra::Region position, uint16_t r, infra::Colour colour, infra::Region boundingBox) override final;
-        virtual void DrawCircle(infra::Point centre, int16_t r, infra::Colour colour, infra::Region boundingBox) override final;
-        virtual void DrawCircle(infra::Point centre, int16_t rSmall, int16_t rLarge, infra::Colour colour, infra::Region boundingBox) override final;
-        virtual void DrawFilledCircle(infra::Point centre, int16_t r, infra::Colour colour, infra::Region boundingBox) override final;
-        virtual void DrawBitmap(infra::Point position, const infra::Bitmap& sourceBitmap, infra::Region boundingBox) override final;
-        virtual void DrawTransparentBitmap(infra::Point position, const infra::Bitmap& sourceBitmap, uint32_t transparencyColour, infra::Region boundingBox) override final;
-        virtual void DrawIcon(infra::Point position, const infra::Bitmap& sourceBitmap, infra::Colour colour, infra::Region boundingBox) override final;
-        virtual void DrawString(infra::Point position, infra::BoundedConstString string, const infra::Font& font, infra::Colour colour, infra::RightAngle direction, infra::Region boundingBox) override final;
+        void DrawPixel(infra::Point position, infra::Colour colour, infra::Region boundingBox) override final;
+        void DrawLine(infra::Point from, infra::Point to, infra::Colour colour, infra::Region boundingBox) override final;
+        void DrawRectangle(infra::Region position, infra::Colour colour, infra::Region boundingBox) override final;
+        void DrawFilledRectangle(infra::Region position, infra::Colour colour, infra::Region boundingBox) override final;
+        void DrawRoundedRectangle(infra::Region position, uint16_t r, infra::Colour colour, infra::Region boundingBox) override final;
+        void DrawFilledRoundedRectangle(infra::Region position, uint16_t r, infra::Colour colour, infra::Region boundingBox) override final;
+        void DrawCircle(infra::Point centre, int16_t r, infra::Colour colour, infra::Region boundingBox) override final;
+        void DrawCircle(infra::Point centre, int16_t rSmall, int16_t rLarge, infra::Colour colour, infra::Region boundingBox) override final;
+        void DrawFilledCircle(infra::Point centre, int16_t r, infra::Colour colour, infra::Region boundingBox) override final;
+        void DrawBitmap(infra::Point position, const infra::Bitmap& sourceBitmap, infra::Region boundingBox) override final;
+        void DrawTransparentBitmap(infra::Point position, const infra::Bitmap& sourceBitmap, uint32_t transparencyColour, infra::Region boundingBox) override final;
+        void DrawIcon(infra::Point position, const infra::Bitmap& sourceBitmap, infra::Colour colour, infra::Region boundingBox) override final;
+        void DrawString(infra::Point position, infra::BoundedConstString string, const infra::Font& font, infra::Colour colour, infra::RightAngle direction, infra::Region boundingBox) override final;
 
         // From hal::DirectDisplay
-        virtual void PaintingComplete() override final;
+        void PaintingComplete() override final;
 
     private:
         void SetRenderColour(infra::Colour colour);

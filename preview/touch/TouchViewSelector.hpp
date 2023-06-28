@@ -15,14 +15,15 @@ namespace services
 
         TouchViewSelector(ViewSelector& viewSelector, infra::BoundedVector<TouchRecipient*>& touchRecipients, View& topView);
 
-        virtual void StartTouch(infra::Point point) override;
-        virtual void DragIn(infra::Point point) override;
-        virtual void DragTo(infra::Point point) override;
-        virtual void DragOut() override;
-        virtual void StopTouch() override;
-        virtual void Swipe(Direction direction) override;
+        // Implementation of TouchRecipient
+        void StartTouch(infra::Point point) override;
+        void DragIn(infra::Point point) override;
+        void DragTo(infra::Point point) override;
+        void DragOut() override;
+        void StopTouch() override;
+        void Swipe(Direction direction) override;
 
-        virtual ViewSelector& GetView() override;
+        ViewSelector& GetView() override;
         void Add(TouchRecipient& view);
         void Remove(TouchRecipient& view);
 

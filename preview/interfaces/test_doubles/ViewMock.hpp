@@ -33,7 +33,7 @@ namespace services
             subView.SetParent(*this);
         }
 
-        virtual void Paint(hal::Canvas& canvas, infra::Region boundingRegion) override
+        void Paint(hal::Canvas& canvas, infra::Region boundingRegion) override
         {
             std::abort();
         }

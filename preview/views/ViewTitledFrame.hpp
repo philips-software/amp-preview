@@ -25,10 +25,10 @@ namespace services
 
         ViewTitledFrame(TitledFrameAttributes attributes, infra::BoundedConstString text);
 
-        virtual infra::Vector MinimumSize() const override;
-        virtual infra::Vector MaximumSize() const override;
-        virtual void Paint(hal::Canvas& canvas, infra::Region boundingRegion) override;
-        virtual void ResetSize() override;
+        infra::Vector MinimumSize() const override;
+        infra::Vector MaximumSize() const override;
+        void Paint(hal::Canvas& canvas, infra::Region boundingRegion) override;
+        void ResetSize() override;
 
         void SetSubView(View& newSubView);
         void SetFrameColour(infra::Colour newColour);
@@ -36,7 +36,7 @@ namespace services
         void SetTextColour(infra::Colour newColour);
 
     protected:
-        virtual void ViewRegionChanged() override;
+        void ViewRegionChanged() override;
 
     private:
         ViewFramedText text;

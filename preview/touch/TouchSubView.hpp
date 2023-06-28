@@ -12,12 +12,13 @@ namespace services
         template<class T>
         class WithTouch;
 
-        virtual void StartTouch(infra::Point point) override;
-        virtual void DragIn(infra::Point point) override;
-        virtual void DragTo(infra::Point point) override;
-        virtual void DragOut() override;
-        virtual void StopTouch() override;
-        virtual void Swipe(Direction direction) override;
+        // Implementation of TouchRecipient
+        void StartTouch(infra::Point point) override;
+        void DragIn(infra::Point point) override;
+        void DragTo(infra::Point point) override;
+        void DragOut() override;
+        void StopTouch() override;
+        void Swipe(Direction direction) override;
 
         virtual void SetSubView(TouchRecipient& newSubView) = 0;
 
@@ -33,8 +34,8 @@ namespace services
         template<class... Args>
         WithTouch(Args&&... args);
 
-        virtual T& GetView() override;
-        virtual void SetSubView(TouchRecipient& newSubView) override;
+        T& GetView() override;
+        void SetSubView(TouchRecipient& newSubView) override;
 
     private:
         T view;

@@ -15,17 +15,18 @@ namespace services
 
         ViewRotating(infra::RightAngle angle);
 
-        virtual infra::Vector MinimumSize() const override;
-        virtual infra::Vector MaximumSize() const override;
-        virtual void Paint(hal::Canvas& canvas, infra::Region boundingRegion) override;
-        virtual void ResetSize() override;
+        // Implementation of View
+        infra::Vector MinimumSize() const override;
+        infra::Vector MaximumSize() const override;
+        void Paint(hal::Canvas& canvas, infra::Region boundingRegion) override;
+        void ResetSize() override;
 
         void SetSubView(View& newSubView);
         void SetAngle(infra::RightAngle newAngle);
 
     protected:
-        virtual void ViewRegionChanged() override;
-        virtual void Dirty(infra::Region region) override;
+        void ViewRegionChanged() override;
+        void Dirty(infra::Region region) override;
 
     private:
         class CanvasRotating
@@ -35,20 +36,20 @@ namespace services
             CanvasRotating(hal::Canvas& canvas, ViewRotating& view);
 
             // Implementation of Canvas
-            virtual infra::Vector Size() const override;
-            virtual void DrawPixel(infra::Point position, infra::Colour colour, infra::Region boundingBox) override;
-            virtual void DrawLine(infra::Point from, infra::Point to, infra::Colour colour, infra::Region boundingBox) override;
-            virtual void DrawRectangle(infra::Region position, infra::Colour colour, infra::Region boundingBox) override;
-            virtual void DrawFilledRectangle(infra::Region position, infra::Colour colour, infra::Region boundingBox) override;
-            virtual void DrawRoundedRectangle(infra::Region position, uint16_t r, infra::Colour colour, infra::Region boundingBox) override;
-            virtual void DrawFilledRoundedRectangle(infra::Region position, uint16_t r, infra::Colour colour, infra::Region boundingBox) override;
-            virtual void DrawCircle(infra::Point centre, int16_t r, infra::Colour colour, infra::Region boundingBox) override;
-            virtual void DrawCircle(infra::Point centre, int16_t rSmall, int16_t rLarge, infra::Colour colour, infra::Region boundingBox) override;
-            virtual void DrawFilledCircle(infra::Point centre, int16_t r, infra::Colour colour, infra::Region boundingBox) override;
-            virtual void DrawBitmap(infra::Point position, const infra::Bitmap& sourceBitmap, infra::Region boundingBox) override;
-            virtual void DrawTransparentBitmap(infra::Point position, const infra::Bitmap& sourceBitmap, uint32_t transparencyColour, infra::Region boundingBox) override;
-            virtual void DrawIcon(infra::Point position, const infra::Bitmap& sourceBitmap, infra::Colour colour, infra::Region boundingBox) override;
-            virtual void DrawString(infra::Point position, infra::BoundedConstString string, const infra::Font& font, infra::Colour colour, infra::RightAngle direction, infra::Region boundingBox) override;
+            infra::Vector Size() const override;
+            void DrawPixel(infra::Point position, infra::Colour colour, infra::Region boundingBox) override;
+            void DrawLine(infra::Point from, infra::Point to, infra::Colour colour, infra::Region boundingBox) override;
+            void DrawRectangle(infra::Region position, infra::Colour colour, infra::Region boundingBox) override;
+            void DrawFilledRectangle(infra::Region position, infra::Colour colour, infra::Region boundingBox) override;
+            void DrawRoundedRectangle(infra::Region position, uint16_t r, infra::Colour colour, infra::Region boundingBox) override;
+            void DrawFilledRoundedRectangle(infra::Region position, uint16_t r, infra::Colour colour, infra::Region boundingBox) override;
+            void DrawCircle(infra::Point centre, int16_t r, infra::Colour colour, infra::Region boundingBox) override;
+            void DrawCircle(infra::Point centre, int16_t rSmall, int16_t rLarge, infra::Colour colour, infra::Region boundingBox) override;
+            void DrawFilledCircle(infra::Point centre, int16_t r, infra::Colour colour, infra::Region boundingBox) override;
+            void DrawBitmap(infra::Point position, const infra::Bitmap& sourceBitmap, infra::Region boundingBox) override;
+            void DrawTransparentBitmap(infra::Point position, const infra::Bitmap& sourceBitmap, uint32_t transparencyColour, infra::Region boundingBox) override;
+            void DrawIcon(infra::Point position, const infra::Bitmap& sourceBitmap, infra::Colour colour, infra::Region boundingBox) override;
+            void DrawString(infra::Point position, infra::BoundedConstString string, const infra::Font& font, infra::Colour colour, infra::RightAngle direction, infra::Region boundingBox) override;
 
         private:
             infra::Point Rotated(infra::Point point) const;
