@@ -111,7 +111,7 @@ namespace services
     {
     public:
         template<std::size_t Size>
-        using WithStorage = infra::WithStorage<infra::WithStorage<TouchSpinInteger::WithViewFadingTextDescendant<TheView>, infra::BoundedString::WithStorage<Size>>, infra::BoundedString::WithStorage<Size>>;
+        using WithStorage = infra::WithStorage<infra::WithStorage<TouchSpinInteger::WithViewFadingTextDescendant<ViewType>, infra::BoundedString::WithStorage<Size>>, infra::BoundedString::WithStorage<Size>>;
 
         template<class... Args>
         WithViewFadingTextDescendant(infra::BoundedString& buffer1, infra::BoundedString& buffer2, int32_t start, int32_t from, int32_t to, bool circular, uint16_t distancePerIncrement, Args&&... args);
@@ -125,80 +125,80 @@ namespace services
 
     ////    Implementation    ////
 
-    template<class TheView>
+    template<class ViewType>
     template<class... Args>
-    TouchSpinInteger::WithViewTextDescendant<TheView>::WithViewTextDescendant(int32_t start, int32_t from, int32_t to, bool circular, uint16_t distancePerIncrement, Args&&... args)
-        : TheView(args...)
+    TouchSpinInteger::WithViewTextDescendant<ViewType>::WithViewTextDescendant(int32_t start, int32_t from, int32_t to, bool circular, uint16_t distancePerIncrement, Args&&... args)
+        : ViewType(args...)
         , TouchSpinInteger(*this, start, from, to, distancePerIncrement)
     {
         SetInitialValue();
         this->SetTextAndResize(this->Text());
     }
 
-    template<class TheView>
+    template<class ViewType>
     template<class... Args>
-    TouchSpinInteger::WithViewTextDescendant<TheView>::WithViewTextDescendant(int32_t start, int32_t from, int32_t to, bool circular, uint16_t distancePerIncrement, uint8_t width, Args&&... args)
-        : TheView(args...)
+    TouchSpinInteger::WithViewTextDescendant<ViewType>::WithViewTextDescendant(int32_t start, int32_t from, int32_t to, bool circular, uint16_t distancePerIncrement, uint8_t width, Args&&... args)
+        : ViewType(args...)
         , TouchSpinInteger(*this, start, from, to, distancePerIncrement, width)
     {
         SetInitialValue();
         this->SetTextAndResize(this->Text());
     }
 
-    template<class TheView>
-    TheView& TouchSpinInteger::WithViewTextDescendant<TheView>::GetView()
+    template<class ViewType>
+    ViewType& TouchSpinInteger::WithViewTextDescendant<ViewType>::GetView()
     {
         return *this;
     }
 
-    template<class TheView>
-    void TouchSpinInteger::WithViewTextDescendant<TheView>::SetText(infra::BoundedConstString text)
+    template<class ViewType>
+    void TouchSpinInteger::WithViewTextDescendant<ViewType>::SetText(infra::BoundedConstString text)
     {
-        TheView::SetText(valueString);
+        ViewType::SetText(valueString);
     }
 
-    template<class TheView>
-    void TouchSpinInteger::WithViewTextDescendant<TheView>::SetText(infra::BoundedConstString text, Direction from)
+    template<class ViewType>
+    void TouchSpinInteger::WithViewTextDescendant<ViewType>::SetText(infra::BoundedConstString text, Direction from)
     {
-        TheView::SetText(valueString);
+        ViewType::SetText(valueString);
     }
 
-    template<class TheView>
+    template<class ViewType>
     template<class... Args>
-    TouchSpinInteger::WithViewFadingTextDescendant<TheView>::WithViewFadingTextDescendant(infra::BoundedString& buffer1, infra::BoundedString& buffer2, int32_t start, int32_t from, int32_t to, bool circular, uint16_t distancePerIncrement, Args&&... args)
-        : TheView(buffer1, buffer2, args...)
+    TouchSpinInteger::WithViewFadingTextDescendant<ViewType>::WithViewFadingTextDescendant(infra::BoundedString& buffer1, infra::BoundedString& buffer2, int32_t start, int32_t from, int32_t to, bool circular, uint16_t distancePerIncrement, Args&&... args)
+        : ViewType(buffer1, buffer2, args...)
         , TouchSpinInteger(*this, start, from, to, circular, distancePerIncrement)
     {
         SetInitialValue();
         this->SetTextAndResize(this->Text());
     }
 
-    template<class TheView>
+    template<class ViewType>
     template<class... Args>
-    TouchSpinInteger::WithViewFadingTextDescendant<TheView>::WithViewFadingTextDescendant(infra::BoundedString& buffer1, infra::BoundedString& buffer2, int32_t start, int32_t from, int32_t to, bool circular, uint16_t distancePerIncrement, uint8_t width, Args&&... args)
-        : TheView(buffer1, buffer2, args...)
+    TouchSpinInteger::WithViewFadingTextDescendant<ViewType>::WithViewFadingTextDescendant(infra::BoundedString& buffer1, infra::BoundedString& buffer2, int32_t start, int32_t from, int32_t to, bool circular, uint16_t distancePerIncrement, uint8_t width, Args&&... args)
+        : ViewType(buffer1, buffer2, args...)
         , TouchSpinInteger(*this, start, from, to, circular, distancePerIncrement, width)
     {
         SetInitialValue();
         this->SetTextAndResize(this->Text());
     }
 
-    template<class TheView>
-    TheView& TouchSpinInteger::WithViewFadingTextDescendant<TheView>::GetView()
+    template<class ViewType>
+    ViewType& TouchSpinInteger::WithViewFadingTextDescendant<ViewType>::GetView()
     {
         return *this;
     }
 
-    template<class TheView>
-    void TouchSpinInteger::WithViewFadingTextDescendant<TheView>::SetText(infra::BoundedConstString text)
+    template<class ViewType>
+    void TouchSpinInteger::WithViewFadingTextDescendant<ViewType>::SetText(infra::BoundedConstString text)
     {
-        TheView::SetText(valueString);
+        ViewType::SetText(valueString);
     }
 
-    template<class TheView>
-    void TouchSpinInteger::WithViewFadingTextDescendant<TheView>::SetText(infra::BoundedConstString text, Direction from)
+    template<class ViewType>
+    void TouchSpinInteger::WithViewFadingTextDescendant<ViewType>::SetText(infra::BoundedConstString text, Direction from)
     {
-        TheView::FadeIn(valueString, from);
+        ViewType::FadeIn(valueString, from);
     }
 }
 
