@@ -14,7 +14,7 @@ namespace services
         template<std::size_t N>
         using WithMaxViews = infra::WithStorage<ViewMultiple, infra::BoundedVector<View*>::WithMaxSize<N>>;
 
-        ViewMultiple(infra::BoundedVector<View*>& views);
+        explicit ViewMultiple(infra::BoundedVector<View*>& views);
 
         infra::Vector MinimumSize() const override;
         infra::Vector MaximumSize() const override;

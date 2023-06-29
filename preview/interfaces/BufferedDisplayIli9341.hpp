@@ -35,7 +35,6 @@ namespace services
         infra::TimerSingleShot delayTimer;
         infra::Function<void()> onDone;
 
-        uint8_t command;
         uint16_t x0;
         uint16_t x1;
         uint16_t y0;

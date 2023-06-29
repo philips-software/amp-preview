@@ -10,7 +10,7 @@ namespace services
         : public services::ViewPainter
     {
     public:
-        ViewPainterDirectDisplay(hal::DirectDisplay& canvas);
+        explicit ViewPainterDirectDisplay(hal::DirectDisplay& canvas);
 
         void Paint(View& view, infra::Region region, infra::Function<void()> onDone) override;
 

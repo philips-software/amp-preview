@@ -10,7 +10,7 @@ namespace services
         : public View
     {
     public:
-        ViewBitmap(infra::Bitmap& bitmap);
+        explicit ViewBitmap(infra::Bitmap& bitmap);
 
         // Implementation of View
         void Paint(hal::Canvas& canvas, infra::Region boundingRegion) override;
@@ -22,4 +22,5 @@ namespace services
         infra::Bitmap& source;
     };
 }
+
 #endif

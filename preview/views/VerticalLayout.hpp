@@ -50,9 +50,9 @@ namespace services
             using HorizontalLayouter::HorizontalLayouter;
 
         protected:
-            virtual infra::Point AdjustOrientation(infra::Point point) const;
-            virtual infra::Vector AdjustOrientation(infra::Vector vector) const;
-            virtual infra::Region AdjustOrientation(infra::Region region) const;
+            infra::Point AdjustOrientation(infra::Point point) const override;
+            infra::Vector AdjustOrientation(infra::Vector vector) const override;
+            infra::Region AdjustOrientation(infra::Region region) const override;
         };
     }
 }

@@ -77,7 +77,7 @@ namespace services
         auto iterator = std::find(views.begin(), views.end(), &view);
         assert(iterator != views.end());
 
-        if (&*iterator != &views.back())
+        if (iterator != &views.back())
         {
             views.erase(iterator);
             views.push_back(&view);

@@ -13,7 +13,7 @@ namespace services
         : public hal::BufferedDisplay
     {
     public:
-        BufferedDisplaySsd1306(hal::I2cMaster& i2c, hal::I2cAddress address = hal::I2cAddress(0x3c));
+        explicit BufferedDisplaySsd1306(hal::I2cMaster& i2c, hal::I2cAddress address = hal::I2cAddress(0x3c));
 
     public:
         // Implementation of BufferedDisplay
@@ -45,7 +45,7 @@ namespace services
         : public ViewPainter
     {
     public:
-        ViewPainterAlignedForSsd1306(ViewPainter& painter);
+        explicit ViewPainterAlignedForSsd1306(ViewPainter& painter);
 
         void Paint(services::View& view, infra::Region region, infra::Function<void()> onDone) override;
 

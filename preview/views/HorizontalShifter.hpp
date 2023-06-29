@@ -12,7 +12,7 @@ namespace services
         template<class SubView>
         class WithView;
 
-        HorizontalShifter(View& subView);
+        explicit HorizontalShifter(View& subView);
 
         void SetShift(int16_t newShift);
 

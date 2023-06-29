@@ -13,7 +13,7 @@ namespace services
         template<class T>
         class WithView;
 
-        ViewPanel(infra::Colour colour);
+        explicit ViewPanel(infra::Colour colour);
 
         // Implementation of View
         infra::Vector MinimumSize() const override;
