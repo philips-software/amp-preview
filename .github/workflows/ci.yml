@@ -68,7 +68,7 @@ jobs:
         with:
           persist-credentials: false
       - name: Install GNU Arm Embedded Toolchain ${{ matrix.gcc }}
-        uses: carlosperate/arm-none-eabi-gcc-action@19a291ad70e2fd526f0d84022e747464559f6de8
+        uses: carlosperate/arm-none-eabi-gcc-action@a7c8bcefde49bdeb04516c8364dd7b017fb22342
         with:
           release: ${{ matrix.gcc }}
       - uses: hendrikmuhs/ccache-action@ca3acd2731eef11f1572ccb126356c2f9298d35e # v1.2.9
