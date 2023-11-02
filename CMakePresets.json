@@ -10,7 +10,7 @@
       }
     },
     {
-      "name": "ContinuousIntegration",
+      "name": "continuous-integration",
       "displayName": "Configuration for Continuous Integration",
       "inherits": "defaults",
       "cacheVariables": {
@@ -22,9 +22,9 @@
       }
     },
     {
-      "name": "Coverage",
+      "name": "coverage",
       "displayName": "Configuration for Code Coverage",
-      "inherits": "ContinuousIntegration",
+      "inherits": "continuous-integration",
       "cacheVariables": {
         "EMIL_ENABLE_COVERAGE": "On"
       },
@@ -93,14 +93,14 @@
   ],
   "buildPresets": [
     {
-      "name": "ContinuousIntegration",
+      "name": "continuous-integration",
       "configuration": "Debug",
-      "configurePreset": "ContinuousIntegration"
+      "configurePreset": "continuous-integration"
     },
     {
-      "name": "Coverage",
+      "name": "coverage",
       "configuration": "Debug",
-      "configurePreset": "Coverage"
+      "configurePreset": "coverage"
     },
     {
       "name": "host-RelWithDebInfo",
@@ -136,14 +136,14 @@
       }
     },
     {
-      "name": "ContinuousIntegration",
-      "configurePreset": "ContinuousIntegration",
+      "name": "continuous-integration",
+      "configurePreset": "continuous-integration",
       "configuration": "Debug",
       "inherits": "defaults"
     },
     {
-      "name": "Coverage",
-      "configurePreset": "Coverage",
+      "name": "coverage",
+      "configurePreset": "coverage",
       "configuration": "Debug",
       "inherits": "defaults"
     }
