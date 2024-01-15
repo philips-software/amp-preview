@@ -29,7 +29,7 @@ namespace services
         , yPlusAnalogPin(touchScreen.yPlusAnalogPin)
         , startConversion(std::chrono::microseconds(100), [this]()
               {
-                  xPlusAnalogPin->Measure([this](PixelPosition pixelPosition)
+                  xPlusAnalogPin->Measure(infra::MakeRangeFromSingleObject(this->pixelPosition), [this]()
                       {
                           OnMeasurementXDone(pixelPosition.Value());
                       });
@@ -40,7 +40,7 @@ namespace services
     void TouchScreen::StateTouchMeasurement::OnMeasurementXDone(uint32_t xTouchResult)
     {
         this->xTouchResult = xTouchResult;
-        yPlusAnalogPin->Measure([this](PixelPosition pixelPosition)
+        yPlusAnalogPin->Measure(infra::MakeRangeFromSingleObject(this->pixelPosition), [this]()
             {
                 OnMeasurementYDone(pixelPosition.Value());
             });
@@ -69,7 +69,7 @@ namespace services
         , xPlusAnalogPin(touchScreen.xPlusAnalogPin)
         , startConversion(std::chrono::microseconds(100), [this]()
               {
-                  xPlusAnalogPin->Measure([this](PixelPosition pixelPosition)
+                  xPlusAnalogPin->Measure(infra::MakeRangeFromSingleObject(this->pixelPosition), [this]()
                       {
                           OnMeasurementDone(pixelPosition.Value());
                       });
@@ -89,9 +89,9 @@ namespace services
         , yPlusAnalogPin(touchScreen.yPlusAnalogPin)
         , startConversion(std::chrono::microseconds(100), [this]()
               {
-                  yPlusAnalogPin->Measure([this](PixelPosition pixelPosition)
+                  yPlusAnalogPin->Measure(infra::MakeRangeFromSingleObject(this->pixelPosition), [this]()
                       {
-                          OnMeasurementDone(pixelPosition.Value());
+                          OnMeasurementDone(this->pixelPosition.Value());
                       });
               })
     {}
