@@ -30,7 +30,7 @@ if (PREVIEW_STANDALONE)
         FetchContent_Declare(
             halst
             GIT_REPOSITORY https://github.com/philips-software/amp-hal-st
-            GIT_TAG        51306ab6abfc10fefb40ff6257d3c9ba766529b8 # unreleased
+            GIT_TAG        dd846ae898c4b6754d8310c275063c6766d5902a # unreleased
         )
 
         FetchContent_MakeAvailable(halst)
