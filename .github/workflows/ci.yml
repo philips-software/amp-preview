@@ -81,4 +81,3 @@ jobs:
           cmake --build --preset host-${{ matrix.configuration }}
           cmake --preset ${{ matrix.target }} -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
           cmake --build --preset ${{ matrix.target }}-${{ matrix.configuration }}
-  
