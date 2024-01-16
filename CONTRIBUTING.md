@@ -57,7 +57,7 @@ If you find a bug in the source code or a mistake in the documentation, you can 
 
 ### Found a security vulnerability?
 
-If you discover a vulnerability in our software, please contact a [maintainer](CODEOWNERS) directly and report it appropriately.
+If you discover a vulnerability in our software, please contact a [maintainer](.github/CODEOWNERS) directly and report it appropriately.
 Do not submit an issue, unless asked to.
 
 ### Missing a Feature?
