@@ -40,7 +40,7 @@ There is currently no offial code of conduct, follow general Philips guidelines 
 
 At Philips, we use two different contribution models, OSS and Github.
 Learn more about the [contribution models here.](https://confluence.atlas.philips.com/display/GITHUB/Contribution+Models)
-This project uses the [OSS Model.](#OSS-Model)
+This project uses the [OSS Model.](#oss-model)
 
 ### Got a Question or Problem?
 
@@ -94,7 +94,7 @@ You can file new issues by selecting from our new issue templates and filling ou
 ### Submitting a Pull Request (PR)
 
 Depending on what [contribution model](#learn-about-our-contribution-models) is chosen, instructions are different on how to submit a Pull Request.
-This project uses the [OSS-Model](#OSS-Model).
+This project uses the [OSS-Model](#oss-model).
 
 #### OSS Model
 

@@ -72,7 +72,8 @@ namespace hal
     void BitmapPainterStm::WaitUntilDrawingFinished() const
     {
         while ((DMA2D->CR & DMA2D_CR_START) != RESET)
-        {}
+        {
+        }
     }
 
     void BitmapPainterStm::DrawHorizontalLine(infra::Bitmap& bitmap, infra::Point from, uint16_t deltaX, infra::Colour colour)
