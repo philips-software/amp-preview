@@ -15,25 +15,6 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  formatter:
-    name: Formatting
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pull-requests: write
-    steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
-        with:
-          persist-credentials: false
-      - uses: DoozyX/clang-format-lint-action@11b773b1598aa4ae3b32f023701bca5201c3817d # v0.17
-        with:
-          clangFormatVersion: 15
-          inplace: true
-          extensions: "cpp,hpp"
-      - uses: reviewdog/action-suggester@4daff13db10cd0ddb200b45c8c7166dd0d5c85a9 # v1.9.0
-        with:
-          tool_name: clang-format
-          filter_mode: diff_context
   linter:
     name: Linting
     runs-on: ubuntu-latest
@@ -51,17 +32,17 @@ jobs:
           APPLY_FIXES: all
           VALIDATE_ALL_CODEBASE: true
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #- uses: github/codeql-action/upload-sarif@a34ca99b4610d924e04c68db79e503e1f79f9f02 # v2.1.39
-      #  if: ${{ success() }} || ${{ failure() }}
-      #  with:
-      #    sarif_file: megalinter-reports/megalinter-report.sarif
+      - run: git diff
+      - uses: github/codeql-action/upload-sarif@a34ca99b4610d924e04c68db79e503e1f79f9f02 # v3.23.0
+        if: ${{ success() }} || ${{ failure() }}
+        with:
+          sarif_file: megalinter-reports/megalinter-report.sarif
       - uses: actions/upload-artifact@1eb3cb2b3e0f29609092a73eb033bb759a334595 # v4.1.0
         if: success() || failure()
         with:
           name: linter
           path: |
             megalinter-reports
-      #- uses: reviewdog/action-suggester@4daff13db10cd0ddb200b45c8c7166dd0d5c85a9 # v1.9.0
-      #  with:
-      #    tool_name: MegaLinter
-      #    filter_mode: diff_context
+      - uses: reviewdog/action-suggester@4daff13db10cd0ddb200b45c8c7166dd0d5c85a9 # v1.9.0
+        with:
+          tool_name: MegaLinter
