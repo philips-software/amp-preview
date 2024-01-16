@@ -2,4 +2,5 @@
 .vs/
 .vscode/.cortex-debug.registers.state.json
 [Bb]uild/
+megalinter-reports/
 out/
