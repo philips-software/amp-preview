@@ -21,7 +21,7 @@ if (PREVIEW_STANDALONE)
     FetchContent_Declare(
         emil
         GIT_REPOSITORY https://github.com/philips-software/amp-embedded-infra-lib
-        GIT_TAG        8961644f4a9715decf58fa5cc7fd6a7cdae2bf0a # unreleased
+        GIT_TAG        419f636bd76f2c0ee2f7524ca548e724bf479e27 # unreleased
     )
 
     FetchContent_MakeAvailable(emil)
@@ -30,7 +30,7 @@ if (PREVIEW_STANDALONE)
         FetchContent_Declare(
             halst
             GIT_REPOSITORY https://github.com/philips-software/amp-hal-st
-            GIT_TAG        2c6f0b3b683b0ac9977a2cf95df198f0bb06b33a # unreleased
+            GIT_TAG        9b4c3161fd326a10418dc7b27c56f137eb003e55 # unreleased
         )
 
         FetchContent_MakeAvailable(halst)
