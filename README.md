@@ -1,12 +1,14 @@
-<div align="center">
-
 # amp-preview (Possibly Real-time Embedded Views)
+
+<!-- markdownlint-disable -->
+<div align="center">
 
 [![Continuous Integration](https://github.com/philips-software/amp-preview/workflows/Continuous%20Integration/badge.svg)](https://github.com/philips-software/amp-preview/actions) [![Linting & Formatting](https://github.com/philips-software/amp-preview/actions/workflows/linting-formatting.yml/badge.svg)](https://github.com/philips-software/amp-preview/actions/workflows/linting-formatting.yml) [![Static Analysis](https://github.com/philips-software/amp-preview/actions/workflows/static-analysis.yml/badge.svg)](https://github.com/philips-software/amp-preview/actions/workflows/static-analysis.yml)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-brightgreen.svg)](https://choosealicense.com/licenses/mit/)
 
 </div>
+<!-- markdownlint enable -->
 
 **Description**: amp-preview is a C++ framework for creating embedded user interfaces.
 
@@ -53,4 +55,4 @@ Please refer to our [Contributing](CONTRIBUTING.md) guide when you want to contr
 
 ## License
 
-amp-preview is licenced under the [MIT](https://choosealicense.com/licenses/mit/) license. See [LICENSE file](LICENSE.md).
+amp-preview is licenced under the [MIT](https://choosealicense.com/licenses/mit/) license. See [LICENSE file](LICENSE).
