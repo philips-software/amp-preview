@@ -55,6 +55,7 @@ namespace services
             infra::TimerSingleShot startConversion;
             bool finalMeasurement;
             uint32_t xTouchResult;
+            PixelPosition pixelPosition;
         };
 
         class StateXMeasurement
@@ -72,6 +73,7 @@ namespace services
             hal::OutputPin yMinus;
             infra::ProxyCreator<AnalogToDigitalPin, void()> xPlusAnalogPin;
             infra::TimerSingleShot startConversion;
+            PixelPosition pixelPosition;
         };
 
         class StateYMeasurement
@@ -89,6 +91,7 @@ namespace services
             hal::OutputPin xMinus;
             infra::ProxyCreator<AnalogToDigitalPin, void()> yPlusAnalogPin;
             infra::TimerSingleShot startConversion;
+            PixelPosition pixelPosition;
         };
 
     private:

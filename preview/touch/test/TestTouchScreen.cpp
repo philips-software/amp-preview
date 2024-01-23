@@ -8,7 +8,7 @@ class AnalogToDigitalPinMock
     : public services::TouchScreen::AnalogToDigitalPin
 {
 public:
-    MOCK_METHOD1(Measure, void(const infra::Function<void(services::TouchScreen::PixelPosition pixelPosition)>& onDone));
+    MOCK_METHOD2(Measure, void(services::TouchScreen::AnalogToDigitalPin::SamplesRange samples, const infra::Function<void()>& onDone));
 };
 
 class TouchScreenTest
@@ -27,11 +27,19 @@ public:
 
         touchScreen.Measure(onResult);
 
-        EXPECT_CALL(*xPlusAnalogPin, Measure(testing::_)).WillOnce(testing::SaveArg<0>(&onMeasurementDone));
+        EXPECT_CALL(*xPlusAnalogPin, Measure(testing::_, testing::_)).WillOnce([this](auto samples, const auto& onDone)
+            {
+                samples.front() = xTouchResult;
+                onMeasurementDone = onDone;
+            });
         ForwardTime(std::chrono::microseconds(100));
 
-        EXPECT_CALL(*yPlusAnalogPin, Measure(testing::_)).WillOnce(testing::SaveArg<0>(&onMeasurementDone));
-        onMeasurementDone(services::TouchScreen::PixelPosition(xTouchResult));
+        EXPECT_CALL(*yPlusAnalogPin, Measure(testing::_, testing::_)).WillOnce([this](auto samples, const auto& onDone)
+            {
+                samples.front() = yTouchResult;
+                onMeasurementDone = onDone;
+            });
+        onMeasurementDone();
 
         EXPECT_CALL(yMinus, ResetConfig());
         EXPECT_CALL(xMinus, ResetConfig());
@@ -42,9 +50,13 @@ public:
         EXPECT_CALL(yPlus, Config(hal::PinConfigType::output, true));
         EXPECT_CALL(yMinus, Config(hal::PinConfigType::output, false));
 
-        onMeasurementDone(services::TouchScreen::PixelPosition(yTouchResult));
+        onMeasurementDone();
 
-        EXPECT_CALL(*xPlusAnalogPin, Measure(testing::_)).WillOnce(testing::SaveArg<0>(&onMeasurementDone));
+        EXPECT_CALL(*xPlusAnalogPin, Measure(testing::_, testing::_)).WillOnce([this](auto samples, const auto& onDone)
+            {
+                samples.front() = xResult;
+                onMeasurementDone = onDone;
+            });
         ForwardTime(std::chrono::microseconds(100));
 
         EXPECT_CALL(yMinus, ResetConfig());
@@ -56,9 +68,13 @@ public:
         EXPECT_CALL(xPlus, Config(hal::PinConfigType::output, true));
         EXPECT_CALL(xMinus, Config(hal::PinConfigType::output, false));
 
-        onMeasurementDone(services::TouchScreen::PixelPosition(xResult));
+        onMeasurementDone();
 
-        EXPECT_CALL(*yPlusAnalogPin, Measure(testing::_)).WillOnce(testing::SaveArg<0>(&onMeasurementDone));
+        EXPECT_CALL(*yPlusAnalogPin, Measure(testing::_, testing::_)).WillOnce([this](auto samples, const auto& onDone)
+            {
+                samples.front() = yResult;
+                onMeasurementDone = onDone;
+            });
         ForwardTime(std::chrono::microseconds(100));
 
         EXPECT_CALL(xMinus, ResetConfig());
@@ -70,13 +86,21 @@ public:
         EXPECT_CALL(xMinus, Config(hal::PinConfigType::output, true));
         EXPECT_CALL(yMinus, Config(hal::PinConfigType::output, false));
 
-        onMeasurementDone(services::TouchScreen::PixelPosition(yResult));
+        onMeasurementDone();
 
-        EXPECT_CALL(*xPlusAnalogPin, Measure(testing::_)).WillOnce(testing::SaveArg<0>(&onMeasurementDone));
+        EXPECT_CALL(*xPlusAnalogPin, Measure(testing::_, testing::_)).WillOnce([this](auto samples, const auto& onDone)
+            {
+                samples.front() = yResult;
+                onMeasurementDone = onDone;
+            });
         ForwardTime(std::chrono::microseconds(100));
 
-        EXPECT_CALL(*yPlusAnalogPin, Measure(testing::_)).WillOnce(testing::SaveArg<0>(&onMeasurementDone));
-        onMeasurementDone(services::TouchScreen::PixelPosition(xTouchResult));
+        EXPECT_CALL(*yPlusAnalogPin, Measure(testing::_, testing::_)).WillOnce([this](auto samples, const auto& onDone)
+            {
+                samples.front() = xTouchResult;
+                onMeasurementDone = onDone;
+            });
+        onMeasurementDone();
 
         EXPECT_CALL(yMinus, ResetConfig());
         EXPECT_CALL(xMinus, ResetConfig());
@@ -91,12 +115,12 @@ public:
     infra::Creator<services::TouchScreen::AnalogToDigitalPin, AnalogToDigitalPinMock, void()> yPlusAnalogPin;
     services::TouchScreen touchScreen;
 
-    uint32_t xResult = 0;
-    uint32_t yResult = 0;
-    uint32_t xTouchResult = 0;
-    uint32_t yTouchResult = 0;
+    services::TouchScreen::PixelPosition xResult{ 0 };
+    services::TouchScreen::PixelPosition yResult{ 0 };
+    services::TouchScreen::PixelPosition xTouchResult{ 0 };
+    services::TouchScreen::PixelPosition yTouchResult{ 0 };
 
-    infra::Function<void(services::TouchScreen::PixelPosition pixelPosition)> onMeasurementDone;
+    infra::Function<void()> onMeasurementDone;
     infra::Function<void(infra::Optional<infra::Point> position)> onResult = [](infra::Optional<infra::Point> position) {};
 };
 
@@ -116,12 +140,12 @@ TEST_F(TouchScreenTest, on_no_touch_none_is_reported)
     infra::VerifyingFunctionMock<void(infra::Optional<infra::Point>)> expectOnResult(infra::none);
     onResult = expectOnResult;
 
-    xTouchResult = 400;
-    yTouchResult = 100;
+    xTouchResult = services::TouchScreen::PixelPosition{ 400 };
+    yTouchResult = services::TouchScreen::PixelPosition{ 100 };
 
     DoTouchMeasurement();
 
-    onMeasurementDone(services::TouchScreen::PixelPosition(yTouchResult));
+    onMeasurementDone();
 }
 
 TEST_F(TouchScreenTest, after_touch_measurement_is_done_x_measurement_starts)
@@ -131,7 +155,7 @@ TEST_F(TouchScreenTest, after_touch_measurement_is_done_x_measurement_starts)
     EXPECT_CALL(yPlus, Config(hal::PinConfigType::output, true));
     EXPECT_CALL(yMinus, Config(hal::PinConfigType::output, false));
 
-    onMeasurementDone(services::TouchScreen::PixelPosition(yTouchResult));
+    onMeasurementDone();
 
     EXPECT_CALL(yMinus, ResetConfig());
     EXPECT_CALL(yPlus, ResetConfig());
@@ -145,7 +169,7 @@ TEST_F(TouchScreenTest, after_measurement_is_done_y_measurement_starts)
     EXPECT_CALL(xPlus, Config(hal::PinConfigType::output, true));
     EXPECT_CALL(xMinus, Config(hal::PinConfigType::output, false));
 
-    onMeasurementDone(services::TouchScreen::PixelPosition(xResult));
+    onMeasurementDone();
 
     EXPECT_CALL(xMinus, ResetConfig());
     EXPECT_CALL(xPlus, ResetConfig());
@@ -161,7 +185,7 @@ TEST_F(TouchScreenTest, after_last_measurement_result_is_reported)
     DoYMeasurement();
     DoFinalTouchMeasurement();
 
-    onMeasurementDone(services::TouchScreen::PixelPosition(yTouchResult));
+    onMeasurementDone();
 }
 
 TEST_F(TouchScreenTest, on_touch_position_is_reported)
@@ -169,15 +193,15 @@ TEST_F(TouchScreenTest, on_touch_position_is_reported)
     infra::VerifyingFunctionMock<void(infra::Optional<infra::Point>)> expectOnResult(infra::MakeOptional(infra::Point(42, 134)));
     onResult = expectOnResult;
 
-    xResult = 42;
-    yResult = 134;
-    xTouchResult = 190;
-    yTouchResult = 100;
+    xResult = services::TouchScreen::PixelPosition{ 42 };
+    yResult = services::TouchScreen::PixelPosition{ 134 };
+    xTouchResult = services::TouchScreen::PixelPosition{ 190 };
+    yTouchResult = services::TouchScreen::PixelPosition{ 100 };
 
     DoTouchMeasurement();
     DoXMeasurement();
     DoYMeasurement();
     DoFinalTouchMeasurement();
 
-    onMeasurementDone(services::TouchScreen::PixelPosition(yTouchResult));
+    onMeasurementDone();
 }
