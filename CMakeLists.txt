@@ -37,7 +37,7 @@ if (PREVIEW_STANDALONE)
     endif()
 endif()
 
-project(preview LANGUAGES C CXX VERSION 1.0.0) # x-release-please-version
+project(preview LANGUAGES C CXX VERSION 1.1.0) # x-release-please-version
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED On)
