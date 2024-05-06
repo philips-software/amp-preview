@@ -13,12 +13,12 @@ namespace services
         , touchDelta(touchDelta)
     {}
 
-    void TouchScreen::Measure(const infra::Function<void(infra::Optional<infra::Point> position)>& onTouched)
+    void TouchScreen::Measure(const infra::Function<void(std::optional<infra::Point> position)>& onTouched)
     {
         assert(this->onTouched == nullptr);
         this->onTouched = onTouched;
 
-        state.Emplace<StateTouchMeasurement>(*this, false);
+        state.emplace<StateTouchMeasurement>(*this, false);
     }
 
     TouchScreen::StateTouchMeasurement::StateTouchMeasurement(TouchScreen& touchScreen, bool finalMeasurement)
@@ -50,16 +50,16 @@ namespace services
     {
         if (xTouchResult >= yTouchResult + touchScreen.touchDelta)
         {
-            touchScreen.onTouched(infra::none);
-            touchScreen.state.Emplace<StateIdle>();
+            touchScreen.onTouched(std::nullopt);
+            touchScreen.state.emplace<StateIdle>();
         }
         else if (finalMeasurement)
         {
-            touchScreen.onTouched(infra::MakeOptional(infra::Point(touchScreen.xResult, touchScreen.yResult)));
-            touchScreen.state.Emplace<StateIdle>();
+            touchScreen.onTouched(std::make_optional(infra::Point(touchScreen.xResult, touchScreen.yResult)));
+            touchScreen.state.emplace<StateIdle>();
         }
         else
-            touchScreen.state.Emplace<StateXMeasurement>(touchScreen);
+            touchScreen.state.emplace<StateXMeasurement>(touchScreen);
     }
 
     TouchScreen::StateXMeasurement::StateXMeasurement(TouchScreen& touchScreen)
@@ -79,7 +79,7 @@ namespace services
     void TouchScreen::StateXMeasurement::OnMeasurementDone(uint32_t pixelPosition)
     {
         touchScreen.xResult = pixelPosition;
-        touchScreen.state.Emplace<StateYMeasurement>(touchScreen);
+        touchScreen.state.emplace<StateYMeasurement>(touchScreen);
     }
 
     TouchScreen::StateYMeasurement::StateYMeasurement(TouchScreen& touchScreen)
@@ -99,6 +99,6 @@ namespace services
     void TouchScreen::StateYMeasurement::OnMeasurementDone(uint32_t pixelPosition)
     {
         touchScreen.yResult = pixelPosition;
-        touchScreen.state.Emplace<StateTouchMeasurement>(touchScreen, true);
+        touchScreen.state.emplace<StateTouchMeasurement>(touchScreen, true);
     }
 }

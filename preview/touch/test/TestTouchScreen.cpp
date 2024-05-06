@@ -121,7 +121,7 @@ public:
     services::TouchScreen::PixelPosition yTouchResult{ 0 };
 
     infra::Function<void()> onMeasurementDone;
-    infra::Function<void(infra::Optional<infra::Point> position)> onResult = [](infra::Optional<infra::Point> position) {};
+    infra::Function<void(std::optional<infra::Point> position)> onResult = [](std::optional<infra::Point> position) {};
 };
 
 TEST_F(TouchScreenTest, Measure_results_in_touch_measurement)
@@ -137,7 +137,7 @@ TEST_F(TouchScreenTest, Measure_results_in_touch_measurement)
 
 TEST_F(TouchScreenTest, on_no_touch_none_is_reported)
 {
-    infra::VerifyingFunctionMock<void(infra::Optional<infra::Point>)> expectOnResult(infra::none);
+    infra::VerifyingFunctionMock<void(std::optional<infra::Point>)> expectOnResult(std::nullopt);
     onResult = expectOnResult;
 
     xTouchResult = services::TouchScreen::PixelPosition{ 400 };
@@ -177,7 +177,7 @@ TEST_F(TouchScreenTest, after_measurement_is_done_y_measurement_starts)
 
 TEST_F(TouchScreenTest, after_last_measurement_result_is_reported)
 {
-    infra::VerifyingFunctionMock<void(infra::Optional<infra::Point>)> expectOnResult(infra::MakeOptional(infra::Point()));
+    infra::VerifyingFunctionMock<void(std::optional<infra::Point>)> expectOnResult(std::make_optional(infra::Point()));
     onResult = expectOnResult;
 
     DoTouchMeasurement();
@@ -190,7 +190,7 @@ TEST_F(TouchScreenTest, after_last_measurement_result_is_reported)
 
 TEST_F(TouchScreenTest, on_touch_position_is_reported)
 {
-    infra::VerifyingFunctionMock<void(infra::Optional<infra::Point>)> expectOnResult(infra::MakeOptional(infra::Point(42, 134)));
+    infra::VerifyingFunctionMock<void(std::optional<infra::Point>)> expectOnResult(std::make_optional(infra::Point(42, 134)));
     onResult = expectOnResult;
 
     xResult = services::TouchScreen::PixelPosition{ 42 };
