@@ -15,14 +15,14 @@ public:
     {
         EXPECT_CALL(display, PixelFormat()).WillRepeatedly(testing::Return(infra::PixelFormat::rgb565));
 
-        viewPainter.Emplace(buffer, display, bitmapPainter);
+        viewPainter.emplace(buffer, display, bitmapPainter);
     }
 
     std::array<uint8_t, 8 * 16 * 2> buffer;
     testing::StrictMock<hal::BufferedDisplayMock> display;
     testing::StrictMock<hal::BitmapPainterMock> bitmapPainter;
     testing::StrictMock<services::ViewMock> view;
-    infra::Optional<services::ViewPainterBufferedDisplay> viewPainter;
+    std::optional<services::ViewPainterBufferedDisplay> viewPainter;
 };
 
 TEST_F(ViewPainterBufferedDisplayTest, Paint)
