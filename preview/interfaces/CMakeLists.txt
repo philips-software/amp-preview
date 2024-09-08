@@ -35,6 +35,8 @@ target_sources(preview.interfaces PRIVATE
     Geometry.cpp
     Geometry.hpp
     MultiBufferDisplay.hpp
+    QRCode.cpp
+    QRCode.hpp
     View.cpp
     View.hpp
     ViewOverlay.cpp
