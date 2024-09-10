@@ -16,15 +16,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     services::LowPowerStrategySdl lowPowerStrategy(timerService);
     infra::LowPowerEventDispatcher::WithSize<50> eventDispatcher(lowPowerStrategy);
 
-    QRCode qrcode;
-    uint8_t* qrcodeBytes = reinterpret_cast<uint8_t*>(malloc(qrcode_getBufferSize(3)));
-    qrcode_initText(&qrcode, qrcodeBytes, 3, ECC_LOW, "HELLO WORLD");
+    QRCode::Version<3> qrcode(3, QRCode::Ecc::low, "HELLO WORLD");
 
     infra::Bitmap::BlackAndWhite<29, 29> qrCodeBitmap;
 
     for (uint8_t y = 0; y < qrcode.size; y++)
         for (uint8_t x = 0; x < qrcode.size; x++)
-            qrCodeBitmap.SetBlackAndWhitePixel(infra::Point(x, y), qrcode_getModule(&qrcode, x, y) == 0);
+            qrCodeBitmap.SetBlackAndWhitePixel(infra::Point(x, y), qrcode.getModule(x, y) == 0);
 
     services::ViewBitmap viewBitmap(qrCodeBitmap);
 

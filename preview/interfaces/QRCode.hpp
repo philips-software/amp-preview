@@ -33,40 +33,48 @@
  *  See: https://github.com/nayuki/QR-Code-generator/tree/master/cpp
  */
 
-
 #ifndef QR_CODE_HPP
 #define QR_CODE_HPP
 
+#include "infra/util/BoundedString.hpp"
+#include "infra/util/ByteRange.hpp"
+#include "preview/interfaces/Bitmap.hpp"
 #include <cstdint>
 
-
-// QR Code Format Encoding
-#define MODE_NUMERIC        0
-#define MODE_ALPHANUMERIC   1
-#define MODE_BYTE           2
-
-
-// Error Correction Code Levels
-#define ECC_LOW            0
-#define ECC_MEDIUM         1
-#define ECC_QUARTILE       2
-#define ECC_HIGH           3
-
-struct QRCode
+class QRCode
 {
+public:
+    static constexpr uint16_t GridSizeInBytes(uint8_t bits)
+    {
+        return (bits * bits + 7) / 8;
+    }
+
+    static constexpr uint16_t BufferSize(uint8_t version)
+    {
+        return GridSizeInBytes(4 * version + 17);
+    }
+
+public:
+    enum class Ecc : uint8_t
+    {
+        low,
+        medium,
+        quartile,
+        high
+    };
+
+public:
+    template<uint8_t version>
+    using Version = infra::WithStorage<QRCode, std::array<uint8_t, BufferSize(version)>>;
+
+    QRCode(infra::ByteRange modules, uint8_t version, Ecc ecc, infra::BoundedConstString text);
+    bool getModule(uint8_t x, uint8_t y) const;
+
+public:
     uint8_t version;
     uint8_t size;
-    uint8_t ecc;
-    uint8_t mode;
-    uint8_t mask;
-    uint8_t *modules;
+    Ecc ecc;
+    infra::ByteRange modules;
 };
-
-uint16_t qrcode_getBufferSize(uint8_t version);
-
-int8_t qrcode_initText(QRCode* qrcode, uint8_t* modules, uint8_t version, uint8_t ecc, const char* data);
-int8_t qrcode_initBytes(QRCode* qrcode, uint8_t* modules, uint8_t version, uint8_t ecc, uint8_t* data, uint16_t length);
-
-bool qrcode_getModule(QRCode *qrcode, uint8_t x, uint8_t y);
 
 #endif
