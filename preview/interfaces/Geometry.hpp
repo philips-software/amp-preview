@@ -176,6 +176,26 @@ namespace infra
         Vector size;
     };
 
+    class RowFirstPoints
+    {
+    public:
+        explicit RowFirstPoints(infra::Region region);
+
+        RowFirstPoints begin() const;
+        RowFirstPoints end() const;
+
+        Point operator*() const;
+        RowFirstPoints& operator++();
+        RowFirstPoints operator++(int) const;
+
+        bool operator==(const RowFirstPoints& other) const;
+        bool operator!=(const RowFirstPoints& other) const;
+
+    private:
+        infra::Region region;
+        infra::Point current;
+    };
+
     Region Intersection(Region first, Region second);
     Region Union(Region first, Region second);
     Region operator&(Region first, Region second);
@@ -186,6 +206,7 @@ namespace infra
     Vector Flip(Vector vector);
     Region Flip(Region region);
     uint32_t ManhattanDistance(Point first, Point second);
+    uint32_t ChebyshevDistance(Point first, Point second);
     uint32_t Distance(Point first, Point second);
     Point AlignedUp(Point point, uint16_t alignX, uint16_t alignY);
     Point AlignedDown(Point point, uint16_t alignX, uint16_t alignY);

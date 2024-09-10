@@ -17,14 +17,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     infra::LowPowerEventDispatcher::WithSize<50> eventDispatcher(lowPowerStrategy);
 
     QRCode qrcode(3, QRCode::Ecc::low, "HELLO WORLD");
-
-    infra::Bitmap::BlackAndWhite<29, 29> qrCodeBitmap;
-
-    for (uint8_t y = 0; y < qrcode.size; y++)
-        for (uint8_t x = 0; x < qrcode.size; x++)
-            qrCodeBitmap.SetBlackAndWhitePixel(infra::Point(x, y), qrcode.getModule(x, y) == 0);
-
-    services::ViewBitmap viewBitmap(qrCodeBitmap);
+    services::ViewBitmap viewBitmap(qrcode.GetBitmap());
 
     hal::DirectDisplaySdl display(infra::Vector(480, 272));
     services::ViewPainterDirectDisplay painter(display);

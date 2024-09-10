@@ -157,7 +157,6 @@ public:
     uint8_t* data;
 };
 
-
 BitBuffer::BitBuffer(uint8_t* data, int32_t capacityBytes)
     : capacityBytes(capacityBytes)
     , data(data)
@@ -183,20 +182,20 @@ BitBucket::BitBucket(uint8_t size)
     memset(buffer, 0, QRCode::GridSizeInBytes(size));
 }
 
-void BitBucket::Set(uint8_t x, uint8_t y, bool on)
+void BitBucket::Set(infra::Point position, bool on)
 {
-    bitmap.SetBlackAndWhitePixel(infra::Point(x, y), on);
+    bitmap.SetBlackAndWhitePixel(position, on);
 }
 
-bool BitBucket::Get(uint8_t x, uint8_t y) const
+bool BitBucket::Get(infra::Point position) const
 {
-    return bitmap.BlackAndWhitePixel(infra::Point(x, y));
+    return bitmap.BlackAndWhitePixel(position);
 }
 
-void BitBucket::Invert(uint8_t x, uint8_t y, bool invert)
+void BitBucket::Invert(infra::Point position, bool invert)
 {
     if (invert)
-        Set(x, y, !Get(x, y));
+        Set(position, !Get(position));
 }
 
 // XORs the data modules in this QR Code with the given mask pattern. Due to XOR's mathematical
@@ -207,75 +206,69 @@ static void applyMask(BitBucket* modules, BitBucket* isFunction, uint8_t mask)
 {
     uint8_t size = modules->bitmap.size.deltaX;
 
-    for (uint8_t y = 0; y != size; ++y)
+    for (auto position : infra::RowFirstPoints(infra::Region(infra::Point(), modules->bitmap.size)))
     {
-        for (uint8_t x = 0; x != size; ++x)
-        {
-            if (isFunction->Get(x, y))
-                continue;
+        if (isFunction->Get(position))
+            continue;
 
-            bool invert = 0;
-            switch (mask)
-            {
-                case 0:
-                    invert = (x + y) % 2 == 0;
-                    break;
-                case 1:
-                    invert = y % 2 == 0;
-                    break;
-                case 2:
-                    invert = x % 3 == 0;
-                    break;
-                case 3:
-                    invert = (x + y) % 3 == 0;
-                    break;
-                case 4:
-                    invert = (x / 3 + y / 2) % 2 == 0;
-                    break;
-                case 5:
-                    invert = x * y % 2 + x * y % 3 == 0;
-                    break;
-                case 6:
-                    invert = (x * y % 2 + x * y % 3) % 2 == 0;
-                    break;
-                case 7:
-                    invert = ((x + y) % 2 + x * y % 3) % 2 == 0;
-                    break;
-            }
-            modules->Invert(x, y, invert);
+        bool invert = 0;
+        switch (mask)
+        {
+            case 0:
+                invert = (position.x + position.y) % 2 == 0;
+                break;
+            case 1:
+                invert = position.y % 2 == 0;
+                break;
+            case 2:
+                invert = position.x % 3 == 0;
+                break;
+            case 3:
+                invert = (position.x + position.y) % 3 == 0;
+                break;
+            case 4:
+                invert = (position.x / 3 + position.y / 2) % 2 == 0;
+                break;
+            case 5:
+                invert = position.x * position.y % 2 + position.x * position.y % 3 == 0;
+                break;
+            case 6:
+                invert = (position.x * position.y % 2 + position.x * position.y % 3) % 2 == 0;
+                break;
+            case 7:
+                invert = ((position.x + position.y) % 2 + position.x * position.y % 3) % 2 == 0;
+                break;
         }
+        modules->Invert(position, invert);
     }
 }
 
-static void setFunctionModule(BitBucket* modules, BitBucket* isFunction, uint8_t x, uint8_t y, bool on)
+static void setFunctionModule(BitBucket* modules, BitBucket* isFunction, infra::Point position, bool on)
 {
-    modules->Set(x, y, on);
-    isFunction->Set(x, y, true);
+    modules->Set(position, on);
+    isFunction->Set(position, true);
 }
 
 // Draws a 9*9 finder pattern including the border separator, with the center module at (x, y).
-static void drawFinderPattern(BitBucket* modules, BitBucket* isFunction, uint8_t x, uint8_t y)
+static void drawFinderPattern(BitBucket* modules, BitBucket* isFunction, infra::Point position)
 {
-    uint8_t size = modules->bitmap.size.deltaX;
+    auto bitmapRegion = infra::Region(infra::Point(), modules->bitmap.size);
+    auto finderRegion = infra::Region(infra::Point(-4, -4), infra::Point(5, 5)) >> (position - infra::Point());
 
-    for (int8_t i = -4; i <= 4; i++)
+    for (auto i : infra::RowFirstPoints(infra::Intersection(finderRegion, bitmapRegion)))
     {
-        for (int8_t j = -4; j <= 4; j++)
-        {
-            uint8_t dist = std::max(std::abs(i), std::abs(j)); // Chebyshev/infinity norm
-            int16_t xx = x + j, yy = y + i;
-            if (0 <= xx && xx < size && 0 <= yy && yy < size)
-                setFunctionModule(modules, isFunction, xx, yy, dist != 2 && dist != 4);
-        }
+        auto dist = infra::ChebyshevDistance(i, position);
+        setFunctionModule(modules, isFunction, i, dist != 2 && dist != 4);
     }
 }
 
 // Draws a 5*5 alignment pattern, with the center module at (x, y).
-static void drawAlignmentPattern(BitBucket* modules, BitBucket* isFunction, uint8_t x, uint8_t y)
+static void drawAlignmentPattern(BitBucket* modules, BitBucket* isFunction, infra::Point position)
 {
-    for (int8_t i = -2; i != 3; ++i)
-        for (int8_t j = -2; j != 3; ++j)
-            setFunctionModule(modules, isFunction, x + j, y + i, std::max(std::abs(i), std::abs(j)) != 1);
+    auto alignmentRegion = infra::Region(infra::Point(-2, -2), infra::Point(3, 3)) >> (position - infra::Point());
+
+    for (auto i : infra::RowFirstPoints(alignmentRegion))
+        setFunctionModule(modules, isFunction, i, infra::ChebyshevDistance(i, position) != 1);
 }
 
 // Draws two copies of the format bits (with its own error correction code)
@@ -295,23 +288,23 @@ static void drawFormatBits(BitBucket* modules, BitBucket* isFunction, uint8_t ec
 
     // Draw first copy
     for (uint8_t i = 0; i <= 5; i++)
-        setFunctionModule(modules, isFunction, 8, i, ((data >> i) & 1) != 0);
+        setFunctionModule(modules, isFunction, infra::Point(8, i), ((data >> i) & 1) != 0);
 
-    setFunctionModule(modules, isFunction, 8, 7, ((data >> 6) & 1) != 0);
-    setFunctionModule(modules, isFunction, 8, 8, ((data >> 7) & 1) != 0);
-    setFunctionModule(modules, isFunction, 7, 8, ((data >> 8) & 1) != 0);
+    setFunctionModule(modules, isFunction, infra::Point(8, 7), ((data >> 6) & 1) != 0);
+    setFunctionModule(modules, isFunction, infra::Point(8, 8), ((data >> 7) & 1) != 0);
+    setFunctionModule(modules, isFunction, infra::Point(7, 8), ((data >> 8) & 1) != 0);
 
     for (int8_t i = 9; i < 15; i++)
-        setFunctionModule(modules, isFunction, 14 - i, 8, ((data >> i) & 1) != 0);
+        setFunctionModule(modules, isFunction, infra::Point(14 - i, 8), ((data >> i) & 1) != 0);
 
     // Draw second copy
     for (int8_t i = 0; i <= 7; i++)
-        setFunctionModule(modules, isFunction, size - 1 - i, 8, ((data >> i) & 1) != 0);
+        setFunctionModule(modules, isFunction, infra::Point(size - 1 - i, 8), ((data >> i) & 1) != 0);
 
     for (int8_t i = 8; i < 15; i++)
-        setFunctionModule(modules, isFunction, 8, size - 15 + i, ((data >> i) & 1) != 0);
+        setFunctionModule(modules, isFunction, infra::Point(8, size - 15 + i), ((data >> i) & 1) != 0);
 
-    setFunctionModule(modules, isFunction, 8, size - 8, true);
+    setFunctionModule(modules, isFunction, infra::Point(8, size - 8), true);
 }
 
 // Draws two copies of the version bits (with its own error correction code),
@@ -336,8 +329,8 @@ static void drawVersion(BitBucket* modules, BitBucket* isFunction, uint8_t versi
         bool bit = ((data >> i) & 1) != 0;
         uint8_t a = size - 11 + i % 3;
         uint8_t b = i / 3;
-        setFunctionModule(modules, isFunction, a, b, bit);
-        setFunctionModule(modules, isFunction, b, a, bit);
+        setFunctionModule(modules, isFunction, infra::Point(a, b), bit);
+        setFunctionModule(modules, isFunction, infra::Point(b, a), bit);
     }
 }
 
@@ -348,14 +341,14 @@ static void drawFunctionPatterns(BitBucket* modules, BitBucket* isFunction, uint
     // Draw the horizontal and vertical timing patterns
     for (uint8_t i = 0; i != size; ++i)
     {
-        setFunctionModule(modules, isFunction, 6, i, i % 2 == 0);
-        setFunctionModule(modules, isFunction, i, 6, i % 2 == 0);
+        setFunctionModule(modules, isFunction, infra::Point(6, i), i % 2 == 0);
+        setFunctionModule(modules, isFunction, infra::Point(i, 6), i % 2 == 0);
     }
 
     // Draw 3 finder patterns (all corners except bottom right; overwrites some timing modules)
-    drawFinderPattern(modules, isFunction, 3, 3);
-    drawFinderPattern(modules, isFunction, size - 4, 3);
-    drawFinderPattern(modules, isFunction, 3, size - 4);
+    drawFinderPattern(modules, isFunction, infra::Point(3, 3));
+    drawFinderPattern(modules, isFunction, infra::Point(size - 4, 3));
+    drawFinderPattern(modules, isFunction, infra::Point(3, size - 4));
 
     if (version > 1)
     {
@@ -383,7 +376,7 @@ static void drawFunctionPatterns(BitBucket* modules, BitBucket* isFunction, uint
                 if ((i == 0 && j == 0) || (i == 0 && j == alignCount - 1) || (i == alignCount - 1 && j == 0))
                     continue; // Skip the three finder corners
                 else
-                    drawAlignmentPattern(modules, isFunction, alignPosition[i], alignPosition[j]);
+                    drawAlignmentPattern(modules, isFunction, infra::Point(alignPosition[i], alignPosition[j]));
     }
 
     // Draw configuration data
@@ -416,9 +409,10 @@ static void drawCodewords(BitBucket* modules, BitBucket* isFunction, BitBuffer* 
                 uint8_t x = right - j; // Actual x coordinate
                 bool upwards = ((right & 2) == 0) ^ (x < 6);
                 uint8_t y = upwards ? size - 1 - vert : vert; // Actual y coordinate
-                if (!isFunction->Get(x, y) && i < bitLength)
+                auto position = infra::Point(x, y);
+                if (!isFunction->Get(position) && i < bitLength)
                 {
-                    modules->Set(x, y, ((data[i >> 3] >> (7 - (i & 7))) & 1) != 0);
+                    modules->Set(position, ((data[i >> 3] >> (7 - (i & 7))) & 1) != 0);
                     ++i;
                 }
                 // If there are any remainder bits (0 to 7), they are already
@@ -444,10 +438,10 @@ uint32_t BitBucket::PenaltyScore() const
     // Adjacent modules in row having same color
     for (uint8_t y = 0; y < size; ++y)
     {
-        bool colorX = Get(0, y);
+        bool colorX = Get(infra::Point(0, y));
         for (uint8_t x = 1, runX = 1; x != size; ++x)
         {
-            bool cx = Get(x, y);
+            bool cx = Get(infra::Point(x, y));
             if (cx != colorX)
             {
                 colorX = cx;
@@ -467,10 +461,10 @@ uint32_t BitBucket::PenaltyScore() const
     // Adjacent modules in column having same color
     for (uint8_t x = 0; x != size; ++x)
     {
-        bool colorY = Get(x, 0);
+        bool colorY = Get(infra::Point(x, 0));
         for (uint8_t y = 1, runY = 1; y != size; ++y)
         {
-            bool cy = Get(x, y);
+            bool cy = Get(infra::Point(x, y));
             if (cy != colorY)
             {
                 colorY = cy;
@@ -493,21 +487,21 @@ uint32_t BitBucket::PenaltyScore() const
         uint16_t bitsRow = 0, bitsCol = 0;
         for (uint8_t x = 0; x != size; ++x)
         {
-            bool color = Get(x, y);
+            bool color = Get(infra::Point(x, y));
 
             // 2*2 blocks of modules having same color
             if (x > 0 && y > 0)
             {
-                bool colorUL = Get(x - 1, y - 1);
-                bool colorUR = Get(x, y - 1);
-                bool colorL = Get(x - 1, y);
+                bool colorUL = Get(infra::Point(x - 1, y - 1));
+                bool colorUR = Get(infra::Point(x, y - 1));
+                bool colorL = Get(infra::Point(x - 1, y));
                 if (color == colorUL && color == colorUR && color == colorL)
                     result += PENALTY_N2;
             }
 
             // Finder-like pattern in rows and columns
             bitsRow = ((bitsRow << 1) & 0x7FF) | static_cast<int>(color);
-            bitsCol = ((bitsCol << 1) & 0x7FF) | static_cast<int>(Get(y, x));
+            bitsCol = ((bitsCol << 1) & 0x7FF) | static_cast<int>(Get(infra::Point(y, x)));
 
             // Needs 11 bits accumulated
             if (x >= 10)
@@ -775,8 +769,7 @@ QRCode::QRCode(uint8_t version, Ecc ecc, infra::BoundedConstString text)
     applyMask(&modulesGrid, &isFunctionGrid, mask);
 }
 
-bool QRCode::getModule(uint8_t x, uint8_t y) const
+const infra::Bitmap& QRCode::GetBitmap() const
 {
-    return modulesGrid.bitmap.BlackAndWhitePixel(infra::Point(x, y));
+    return modulesGrid.bitmap;
 }
-

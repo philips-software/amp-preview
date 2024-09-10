@@ -522,6 +522,59 @@ namespace infra
         return !(*this == other);
     }
 
+    RowFirstPoints::RowFirstPoints(infra::Region region)
+        : region(region)
+        , current(region.TopLeft())
+    {}
+
+    RowFirstPoints RowFirstPoints::begin() const
+    {
+        return *this;
+    }
+
+    RowFirstPoints RowFirstPoints::end() const
+    {
+        RowFirstPoints result(*this);
+        result.current = region.BottomRight();
+        result.current.x = region.Left();
+        return result;
+    }
+
+    Point RowFirstPoints::operator*() const
+    {
+        return current;
+    }
+
+    RowFirstPoints& RowFirstPoints::operator++()
+    {
+        ++current.x;
+
+        if (current.x == region.Right())
+        {
+            current.x = region.Left();
+            ++current.y;
+        }
+
+        return *this;
+    }
+
+    RowFirstPoints RowFirstPoints::operator++(int) const
+    {
+        RowFirstPoints result(*this);
+        ++result;
+        return result;
+    }
+
+    bool RowFirstPoints::operator==(const RowFirstPoints& other) const
+    {
+        return region == other.region && current == other.current;
+    }
+
+    bool RowFirstPoints::operator!=(const RowFirstPoints& other) const
+    {
+        return !(*this == other);
+    }
+
     Region Intersection(Region first, Region second)
     {
         if (first.Top() >= second.Bottom() || first.Bottom() <= second.Top() || first.Left() >= second.Right() || first.Right() <= second.Left())
@@ -581,6 +634,11 @@ namespace infra
     uint32_t ManhattanDistance(Point first, Point second)
     {
         return std::abs(first.x - second.x) + std::abs(first.y - second.y);
+    }
+
+    uint32_t ChebyshevDistance(Point first, Point second)
+    {
+        return std::max(std::abs(first.x - second.x), std::abs(first.y - second.y));
     }
 
     uint32_t Distance(Point first, Point second)
