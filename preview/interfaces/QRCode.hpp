@@ -41,6 +41,22 @@
 #include "preview/interfaces/Bitmap.hpp"
 #include <cstdint>
 
+class BitBucket
+{
+public:
+    BitBucket(uint8_t size);
+
+    void Set(uint8_t x, uint8_t y, bool on);
+    bool Get(uint8_t x, uint8_t y) const;
+    void Invert(uint8_t x, uint8_t y, bool invert);
+
+    uint32_t PenaltyScore() const;
+
+public:
+    std::uint8_t* buffer;
+    infra::Bitmap bitmap;
+};
+
 class QRCode
 {
 public:
@@ -64,17 +80,15 @@ public:
     };
 
 public:
-    template<uint8_t version>
-    using Version = infra::WithStorage<QRCode, std::array<uint8_t, BufferSize(version)>>;
-
-    QRCode(infra::ByteRange modules, uint8_t version, Ecc ecc, infra::BoundedConstString text);
+    QRCode(uint8_t version, Ecc ecc, infra::BoundedConstString text);
     bool getModule(uint8_t x, uint8_t y) const;
 
 public:
     uint8_t version;
     uint8_t size;
     Ecc ecc;
-    infra::ByteRange modules;
+
+    BitBucket modulesGrid;
 };
 
 #endif

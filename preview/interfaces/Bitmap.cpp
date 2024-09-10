@@ -40,7 +40,7 @@ namespace infra
         assert(pixelFormat == PixelFormat::blackandwhite);
 
         auto bitIndex = position.y * size.deltaX + position.x;
-        return (buffer[bitIndex / 8] & (1 << (7 - bitIndex % 8))) != 0;
+        return (buffer[bitIndex / 8] & (1 << (bitIndex % 8))) != 0;
     }
 
     uint32_t Bitmap::PixelColour(infra::Point position) const

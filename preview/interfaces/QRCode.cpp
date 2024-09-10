@@ -171,62 +171,32 @@ void BitBuffer::Append(uint32_t val, uint8_t length)
         data[bitOffset >> 3] |= ((val >> i) & 1) << (7 - (bitOffset & 7));
 }
 
-class BitBucket
-{
-public:
-    BitBucket(uint8_t* data, uint8_t size);
-
-    void Set(uint8_t x, uint8_t y, bool on);
-    bool Get(uint8_t x, uint8_t y) const;
-    void Invert(uint8_t x, uint8_t y, bool invert);
-
-    uint32_t PenaltyScore() const;
-
-public:
-    uint32_t width;
-    uint16_t capacityBytes;
-    uint8_t* data;
-};
-
 static uint16_t RoundBitsToByte(uint32_t bits)
 {
     return (bits + 7) / 8;
 }
 
-BitBucket::BitBucket(uint8_t* data, uint8_t size)
-    : width(size)
-    , capacityBytes(QRCode::GridSizeInBytes(size))
-    , data(data)
+BitBucket::BitBucket(uint8_t size)
+    : buffer(new uint8_t[QRCode::GridSizeInBytes(size)])
+    , bitmap(infra::ByteRange(buffer, buffer + QRCode::GridSizeInBytes(size)), infra::Vector(size, size), infra::PixelFormat::blackandwhite)
 {
-    memset(data, 0, capacityBytes);
+    memset(buffer, 0, QRCode::GridSizeInBytes(size));
 }
 
 void BitBucket::Set(uint8_t x, uint8_t y, bool on)
 {
-    uint32_t offset = y * width + x;
-    uint8_t mask = 1 << (7 - (offset & 0x07));
-
-    if (on)
-        data[offset >> 3] |= mask;
-    else
-        data[offset >> 3] &= ~mask;
+    bitmap.SetBlackAndWhitePixel(infra::Point(x, y), on);
 }
 
 bool BitBucket::Get(uint8_t x, uint8_t y) const
 {
-    uint32_t offset = y * width + x;
-    return (data[offset >> 3] & (1 << (7 - (offset & 0x07)))) != 0;
+    return bitmap.BlackAndWhitePixel(infra::Point(x, y));
 }
 
 void BitBucket::Invert(uint8_t x, uint8_t y, bool invert)
 {
-    uint32_t offset = y * width + x;
-    uint8_t mask = 1 << (7 - (offset & 0x07));
-    bool on = ((data[offset >> 3] & (1 << (7 - (offset & 0x07)))) != 0);
-    if (on ^ invert)
-        data[offset >> 3] |= mask;
-    else
-        data[offset >> 3] &= ~mask;
+    if (invert)
+        Set(x, y, !Get(x, y));
 }
 
 // XORs the data modules in this QR Code with the given mask pattern. Due to XOR's mathematical
@@ -235,7 +205,7 @@ void BitBucket::Invert(uint8_t x, uint8_t y, bool invert)
 // well-formed QR Code symbol needs exactly one mask applied (not zero, not two, etc.).
 static void applyMask(BitBucket* modules, BitBucket* isFunction, uint8_t mask)
 {
-    uint8_t size = modules->width;
+    uint8_t size = modules->bitmap.size.deltaX;
 
     for (uint8_t y = 0; y != size; ++y)
     {
@@ -286,7 +256,7 @@ static void setFunctionModule(BitBucket* modules, BitBucket* isFunction, uint8_t
 // Draws a 9*9 finder pattern including the border separator, with the center module at (x, y).
 static void drawFinderPattern(BitBucket* modules, BitBucket* isFunction, uint8_t x, uint8_t y)
 {
-    uint8_t size = modules->width;
+    uint8_t size = modules->bitmap.size.deltaX;
 
     for (int8_t i = -4; i <= 4; i++)
     {
@@ -312,7 +282,7 @@ static void drawAlignmentPattern(BitBucket* modules, BitBucket* isFunction, uint
 // based on the given mask and this object's error correction level field.
 static void drawFormatBits(BitBucket* modules, BitBucket* isFunction, uint8_t ecc, uint8_t mask)
 {
-    uint8_t size = modules->width;
+    uint8_t size = modules->bitmap.size.deltaX;
 
     // Calculate error correction code and pack bits
     uint32_t data = ecc << 3 | mask; // ecc is uint2, mask is uint3
@@ -348,7 +318,7 @@ static void drawFormatBits(BitBucket* modules, BitBucket* isFunction, uint8_t ec
 // based on this object's version field (which only has an effect for 7 <= version <= 40).
 static void drawVersion(BitBucket* modules, BitBucket* isFunction, uint8_t version)
 {
-    int8_t size = modules->width;
+    int8_t size = modules->bitmap.size.deltaX;
 
     if (version < 7)
         return;
@@ -373,7 +343,7 @@ static void drawVersion(BitBucket* modules, BitBucket* isFunction, uint8_t versi
 
 static void drawFunctionPatterns(BitBucket* modules, BitBucket* isFunction, uint8_t version, uint8_t ecc)
 {
-    uint8_t size = modules->width;
+    uint8_t size = modules->bitmap.size.deltaX;
 
     // Draw the horizontal and vertical timing patterns
     for (uint8_t i = 0; i != size; ++i)
@@ -428,7 +398,7 @@ static void drawCodewords(BitBucket* modules, BitBucket* isFunction, BitBuffer* 
     uint32_t bitLength = codewords->bitOffset;
     uint8_t* data = codewords->data;
 
-    uint8_t size = modules->width;
+    uint8_t size = modules->bitmap.size.deltaX;
 
     // Bit index into the data
     uint32_t i = 0;
@@ -469,7 +439,7 @@ uint32_t BitBucket::PenaltyScore() const
 {
     uint32_t result = 0;
 
-    uint8_t size = width;
+    uint8_t size = bitmap.size.deltaX;
 
     // Adjacent modules in row having same color
     for (uint8_t y = 0; y < size; ++y)
@@ -749,11 +719,11 @@ void BitBuffer::PerformErrorCorrection(uint8_t version, uint8_t ecc)
 // The format bits can be determined by ECC_FORMAT_BITS >> (2 * ecc)
 static const uint8_t ECC_FORMAT_BITS = (0x02 << 6) | (0x03 << 4) | (0x00 << 2) | (0x01 << 0);
 
-QRCode::QRCode(infra::ByteRange modules, uint8_t version, Ecc ecc, infra::BoundedConstString text)
+QRCode::QRCode(uint8_t version, Ecc ecc, infra::BoundedConstString text)
     : version(version)
     , size(version * 4 + 17)
     , ecc(ecc)
-    , modules(modules)
+    , modulesGrid(size)
 {
     uint8_t eccFormatBits = (ECC_FORMAT_BITS >> (2 * static_cast<uint8_t>(ecc))) & 0x03;
 
@@ -775,9 +745,7 @@ QRCode::QRCode(infra::ByteRange modules, uint8_t version, Ecc ecc, infra::Bounde
     for (uint8_t padByte = 0xEC; codewords.bitOffset < (dataCapacity * 8); padByte ^= 0xEC ^ 0x11)
         codewords.Append(padByte, 8);
 
-    BitBucket modulesGrid(modules.begin(), size);
-
-    BitBucket isFunctionGrid(AllocOnStack(GridSizeInBytes(size)), size);
+    BitBucket isFunctionGrid(size);
 
     // Draw function patterns, draw all codewords, do masking
     drawFunctionPatterns(&modulesGrid, &isFunctionGrid, version, eccFormatBits);
@@ -809,10 +777,6 @@ QRCode::QRCode(infra::ByteRange modules, uint8_t version, Ecc ecc, infra::Bounde
 
 bool QRCode::getModule(uint8_t x, uint8_t y) const
 {
-    if (x < 0 || x >= size || y < 0 || y >= size)
-        return false;
-
-    uint32_t offset = y * size + x;
-    return (modules[offset >> 3] & (1 << (7 - (offset & 0x07)))) != 0;
+    return modulesGrid.bitmap.BlackAndWhitePixel(infra::Point(x, y));
 }
 
