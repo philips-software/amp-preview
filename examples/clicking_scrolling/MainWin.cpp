@@ -16,7 +16,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     services::LowPowerStrategySdl lowPowerStrategy(timerService);
     infra::LowPowerEventDispatcher::WithSize<50> eventDispatcher(lowPowerStrategy);
 
-    QRCode qrcode(3, QRCode::Ecc::low, "HELLO WORLD");
+    services::QRCode<3, services::QRCodeEcc::low> qrcode("HELLO WORLD");
     services::ViewBitmap viewBitmap(qrcode.GetBitmap());
 
     hal::DirectDisplaySdl display(infra::Vector(480, 272));
