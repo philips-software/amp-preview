@@ -57,6 +57,40 @@ public:
     infra::Bitmap bitmap;
 };
 
+class BitBuffer
+{
+private:
+    static constexpr std::array<uint16_t, 41> numRawDataModulesForVersion{
+        0, 208, 359, 567, 807, 1079, 1383, 1568, 1936, 2336, 2768, 3232, 3728, 4256, 4651, 5243, 5867, 6523,
+        7211, 7931, 8683, 9252, 10068, 10916, 11796, 12708, 13652, 14628, 15371, 16411, 17483, 18587,
+        19723, 20891, 22091, 23008, 24272, 25568, 26896, 28256, 29648
+    };
+
+    static constexpr uint16_t RoundBitsToByte(uint16_t bits)
+    {
+        return (bits + 7) / 8;
+    }
+
+public:
+    BitBuffer(uint8_t version, infra::BoundedConstString text, uint8_t ecc);
+
+    uint16_t Length() const;
+    bool Bit(uint16_t index) const;
+
+private:
+    void Append(uint32_t val, uint8_t length);
+    void EncodeDataCodewords(infra::BoundedConstString text);
+    void PerformErrorCorrection(uint8_t ecc);
+
+private:
+    uint8_t version;
+    uint16_t moduleCount;
+    uint16_t bitOffset = 0;
+    uint16_t capacityBytes;
+    uint8_t* data;
+    uint8_t* result;
+};
+
 class QRCode
 {
 public:
@@ -84,12 +118,40 @@ public:
 
     const infra::Bitmap& GetBitmap() const;
 
-public:
-    uint8_t version;
-    uint8_t size;
-    Ecc ecc;
+private:
+    class QRCodeGenerator
+    {
+    public:
+        QRCodeGenerator(BitBucket& modules, uint8_t version, Ecc ecc, infra::BoundedConstString text);
 
-    BitBucket modulesGrid;
+    private:
+        uint8_t BestMask();
+
+        void ApplyMask(uint8_t mask);
+        void DrawFunctionPatterns();
+        void DrawVersion();
+        void DrawFinderPattern(infra::Point position);
+        void DrawAlignmentPattern(infra::Point position);
+        void DrawCodewords();
+        void DrawFormatBits(uint8_t mask);
+        void SetFunctionModule(infra::Point position, bool on);
+
+    private:
+        uint8_t version;
+        uint8_t size;
+        uint8_t ecc;
+
+        BitBucket& modules;
+        BitBucket isFunction;
+
+        BitBuffer codewords;
+
+        uint8_t alignCount;
+        uint8_t* alignPosition;
+    };
+
+public:
+    BitBucket modules;
 };
 
 #endif
