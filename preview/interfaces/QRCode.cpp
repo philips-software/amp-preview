@@ -118,24 +118,22 @@ namespace services
             return result;
         }
 
-        BitBuffer::ReedSolomon::ReedSolomon(uint8_t degree)
-            : degree(degree)
-            , coeff(new uint8_t[degree])
+        BitBuffer::ReedSolomon::ReedSolomon(infra::ByteRange coeff)
+            : coeff(coeff)
         {
-            memset(coeff, 0, degree);
-            coeff[degree - 1] = 1;
+            coeff.back() = 1;
 
-            // Compute the product polynomial (x - r^0) * (x - r^1) * (x - r^2) * ... * (x - r^{degree-1}),
+            // Compute the product polynomial (x - r^0) * (x - r^1) * (x - r^2) * ... * (x - r^{coeff.size()-1}),
             // drop the highest term, and store the rest of the coefficients in order of descending powers.
             // Note that r = 0x02, which is a generator element of this field GF(2^8/0x11D).
             uint16_t root = 1;
-            for (uint8_t i = 0; i < degree; i++)
+            for (uint8_t i = 0; i < coeff.size(); i++)
             {
                 // Multiply the current product by (x - r^i)
-                for (uint8_t j = 0; j != degree; ++j)
+                for (uint8_t j = 0; j != coeff.size(); ++j)
                 {
                     coeff[j] = Multiply(coeff[j], root);
-                    if (j + 1 < degree)
+                    if (j + 1 < coeff.size())
                         coeff[j] ^= coeff[j + 1];
                 }
                 root = (root << 1) ^ ((root >> 7) * 0x11D); // Multiply by 0x02 mod GF(2^8/0x11D)
@@ -148,12 +146,12 @@ namespace services
             for (uint8_t i = 0; i != length; ++i)
             {
                 uint8_t factor = data[i] ^ result[0];
-                for (uint8_t j = 1; j != degree; ++j)
+                for (uint8_t j = 1; j != coeff.size(); ++j)
                     result[(j - 1) * stride] = result[j * stride];
 
-                result[(degree - 1) * stride] = 0;
+                result[(coeff.size() - 1) * stride] = 0;
 
-                for (uint8_t j = 0; j != degree; ++j)
+                for (uint8_t j = 0; j != coeff.size(); ++j)
                     result[j * stride] ^= Multiply(coeff[j], factor);
             }
         }
@@ -171,22 +169,18 @@ namespace services
             return z;
         }
 
-        BitBuffer::BitBuffer(uint8_t version, uint8_t ecc)
+        BitBuffer::BitBuffer(infra::ByteRange data, infra::ByteRange result, infra::ByteRange coeff, uint8_t version, QRCodeEcc ecc)
             : version(version)
             , ecc(ecc)
             , moduleCount(numRawDataModulesForVersion[version])
-            , capacityBytes(RoundBitsToByte(moduleCount))
-            , data(new uint8_t[capacityBytes])
-            , result(new uint8_t[capacityBytes])
-            , reedSolomon(BlockEccLen(version, ecc))
-        {
-            std::memset(data, 0, capacityBytes);
-            std::memset(result, 0, capacityBytes);
-        }
+            , data(data)
+            , result(result)
+            , reedSolomon(coeff)
+        {}
 
         void BitBuffer::Generate(infra::BoundedConstString text)
         {
-            uint16_t dataCapacity = moduleCount / 8 - numErrorCorrectionCodewords[ecc][version - 1];
+            uint16_t dataCapacity = moduleCount / 8 - numErrorCorrectionCodewords[static_cast<uint8_t>(ecc)][version - 1];
 
             // Place the data code words into the buffer
             EncodeDataCodewords(text);
@@ -280,11 +274,11 @@ namespace services
             }
         }
 
-        void BitBuffer::PerformErrorCorrection(uint8_t ecc)
+        void BitBuffer::PerformErrorCorrection(QRCodeEcc ecc)
         {
             // See: http://www.thonky.com/qr-code-tutorial/structure-final-message
-            uint8_t numBlocks = numErrorCorrectionBlocks[ecc][version - 1];
-            uint16_t totalEcc = numErrorCorrectionCodewords[ecc][version - 1];
+            uint8_t numBlocks = numErrorCorrectionBlocks[static_cast<uint8_t>(ecc)][version - 1];
+            uint16_t totalEcc = numErrorCorrectionCodewords[static_cast<uint8_t>(ecc)][version - 1];
 
             uint8_t numShortBlocks = numBlocks - moduleCount / 8 % numBlocks;
             uint8_t shortBlockLen = moduleCount / 8 / numBlocks;
@@ -292,7 +286,7 @@ namespace services
             uint8_t shortDataBlockLen = shortBlockLen - BlockEccLen(version, ecc);
 
             uint16_t offset = 0;
-            uint8_t* dataBytes = data;
+            uint8_t* dataBytes = data.begin();
 
             // Interleave all short blocks
             for (uint8_t i = 0; i != shortDataBlockLen; ++i)
@@ -466,24 +460,18 @@ namespace services
             return result;
         }
 
-        // We store the Format bits tightly packed into a single byte (each of the 4 modes is 2 bits)
-        // The format bits can be determined by ECC_FORMAT_BITS >> (2 * ecc)
-        static const uint8_t ECC_FORMAT_BITS = (0x02 << 6) | (0x03 << 4) | (0x00 << 2) | (0x01 << 0);
-
-        detail::QRCodeGenerator::QRCodeGenerator(BitBucket& modules, BitBucket& isFunction, uint8_t version, QRCodeEcc ecc)
+        detail::QRCodeGenerator::QRCodeGenerator(BitBucket& modules, BitBucket& isFunction, BitBuffer& codewords, infra::ByteRange alignPosition, uint8_t version, QRCodeEcc ecc)
             : version(version)
-            , ecc((ECC_FORMAT_BITS >> (2 * static_cast<uint8_t>(ecc))) & 0x03)
+            , ecc(ecc)
             , modules(modules)
             , isFunction(isFunction)
-            , codewords(version, this->ecc)
-            , alignCount(version / 7 + 2)
-            , alignPosition(new uint8_t[alignCount])
+            , codewords(codewords)
+            , alignPosition(alignPosition)
         {}
 
         void QRCodeGenerator::Generate(infra::BoundedConstString text)
         {
             codewords.Generate(text);
-            std::memset(alignPosition, 0, alignCount);
 
             // Draw function patterns, draw all codewords, do masking
             DrawFunctionPatterns();
@@ -588,21 +576,21 @@ namespace services
 
                 uint8_t step;
                 if (version != 32)
-                    step = (version * 4 + alignCount * 2 + 1) / (2 * alignCount - 2) * 2;
+                    step = (version * 4 + alignPosition.size() * 2 + 1) / (2 * alignPosition.size() - 2) * 2;
                 else
                     step = 26;
 
-                uint8_t alignPositionIndex = alignCount - 1;
+                uint8_t alignPositionIndex = alignPosition.size() - 1;
 
                 alignPosition[0] = 6;
 
                 uint8_t size = version * 4 + 17;
-                for (uint8_t i = 0, pos = size - 7; i != alignCount - 1; ++i, pos -= step)
+                for (uint8_t i = 0, pos = size - 7; i != alignPosition.size() - 1; ++i, pos -= step)
                     alignPosition[alignPositionIndex--] = pos;
 
-                for (uint8_t i = 0; i != alignCount; ++i)
-                    for (uint8_t j = 0; j != alignCount; ++j)
-                        if ((i == 0 && j == 0) || (i == 0 && j == alignCount - 1) || (i == alignCount - 1 && j == 0))
+                for (uint8_t i = 0; i != alignPosition.size(); ++i)
+                    for (uint8_t j = 0; j != alignPosition.size(); ++j)
+                        if ((i == 0 && j == 0) || (i == 0 && j == alignPosition.size() - 1) || (i == alignPosition.size() - 1 && j == 0))
                             continue; // Skip the three finder corners
                         else
                             DrawAlignmentPattern(infra::Point(alignPosition[i], alignPosition[j]));
@@ -704,10 +692,14 @@ namespace services
         // based on the given mask and this object's error correction level field.
         void detail::QRCodeGenerator::DrawFormatBits(uint8_t mask)
         {
+            static constexpr std::array<uint8_t, 4> eccFormatBits{
+                0x01, 0x00, 0x03, 0x02
+            };
+
             uint8_t size = modules.bitmap.size.deltaX;
 
             // Calculate error correction code and pack bits
-            uint32_t data = ecc << 3 | mask; // ecc is uint2, mask is uint3
+            uint32_t data = eccFormatBits[static_cast<uint8_t>(ecc)] << 3 | mask; // ecc is uint2, mask is uint3
             uint32_t rem = data;
             for (int i = 0; i != 10; ++i)
                 rem = (rem << 1) ^ ((rem >> 9) * 0x537);
