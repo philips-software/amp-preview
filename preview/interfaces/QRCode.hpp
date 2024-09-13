@@ -51,6 +51,19 @@ namespace services
         high
     };
 
+    template<uint8_t Version, QRCodeEcc Ecc>
+    class QRCode
+    {
+    public:
+        QRCode(infra::BoundedConstString text);
+
+        const infra::Bitmap& GetBitmap() const;
+
+    public:
+        static constexpr uint8_t size = Version * 4 + 17;
+        infra::Bitmap::BlackAndWhite<size, size> bitmap;
+    };
+
     namespace detail
     {
         static constexpr uint16_t GridSizeInBytes(uint8_t bits)
@@ -69,7 +82,7 @@ namespace services
             template<uint8_t Version>
             struct ForVersion;
 
-            BitBucket(uint8_t size, infra::ByteRange buffer);
+            BitBucket(infra::Bitmap& bitmap);
 
             void Set(infra::Point position, bool on);
             bool Get(infra::Point position) const;
@@ -78,7 +91,7 @@ namespace services
             uint32_t PenaltyScore() const;
 
         public:
-            infra::Bitmap bitmap;
+            infra::Bitmap& bitmap;
         };
 
         template<uint8_t Version>
@@ -88,7 +101,7 @@ namespace services
             ForVersion();
 
             static constexpr uint8_t size = Version * 4 + 17;
-            std::array<uint8_t, GridSizeInBytes(size)> buffer{};
+            infra::Bitmap::BlackAndWhite<size, size> bitmap;
         };
 
         class BitBuffer
@@ -239,27 +252,16 @@ namespace services
         };
     }
 
-    template<uint8_t Version, QRCodeEcc Ecc>
-    class QRCode
-    {
-    public:
-        QRCode(infra::BoundedConstString text);
-
-        const infra::Bitmap& GetBitmap() const;
-
-    public:
-        detail::BitBucket::ForVersion<Version> modules;
-    };
-
     //// Implementation ////
 
     namespace detail
     {
         template<uint8_t Version>
         BitBucket::ForVersion<Version>::ForVersion()
-            : BitBucket(size, buffer)
-        {}
-
+            : BitBucket(bitmap)
+        {
+            bitmap.Clear();
+        }
 
         template<uint8_t Version, QRCodeEcc Ecc>
         BitBuffer::ForVersionAndEcc<Version, Ecc>::ForVersionAndEcc()
@@ -275,6 +277,8 @@ namespace services
     template<uint8_t Version, QRCodeEcc Ecc>
     QRCode<Version, Ecc>::QRCode(infra::BoundedConstString text)
     {
+        bitmap.Clear();
+        detail::BitBucket modules(bitmap);
         detail::QRCodeGenerator::ForVersionAndEcc<Version, Ecc> generator(modules);
         generator.Generate(text);
     }
@@ -282,7 +286,7 @@ namespace services
     template<uint8_t Version, QRCodeEcc Ecc>
     const infra::Bitmap& QRCode<Version, Ecc>::GetBitmap() const
     {
-        return modules.bitmap;
+        return bitmap;
     }
 }
 

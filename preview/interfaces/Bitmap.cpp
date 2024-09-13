@@ -13,6 +13,11 @@ namespace infra
         assert(buffer.size() == BufferSize(size.deltaX, size.deltaY, pixelFormat));
     }
 
+    void Bitmap::Clear()
+    {
+        std::fill(buffer.begin(), buffer.end(), 0);
+    }
+
     const uint8_t* Bitmap::BufferAddress(infra::Point position) const
     {
         assert(pixelFormat != PixelFormat::blackandwhite);

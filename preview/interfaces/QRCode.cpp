@@ -335,8 +335,8 @@ namespace services
             bitOffset = moduleCount;
         }
 
-        BitBucket::BitBucket(uint8_t size, infra::ByteRange buffer)
-            : bitmap(buffer, infra::Vector(size, size), infra::PixelFormat::blackandwhite)
+        BitBucket::BitBucket(infra::Bitmap& bitmap)
+            : bitmap(bitmap)
         {}
 
         void BitBucket::Set(infra::Point position, bool on)
