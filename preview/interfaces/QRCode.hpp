@@ -33,8 +33,8 @@
  *  See: https://github.com/nayuki/QR-Code-generator/tree/master/cpp
  */
 
-#ifndef QR_CODE_HPP
-#define QR_CODE_HPP
+#ifndef PREVIEW_QR_CODE_HPP
+#define PREVIEW_QR_CODE_HPP
 
 #include "infra/util/BoundedString.hpp"
 #include "infra/util/ByteRange.hpp"
@@ -59,51 +59,14 @@ namespace services
 
         const infra::Bitmap& GetBitmap() const;
 
-    public:
-        static constexpr uint8_t size = Version * 4 + 17;
-        infra::Bitmap::BlackAndWhite<size, size> bitmap;
+        using Bitmap = infra::Bitmap::BlackAndWhite<Version * 4 + 17, Version * 4 + 17>;
+
+    private:
+        Bitmap bitmap;
     };
 
     namespace detail
     {
-        static constexpr uint16_t GridSizeInBytes(uint8_t bits)
-        {
-            return (bits * bits + 7) / 8;
-        }
-
-        static constexpr uint16_t BufferSize(uint8_t version)
-        {
-            return GridSizeInBytes(4 * version + 17);
-        }
-
-        class BitBucket
-        {
-        public:
-            template<uint8_t Version>
-            struct ForVersion;
-
-            BitBucket(infra::Bitmap& bitmap);
-
-            void Set(infra::Point position, bool on);
-            bool Get(infra::Point position) const;
-            void Invert(infra::Point position, bool invert);
-
-            uint32_t PenaltyScore() const;
-
-        public:
-            infra::Bitmap& bitmap;
-        };
-
-        template<uint8_t Version>
-        struct BitBucket::ForVersion
-            : BitBucket
-        {
-            ForVersion();
-
-            static constexpr uint8_t size = Version * 4 + 17;
-            infra::Bitmap::BlackAndWhite<size, size> bitmap;
-        };
-
         class BitBuffer
         {
         private:
@@ -212,7 +175,7 @@ namespace services
             template<uint8_t Version, QRCodeEcc ecc>
             struct ForVersionAndEcc;
 
-            QRCodeGenerator(BitBucket& modules, BitBucket& isFunction, BitBuffer& codewords, infra::ByteRange alignPosition, uint8_t version, QRCodeEcc ecc);
+            QRCodeGenerator(infra::Bitmap& modules, infra::Bitmap& isFunction, BitBuffer& codewords, infra::ByteRange alignPosition, uint8_t version, QRCodeEcc ecc);
 
             void Generate(infra::BoundedConstString text);
 
@@ -232,8 +195,8 @@ namespace services
             uint8_t version;
             QRCodeEcc ecc;
 
-            BitBucket& modules;
-            BitBucket& isFunction;
+            infra::Bitmap& modules;
+            infra::Bitmap& isFunction;
 
             BitBuffer& codewords;
 
@@ -244,10 +207,10 @@ namespace services
         struct QRCodeGenerator::ForVersionAndEcc
             : QRCodeGenerator
         {
-            ForVersionAndEcc(BitBucket& modules);
+            ForVersionAndEcc(infra::Bitmap& modules);
 
-            detail::BitBucket::ForVersion<Version> isFunction;
-            detail::BitBuffer::ForVersionAndEcc<Version, Ecc> codewords;
+            typename QRCode<Version, Ecc>::Bitmap isFunction;
+            BitBuffer::ForVersionAndEcc<Version, Ecc> codewords;
             std::array<uint8_t, Version / 7 + 2> alignPosition;
         };
     }
@@ -256,30 +219,24 @@ namespace services
 
     namespace detail
     {
-        template<uint8_t Version>
-        BitBucket::ForVersion<Version>::ForVersion()
-            : BitBucket(bitmap)
-        {
-            bitmap.Clear();
-        }
-
         template<uint8_t Version, QRCodeEcc Ecc>
         BitBuffer::ForVersionAndEcc<Version, Ecc>::ForVersionAndEcc()
             : buffer(data, result, coeff, Version, Ecc)
         {}
 
         template<uint8_t Version, QRCodeEcc Ecc>
-        QRCodeGenerator::ForVersionAndEcc<Version, Ecc>::ForVersionAndEcc(BitBucket& modules)
+        QRCodeGenerator::ForVersionAndEcc<Version, Ecc>::ForVersionAndEcc(infra::Bitmap& modules)
             : QRCodeGenerator(modules, isFunction, codewords.buffer, alignPosition, Version, Ecc)
-        {}
+        {
+            isFunction.Clear();
+        }
     }
 
     template<uint8_t Version, QRCodeEcc Ecc>
     QRCode<Version, Ecc>::QRCode(infra::BoundedConstString text)
     {
         bitmap.Clear();
-        detail::BitBucket modules(bitmap);
-        detail::QRCodeGenerator::ForVersionAndEcc<Version, Ecc> generator(modules);
+        detail::QRCodeGenerator::ForVersionAndEcc<Version, Ecc> generator(bitmap);
         generator.Generate(text);
     }
 

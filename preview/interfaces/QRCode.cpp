@@ -1,39 +1,4 @@
-/**
- * The MIT License (MIT)
- *
- * This library is written and maintained by Richard Moore.
- * Major parts were derived from Project Nayuki's library.
- *
- * Copyright (c) 2017 Richard Moore     (https://github.com/ricmoo/QRCode)
- * Copyright (c) 2017 Project Nayuki    (https://www.nayuki.io/page/qr-code-generator-library)
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- */
-
-/**
- *  Special thanks to Nayuki (https://www.nayuki.io/) from which this library was
- *  heavily inspired and compared against.
- *
- *  See: https://github.com/nayuki/QR-Code-generator/tree/master/cpp
- */
-
-#include "qrcode.hpp"
+#include "preview/interfaces/QRCode.hpp"
 #include <algorithm>
 #include <cstdlib>
 #include <cstring>
@@ -182,7 +147,6 @@ namespace services
         {
             uint16_t dataCapacity = moduleCount / 8 - numErrorCorrectionCodewords[static_cast<uint8_t>(ecc)][version - 1];
 
-            // Place the data code words into the buffer
             EncodeDataCodewords(text);
 
             // Add terminator and pad up to a byte if applicable
@@ -335,24 +299,10 @@ namespace services
             bitOffset = moduleCount;
         }
 
-        BitBucket::BitBucket(infra::Bitmap& bitmap)
-            : bitmap(bitmap)
-        {}
-
-        void BitBucket::Set(infra::Point position, bool on)
-        {
-            bitmap.SetBlackAndWhitePixel(position, on);
-        }
-
-        bool BitBucket::Get(infra::Point position) const
-        {
-            return bitmap.BlackAndWhitePixel(position);
-        }
-
-        void BitBucket::Invert(infra::Point position, bool invert)
+        void Invert(infra::Bitmap& bitmap, infra::Point position, bool invert)
         {
             if (invert)
-                Set(position, !Get(position));
+                bitmap.SetBlackAndWhitePixel(position, !bitmap.BlackAndWhitePixel(position));
         }
 
 #define PENALTY_N1 3
@@ -362,7 +312,7 @@ namespace services
 
         // Calculates and returns the penalty score based on state of this QR Code's current modules.
         // This is used by the automatic mask choice algorithm to find the mask pattern that yields the lowest score.
-        uint32_t BitBucket::PenaltyScore() const
+        uint32_t PenaltyScore(const infra::Bitmap& bitmap)
         {
             uint32_t result = 0;
 
@@ -371,10 +321,10 @@ namespace services
             // Adjacent modules in row having same color
             for (uint8_t y = 0; y < size; ++y)
             {
-                bool colorX = Get(infra::Point(0, y));
+                bool colorX = bitmap.BlackAndWhitePixel(infra::Point(0, y));
                 for (uint8_t x = 1, runX = 1; x != size; ++x)
                 {
-                    bool cx = Get(infra::Point(x, y));
+                    bool cx = bitmap.BlackAndWhitePixel(infra::Point(x, y));
                     if (cx != colorX)
                     {
                         colorX = cx;
@@ -394,10 +344,10 @@ namespace services
             // Adjacent modules in column having same color
             for (uint8_t x = 0; x != size; ++x)
             {
-                bool colorY = Get(infra::Point(x, 0));
+                bool colorY = bitmap.BlackAndWhitePixel(infra::Point(x, 0));
                 for (uint8_t y = 1, runY = 1; y != size; ++y)
                 {
-                    bool cy = Get(infra::Point(x, y));
+                    bool cy = bitmap.BlackAndWhitePixel(infra::Point(x, y));
                     if (cy != colorY)
                     {
                         colorY = cy;
@@ -420,21 +370,21 @@ namespace services
                 uint16_t bitsRow = 0, bitsCol = 0;
                 for (uint8_t x = 0; x != size; ++x)
                 {
-                    bool color = Get(infra::Point(x, y));
+                    bool color = bitmap.BlackAndWhitePixel(infra::Point(x, y));
 
                     // 2*2 blocks of modules having same color
                     if (x > 0 && y > 0)
                     {
-                        bool colorUL = Get(infra::Point(x - 1, y - 1));
-                        bool colorUR = Get(infra::Point(x, y - 1));
-                        bool colorL = Get(infra::Point(x - 1, y));
+                        bool colorUL = bitmap.BlackAndWhitePixel(infra::Point(x - 1, y - 1));
+                        bool colorUR = bitmap.BlackAndWhitePixel(infra::Point(x, y - 1));
+                        bool colorL = bitmap.BlackAndWhitePixel(infra::Point(x - 1, y));
                         if (color == colorUL && color == colorUR && color == colorL)
                             result += PENALTY_N2;
                     }
 
                     // Finder-like pattern in rows and columns
                     bitsRow = ((bitsRow << 1) & 0x7FF) | static_cast<int>(color);
-                    bitsCol = ((bitsCol << 1) & 0x7FF) | static_cast<int>(Get(infra::Point(y, x)));
+                    bitsCol = ((bitsCol << 1) & 0x7FF) | static_cast<int>(bitmap.BlackAndWhitePixel(infra::Point(y, x)));
 
                     // Needs 11 bits accumulated
                     if (x >= 10)
@@ -460,7 +410,7 @@ namespace services
             return result;
         }
 
-        detail::QRCodeGenerator::QRCodeGenerator(BitBucket& modules, BitBucket& isFunction, BitBuffer& codewords, infra::ByteRange alignPosition, uint8_t version, QRCodeEcc ecc)
+        detail::QRCodeGenerator::QRCodeGenerator(infra::Bitmap& modules, infra::Bitmap& isFunction, BitBuffer& codewords, infra::ByteRange alignPosition, uint8_t version, QRCodeEcc ecc)
             : version(version)
             , ecc(ecc)
             , modules(modules)
@@ -496,7 +446,7 @@ namespace services
             {
                 DrawFormatBits(i);
                 ApplyMask(i);
-                int penalty = modules.PenaltyScore();
+                int penalty = PenaltyScore(modules);
                 if (penalty < minPenalty)
                 {
                     mask = i;
@@ -514,11 +464,11 @@ namespace services
         // well-formed QR Code symbol needs exactly one mask applied (not zero, not two, etc.).
         void detail::QRCodeGenerator::ApplyMask(uint8_t mask)
         {
-            uint8_t size = modules.bitmap.size.deltaX;
+            uint8_t size = modules.size.deltaX;
 
-            for (auto position : infra::RowFirstPoints(infra::Region(infra::Point(), modules.bitmap.size)))
+            for (auto position : infra::RowFirstPoints(infra::Region(infra::Point(), modules.size)))
             {
-                if (isFunction.Get(position))
+                if (isFunction.BlackAndWhitePixel(position))
                     continue;
 
                 bool invert = 0;
@@ -550,13 +500,13 @@ namespace services
                         break;
                 }
 
-                modules.Invert(position, invert);
+                Invert(modules, position, invert);
             }
         }
 
         void detail::QRCodeGenerator::DrawFunctionPatterns()
         {
-            uint8_t size = modules.bitmap.size.deltaX;
+            uint8_t size = modules.size.deltaX;
 
             // Draw the horizontal and vertical timing patterns
             for (uint8_t i = 0; i != size; ++i)
@@ -590,9 +540,8 @@ namespace services
 
                 for (uint8_t i = 0; i != alignPosition.size(); ++i)
                     for (uint8_t j = 0; j != alignPosition.size(); ++j)
-                        if ((i == 0 && j == 0) || (i == 0 && j == alignPosition.size() - 1) || (i == alignPosition.size() - 1 && j == 0))
-                            continue; // Skip the three finder corners
-                        else
+                        // Skip the three finder corners
+                        if (!(i == 0 && j == 0) && !(i == 0 && j == alignPosition.size() - 1) && !(i == alignPosition.size() - 1 && j == 0))
                             DrawAlignmentPattern(infra::Point(alignPosition[i], alignPosition[j]));
             }
 
@@ -605,7 +554,7 @@ namespace services
         // based on this object's version field (which only has an effect for 7 <= version <= 40).
         void detail::QRCodeGenerator::DrawVersion()
         {
-            int8_t size = modules.bitmap.size.deltaX;
+            int8_t size = modules.size.deltaX;
 
             if (version < 7)
                 return;
@@ -631,7 +580,7 @@ namespace services
         // Draws a 9*9 finder pattern including the border separator, with the center module at (x, y).
         void detail::QRCodeGenerator::DrawFinderPattern(infra::Point position)
         {
-            auto bitmapRegion = infra::Region(infra::Point(), modules.bitmap.size);
+            auto bitmapRegion = infra::Region(infra::Point(), modules.size);
             auto finderRegion = infra::Region(infra::Point(-4, -4), infra::Point(5, 5)) >> (position - infra::Point());
 
             for (auto i : infra::RowFirstPoints(infra::Intersection(finderRegion, bitmapRegion)))
@@ -654,7 +603,7 @@ namespace services
         // data area of this QR Code symbol. Function modules need to be marked off before this is called.
         void detail::QRCodeGenerator::DrawCodewords()
         {
-            uint8_t size = modules.bitmap.size.deltaX;
+            uint8_t size = modules.size.deltaX;
 
             // Bit index into the data
             uint32_t i = 0;
@@ -673,9 +622,9 @@ namespace services
                         bool upwards = ((right & 2) == 0) ^ (x < 6);
                         uint8_t y = upwards ? size - 1 - vert : vert; // Actual y coordinate
                         auto position = infra::Point(x, y);
-                        if (!isFunction.Get(position))
+                        if (!isFunction.BlackAndWhitePixel(position))
                         {
-                            modules.Set(position, codewords.Bit(i));
+                            modules.SetBlackAndWhitePixel(position, codewords.Bit(i));
                             ++i;
 
                             if (i == codewords.Length())
@@ -696,7 +645,7 @@ namespace services
                 0x01, 0x00, 0x03, 0x02
             };
 
-            uint8_t size = modules.bitmap.size.deltaX;
+            uint8_t size = modules.size.deltaX;
 
             // Calculate error correction code and pack bits
             uint32_t data = eccFormatBits[static_cast<uint8_t>(ecc)] << 3 | mask; // ecc is uint2, mask is uint3
@@ -730,8 +679,8 @@ namespace services
 
         void detail::QRCodeGenerator::SetFunctionModule(infra::Point position, bool on)
         {
-            modules.Set(position, on);
-            isFunction.Set(position, true);
+            modules.SetBlackAndWhitePixel(position, on);
+            isFunction.SetBlackAndWhitePixel(position, true);
         }
     }
 }
