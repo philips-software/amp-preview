@@ -4,6 +4,7 @@
 #include "infra/util/BoundedString.hpp"
 #include "infra/util/ByteRange.hpp"
 #include "preview/interfaces/Bitmap.hpp"
+#include <array>
 #include <cstdint>
 
 namespace services
@@ -17,17 +18,14 @@ namespace services
     };
 
     template<uint8_t Version, QRCodeEcc Ecc>
-    class QRCode
+    struct QRCode
+        : infra::Bitmap::BlackAndWhite<Version * 4 + 17, Version * 4 + 17>
     {
-    public:
         QRCode(infra::BoundedConstString text);
 
-        const infra::Bitmap& GetBitmap() const;
+        void Update(infra::BoundedConstString text);
 
-        using Bitmap = infra::Bitmap::BlackAndWhite<Version * 4 + 17, Version * 4 + 17>;
-
-    private:
-        Bitmap bitmap;
+        using BitmapType = infra::Bitmap::BlackAndWhite<Version * 4 + 17, Version * 4 + 17>;
     };
 
     namespace detail
@@ -57,8 +55,6 @@ namespace services
             static constexpr auto numErrorCorrectionBlocks = []()
             {
                 const std::array<std::array<uint8_t, 40>, 4> result{ {
-                    // Version: (note that index 0 is for padding, and is set to an illegal value)
-                    // 1, 2, 3, 4, 5, 6, 7, 8, 9,10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40    Error correction level
                     { 1, 1, 1, 1, 1, 2, 2, 2, 2, 4, 4, 4, 4, 4, 6, 6, 6, 6, 7, 8, 8, 9, 9, 10, 12, 12, 12, 13, 14, 15, 16, 17, 18, 19, 19, 20, 21, 22, 24, 25 },              // Low
                     { 1, 1, 1, 2, 2, 4, 4, 4, 5, 5, 5, 8, 9, 9, 10, 10, 11, 13, 14, 16, 17, 17, 18, 20, 21, 23, 25, 26, 28, 29, 31, 33, 35, 37, 38, 40, 43, 45, 47, 49 },     // Medium
                     { 1, 1, 2, 2, 4, 4, 6, 6, 8, 8, 8, 10, 12, 16, 12, 17, 16, 18, 21, 20, 23, 23, 25, 27, 29, 34, 34, 35, 38, 40, 43, 45, 48, 51, 53, 56, 59, 62, 65, 68 },  // Quartile
@@ -92,9 +88,25 @@ namespace services
             bool Bit(uint16_t index) const;
 
         private:
+            static constexpr uint8_t numeric = 0;
+            static constexpr uint8_t alphanumeric = 1;
+            static constexpr uint8_t latin1 = 2;
+
+        private:
             void Append(uint32_t val, uint8_t length);
             void EncodeDataCodewords(infra::BoundedConstString text);
+            void EncodeNumeric(infra::BoundedConstString text);
+            void EncodeAlphanumeric(infra::BoundedConstString text);
+            void EncodeBinary(infra::BoundedConstString text);
             void PerformErrorCorrection(QRCodeEcc ecc);
+
+            uint8_t ModeBitsNumeric() const;
+            uint8_t ModeBitsAlphanumeric() const;
+            uint8_t ModeBitsLatin1() const;
+
+            static int8_t GetAlphanumeric(char c);
+            static bool IsAlphanumeric(infra::BoundedConstString text);
+            static bool IsNumeric(infra::BoundedConstString text);
 
         private:
             class ReedSolomon
@@ -174,7 +186,7 @@ namespace services
         {
             ForVersionAndEcc(infra::Bitmap& modules);
 
-            typename QRCode<Version, Ecc>::Bitmap isFunction;
+            typename QRCode<Version, Ecc>::BitmapType isFunction;
             BitBuffer::ForVersionAndEcc<Version, Ecc> codewords;
             std::array<uint8_t, Version / 7 + 2> alignPosition;
         };
@@ -200,15 +212,15 @@ namespace services
     template<uint8_t Version, QRCodeEcc Ecc>
     QRCode<Version, Ecc>::QRCode(infra::BoundedConstString text)
     {
-        bitmap.Clear();
-        detail::QRCodeGenerator::ForVersionAndEcc<Version, Ecc> generator(bitmap);
-        generator.Generate(text);
+        Update(text);
     }
 
     template<uint8_t Version, QRCodeEcc Ecc>
-    const infra::Bitmap& QRCode<Version, Ecc>::GetBitmap() const
+    void QRCode<Version, Ecc>::Update(infra::BoundedConstString text)
     {
-        return bitmap;
+        Clear();
+        detail::QRCodeGenerator::ForVersionAndEcc<Version, Ecc> generator(*this);
+        generator.Generate(text);
     }
 }
 

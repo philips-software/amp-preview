@@ -1,14 +1,206 @@
 #include "preview/interfaces/QRCode.hpp"
 #include <algorithm>
-#include <cstdlib>
-#include <cstring>
-#include <malloc.h>
+#include <limits>
 
 namespace services
 {
     namespace detail
     {
-        static int8_t getAlphanumeric(char c)
+        BitBuffer::BitBuffer(infra::ByteRange data, infra::ByteRange result, infra::ByteRange coeff, uint8_t version, QRCodeEcc ecc)
+            : version(version)
+            , ecc(ecc)
+            , moduleCount(numRawDataModulesForVersion[version])
+            , data(data)
+            , result(result)
+            , reedSolomon(coeff)
+        {}
+
+        void BitBuffer::Generate(infra::BoundedConstString text)
+        {
+            uint16_t dataCapacity = moduleCount / 8 - numErrorCorrectionCodewords[static_cast<uint8_t>(ecc)][version - 1];
+
+            EncodeDataCodewords(text);
+
+            // Add terminator and pad up to a byte if applicable
+            uint32_t padding = std::min<uint32_t>((dataCapacity * 8) - bitOffset, 4);
+
+            Append(0, padding);
+            Append(0, (8 - bitOffset % 8) % 8);
+
+            // Pad with alternate bytes until data capacity is reached
+            for (uint8_t padByte = 0xEC; bitOffset != dataCapacity * 8; padByte ^= 0xEC ^ 0x11)
+                Append(padByte, 8);
+
+            PerformErrorCorrection(ecc);
+        }
+
+        uint16_t BitBuffer::Length() const
+        {
+            return bitOffset;
+        }
+
+        bool BitBuffer::Bit(uint16_t index) const
+        {
+            return ((result[index >> 3] >> (7 - (index & 7))) & 1) != 0;
+        }
+
+        void BitBuffer::Append(uint32_t val, uint8_t length)
+        {
+            for (int8_t i = length - 1; i >= 0; --i, ++bitOffset)
+                data[bitOffset >> 3] |= ((val >> i) & 1) << (7 - (bitOffset & 7));
+        }
+
+        void BitBuffer::EncodeDataCodewords(infra::BoundedConstString text)
+        {
+            if (IsNumeric(text))
+                EncodeNumeric(text);
+            else if (IsAlphanumeric(text))
+                EncodeAlphanumeric(text);
+            else
+                EncodeBinary(text);
+        }
+
+        void BitBuffer::EncodeNumeric(infra::BoundedConstString text)
+        {
+            Append(1 << numeric, 4);
+            Append(text.size(), ModeBitsNumeric());
+
+            uint16_t accumData = 0;
+            uint8_t accumCount = 0;
+            for (auto c : text)
+            {
+                accumData = accumData * 10 + (c - '0');
+                ++accumCount;
+                if (accumCount == 3)
+                {
+                    Append(accumData, 10);
+                    accumData = 0;
+                    accumCount = 0;
+                }
+            }
+
+            // 1 or 2 digits remaining
+            if (accumCount > 0)
+                Append(accumData, accumCount * 3 + 1);
+        }
+
+        void BitBuffer::EncodeAlphanumeric(infra::BoundedConstString text)
+        {
+            Append(1 << alphanumeric, 4);
+            Append(text.size(), ModeBitsAlphanumeric());
+
+            uint16_t accumData = 0;
+            uint8_t accumCount = 0;
+            for (auto c : text)
+            {
+                accumData = accumData * 45 + GetAlphanumeric(c);
+                ++accumCount;
+                if (accumCount == 2)
+                {
+                    Append(accumData, 11);
+                    accumData = 0;
+                    accumCount = 0;
+                }
+            }
+
+            if (accumCount == 1)
+                Append(accumData, 6);
+        }
+
+        void BitBuffer::EncodeBinary(infra::BoundedConstString text)
+        {
+            Append(1 << latin1, 4);
+            Append(text.size(), ModeBitsLatin1());
+            for (auto c : text)
+                Append(c, 8);
+        }
+
+        void BitBuffer::PerformErrorCorrection(QRCodeEcc ecc)
+        {
+            // See: http://www.thonky.com/qr-code-tutorial/structure-final-message
+            uint8_t numBlocks = numErrorCorrectionBlocks[static_cast<uint8_t>(ecc)][version - 1];
+            uint16_t totalEcc = numErrorCorrectionCodewords[static_cast<uint8_t>(ecc)][version - 1];
+
+            uint8_t numShortBlocks = numBlocks - moduleCount / 8 % numBlocks;
+            uint8_t shortBlockLen = moduleCount / 8 / numBlocks;
+
+            uint8_t shortDataBlockLen = shortBlockLen - BlockEccLen(version, ecc);
+
+            uint16_t offset = 0;
+            uint8_t* dataBytes = data.begin();
+
+            // Interleave all short blocks
+            for (uint8_t i = 0; i != shortDataBlockLen; ++i)
+            {
+                uint16_t index = i;
+                uint8_t stride = shortDataBlockLen;
+                for (uint8_t blockNum = 0; blockNum != numBlocks; ++blockNum)
+                {
+                    result[offset++] = dataBytes[index];
+
+                    if (blockNum == numShortBlocks)
+                        ++stride;
+
+                    index += stride;
+                }
+            }
+
+            // Interleave long blocks (versions less than 5 only have short blocks)
+            uint16_t index = shortDataBlockLen * (numShortBlocks + 1);
+            uint8_t stride = shortDataBlockLen;
+            for (uint8_t blockNum = 0; blockNum != numBlocks - numShortBlocks; ++blockNum)
+            {
+                result[offset++] = dataBytes[index];
+
+                if (blockNum == 0)
+                    ++stride;
+
+                index += stride;
+            }
+
+            // Add all ecc blocks, interleaved
+            uint8_t blockSize = shortDataBlockLen;
+            for (uint8_t blockNum = 0; blockNum != numBlocks; ++blockNum)
+            {
+
+                if (blockNum == numShortBlocks)
+                    ++blockSize;
+
+                reedSolomon.Remainder(dataBytes, blockSize, &result[offset + blockNum], numBlocks);
+                dataBytes += blockSize;
+            }
+
+            bitOffset = moduleCount;
+        }
+
+        uint8_t BitBuffer::ModeBitsNumeric() const
+        {
+            if (version <= 9)
+                return 10;
+            if (version <= 26)
+                return 12;
+            return 14;
+        }
+
+        uint8_t BitBuffer::ModeBitsAlphanumeric() const
+        {
+            if (version <= 9)
+                return 9;
+            if (version <= 26)
+                return 11;
+            return 13;
+        }
+
+        uint8_t BitBuffer::ModeBitsLatin1() const
+        {
+            if (version <= 9)
+                return 8;
+            if (version <= 26)
+                return 16;
+            return 16;
+        }
+
+        int8_t BitBuffer::GetAlphanumeric(char c)
         {
             if (c >= '0' && c <= '9')
                 return (c - '0');
@@ -40,47 +232,22 @@ namespace services
             }
         }
 
-        static bool isAlphanumeric(infra::BoundedConstString text)
+        bool BitBuffer::IsAlphanumeric(infra::BoundedConstString text)
         {
             for (auto c : text)
-                if (getAlphanumeric(c) == -1)
+                if (GetAlphanumeric(c) == -1)
                     return false;
 
             return true;
         }
 
-        static bool isNumeric(infra::BoundedConstString text)
+        bool BitBuffer::IsNumeric(infra::BoundedConstString text)
         {
             for (auto c : text)
                 if (c < '0' || c > '9')
                     return false;
 
             return true;
-        }
-
-        // We store the following tightly packed (less 8) in modeInfo
-        //               <=9  <=26  <= 40
-        // NUMERIC      ( 10,   12,    14);
-        // ALPHANUMERIC (  9,   11,    13);
-        // BYTE         (  8,   16,    16);
-        static char getModeBits(uint8_t version, uint8_t mode)
-        {
-            // Note: We use 15 instead of 16; since 15 doesn't exist and we cannot store 16 (8 + 8) in 3 bits
-            // hex(int("".join(reversed([('00' + bin(x - 8)[2:])[-3:] for x in [10, 9, 8, 12, 11, 15, 14, 13, 15]])), 2))
-            unsigned int modeInfo = 0x7bbb80a;
-
-            if (version > 9)
-                modeInfo >>= 9;
-
-            if (version > 26)
-                modeInfo >>= 9;
-
-            char result = 8 + ((modeInfo >> (3 * mode)) & 0x07);
-
-            if (result == 15)
-                result = 16;
-
-            return result;
         }
 
         BitBuffer::ReedSolomon::ReedSolomon(infra::ByteRange coeff)
@@ -134,241 +301,72 @@ namespace services
             return z;
         }
 
-        BitBuffer::BitBuffer(infra::ByteRange data, infra::ByteRange result, infra::ByteRange coeff, uint8_t version, QRCodeEcc ecc)
-            : version(version)
-            , ecc(ecc)
-            , moduleCount(numRawDataModulesForVersion[version])
-            , data(data)
-            , result(result)
-            , reedSolomon(coeff)
-        {}
-
-        void BitBuffer::Generate(infra::BoundedConstString text)
+        uint32_t PenaltyScoreRowRuns(const infra::Bitmap& bitmap)
         {
-            uint16_t dataCapacity = moduleCount / 8 - numErrorCorrectionCodewords[static_cast<uint8_t>(ecc)][version - 1];
+            uint32_t penalty = 0;
 
-            EncodeDataCodewords(text);
-
-            // Add terminator and pad up to a byte if applicable
-            uint32_t padding = std::min<uint32_t>((dataCapacity * 8) - bitOffset, 4);
-
-            Append(0, padding);
-            Append(0, (8 - bitOffset % 8) % 8);
-
-            // Pad with alternate bytes until data capacity is reached
-            for (uint8_t padByte = 0xEC; bitOffset != dataCapacity * 8; padByte ^= 0xEC ^ 0x11)
-                Append(padByte, 8);
-
-            PerformErrorCorrection(ecc);
-        }
-
-        uint16_t BitBuffer::Length() const
-        {
-            return bitOffset;
-        }
-
-        bool BitBuffer::Bit(uint16_t index) const
-        {
-            return ((result[index >> 3] >> (7 - (index & 7))) & 1) != 0;
-        }
-
-        void BitBuffer::Append(uint32_t val, uint8_t length)
-        {
-            for (int8_t i = length - 1; i >= 0; --i, ++bitOffset)
-                data[bitOffset >> 3] |= ((val >> i) & 1) << (7 - (bitOffset & 7));
-        }
-
-        void BitBuffer::EncodeDataCodewords(infra::BoundedConstString text)
-        {
-#define MODE_NUMERIC 0
-#define MODE_ALPHANUMERIC 1
-#define MODE_BYTE 2
-
-            if (isNumeric(text))
+            for (uint8_t y = 0; y != bitmap.size.deltaY; ++y)
             {
-                Append(1 << MODE_NUMERIC, 4);
-                Append(text.size(), getModeBits(version, MODE_NUMERIC));
-
-                uint16_t accumData = 0;
-                uint8_t accumCount = 0;
-                for (auto c : text)
+                bool runColour = bitmap.BlackAndWhitePixel(infra::Point(0, y));
+                uint8_t run = 1;
+                for (uint8_t x = 1; x != bitmap.size.deltaX; ++x)
                 {
-                    accumData = accumData * 10 + (c - '0');
-                    ++accumCount;
-                    if (accumCount == 3)
+                    bool colour = bitmap.BlackAndWhitePixel(infra::Point(x, y));
+                    if (colour != runColour)
                     {
-                        Append(accumData, 10);
-                        accumData = 0;
-                        accumCount = 0;
-                    }
-                }
-
-                // 1 or 2 digits remaining
-                if (accumCount > 0)
-                    Append(accumData, accumCount * 3 + 1);
-            }
-            else if (isAlphanumeric(text))
-            {
-                Append(1 << MODE_ALPHANUMERIC, 4);
-                Append(text.size(), getModeBits(version, MODE_ALPHANUMERIC));
-
-                uint16_t accumData = 0;
-                uint8_t accumCount = 0;
-                for (auto c : text)
-                {
-                    accumData = accumData * 45 + getAlphanumeric(c);
-                    ++accumCount;
-                    if (accumCount == 2)
-                    {
-                        Append(accumData, 11);
-                        accumData = 0;
-                        accumCount = 0;
-                    }
-                }
-
-                if (accumCount == 1)
-                    Append(accumData, 6);
-            }
-            else
-            {
-                Append(1 << MODE_BYTE, 4);
-                Append(text.size(), getModeBits(version, MODE_BYTE));
-                for (auto c : text)
-                    Append(c, 8);
-            }
-        }
-
-        void BitBuffer::PerformErrorCorrection(QRCodeEcc ecc)
-        {
-            // See: http://www.thonky.com/qr-code-tutorial/structure-final-message
-            uint8_t numBlocks = numErrorCorrectionBlocks[static_cast<uint8_t>(ecc)][version - 1];
-            uint16_t totalEcc = numErrorCorrectionCodewords[static_cast<uint8_t>(ecc)][version - 1];
-
-            uint8_t numShortBlocks = numBlocks - moduleCount / 8 % numBlocks;
-            uint8_t shortBlockLen = moduleCount / 8 / numBlocks;
-
-            uint8_t shortDataBlockLen = shortBlockLen - BlockEccLen(version, ecc);
-
-            uint16_t offset = 0;
-            uint8_t* dataBytes = data.begin();
-
-            // Interleave all short blocks
-            for (uint8_t i = 0; i != shortDataBlockLen; ++i)
-            {
-                uint16_t index = i;
-                uint8_t stride = shortDataBlockLen;
-                for (uint8_t blockNum = 0; blockNum != numBlocks; ++blockNum)
-                {
-                    result[offset++] = dataBytes[index];
-
-                    if (blockNum == numShortBlocks)
-                        ++stride;
-
-                    index += stride;
-                }
-            }
-
-            // Version less than 5 only have short blocks
-            {
-                // Interleave long blocks
-                uint16_t index = shortDataBlockLen * (numShortBlocks + 1);
-                uint8_t stride = shortDataBlockLen;
-                for (uint8_t blockNum = 0; blockNum != numBlocks - numShortBlocks; ++blockNum)
-                {
-                    result[offset++] = dataBytes[index];
-
-                    if (blockNum == 0)
-                        ++stride;
-
-                    index += stride;
-                }
-            }
-
-            // Add all ecc blocks, interleaved
-            uint8_t blockSize = shortDataBlockLen;
-            for (uint8_t blockNum = 0; blockNum != numBlocks; ++blockNum)
-            {
-
-                if (blockNum == numShortBlocks)
-                    ++blockSize;
-
-                reedSolomon.Remainder(dataBytes, blockSize, &result[offset + blockNum], numBlocks);
-                dataBytes += blockSize;
-            }
-
-            bitOffset = moduleCount;
-        }
-
-        void Invert(infra::Bitmap& bitmap, infra::Point position, bool invert)
-        {
-            if (invert)
-                bitmap.SetBlackAndWhitePixel(position, !bitmap.BlackAndWhitePixel(position));
-        }
-
-#define PENALTY_N1 3
-#define PENALTY_N2 3
-#define PENALTY_N3 40
-#define PENALTY_N4 10
-
-        // Calculates and returns the penalty score based on state of this QR Code's current modules.
-        // This is used by the automatic mask choice algorithm to find the mask pattern that yields the lowest score.
-        uint32_t PenaltyScore(const infra::Bitmap& bitmap)
-        {
-            uint32_t result = 0;
-
-            uint8_t size = bitmap.size.deltaX;
-
-            // Adjacent modules in row having same color
-            for (uint8_t y = 0; y < size; ++y)
-            {
-                bool colorX = bitmap.BlackAndWhitePixel(infra::Point(0, y));
-                for (uint8_t x = 1, runX = 1; x != size; ++x)
-                {
-                    bool cx = bitmap.BlackAndWhitePixel(infra::Point(x, y));
-                    if (cx != colorX)
-                    {
-                        colorX = cx;
-                        runX = 1;
+                        runColour = colour;
+                        run = 1;
                     }
                     else
                     {
-                        ++runX;
-                        if (runX == 5)
-                            result += PENALTY_N1;
-                        else if (runX > 5)
-                            ++result;
+                        ++run;
+                        if (run == 5)
+                            penalty += 3;
+                        else if (run > 5)
+                            ++penalty;
                     }
                 }
             }
 
-            // Adjacent modules in column having same color
-            for (uint8_t x = 0; x != size; ++x)
+            return penalty;
+        }
+
+        uint32_t PenaltyScoreColumnRuns(const infra::Bitmap& bitmap)
+        {
+            uint32_t penalty = 0;
+
+            for (uint8_t x = 0; x != bitmap.size.deltaX; ++x)
             {
-                bool colorY = bitmap.BlackAndWhitePixel(infra::Point(x, 0));
-                for (uint8_t y = 1, runY = 1; y != size; ++y)
+                bool runColour = bitmap.BlackAndWhitePixel(infra::Point(x, 0));
+                uint8_t run = 1;
+                for (uint8_t y = 1; y != bitmap.size.deltaY; ++y)
                 {
-                    bool cy = bitmap.BlackAndWhitePixel(infra::Point(x, y));
-                    if (cy != colorY)
+                    bool colour = bitmap.BlackAndWhitePixel(infra::Point(x, y));
+                    if (colour != runColour)
                     {
-                        colorY = cy;
-                        runY = 1;
+                        runColour = colour;
+                        run = 1;
                     }
                     else
                     {
-                        ++runY;
-                        if (runY == 5)
-                            result += PENALTY_N1;
-                        else if (runY > 5)
-                            ++result;
+                        ++run;
+                        if (run == 5)
+                            penalty += 3;
+                        else if (run > 5)
+                            ++penalty;
                     }
                 }
             }
 
-            uint16_t black = 0;
-            for (uint8_t y = 0; y != size; ++y)
-            {
-                uint16_t bitsRow = 0, bitsCol = 0;
-                for (uint8_t x = 0; x != size; ++x)
+            return penalty;
+        }
+
+        uint32_t PenaltyScoreBlocks(const infra::Bitmap& bitmap)
+        {
+            uint32_t penalty = 0;
+
+            for (uint8_t y = 0; y != bitmap.size.deltaY; ++y)
+                for (uint8_t x = 0; x != bitmap.size.deltaX; ++x)
                 {
                     bool color = bitmap.BlackAndWhitePixel(infra::Point(x, y));
 
@@ -379,38 +377,68 @@ namespace services
                         bool colorUR = bitmap.BlackAndWhitePixel(infra::Point(x, y - 1));
                         bool colorL = bitmap.BlackAndWhitePixel(infra::Point(x - 1, y));
                         if (color == colorUL && color == colorUR && color == colorL)
-                            result += PENALTY_N2;
+                            penalty += 3;
                     }
+                }
 
+            return penalty;
+        }
+
+        uint32_t PenaltyScoreFinderLike(const infra::Bitmap& bitmap)
+        {
+            uint32_t penalty = 0;
+
+            for (uint8_t y = 0; y != bitmap.size.deltaY; ++y)
+            {
+                uint16_t bitsRow = 0;
+                uint16_t bitsCol = 0;
+                for (uint8_t x = 0; x != bitmap.size.deltaX; ++x)
+                {
                     // Finder-like pattern in rows and columns
-                    bitsRow = ((bitsRow << 1) & 0x7FF) | static_cast<int>(color);
+                    bitsRow = ((bitsRow << 1) & 0x7FF) | static_cast<int>(bitmap.BlackAndWhitePixel(infra::Point(x, y)));
                     bitsCol = ((bitsCol << 1) & 0x7FF) | static_cast<int>(bitmap.BlackAndWhitePixel(infra::Point(y, x)));
 
                     // Needs 11 bits accumulated
                     if (x >= 10)
                     {
                         if (bitsRow == 0x05D || bitsRow == 0x5D0)
-                            result += PENALTY_N3;
+                            penalty += 40;
 
                         if (bitsCol == 0x05D || bitsCol == 0x5D0)
-                            result += PENALTY_N3;
+                            penalty += 40;
                     }
-
-                    // Balance of black and white modules
-                    if (color)
-                        ++black;
                 }
             }
 
-            // Find smallest k such that (45-5k)% <= dark/total <= (55+5k)%
-            uint16_t total = size * size;
-            for (uint16_t k = 0; black * 20 < (9 - k) * total || black * 20 > (11 + k) * total; k++)
-                result += PENALTY_N4;
-
-            return result;
+            return penalty;
         }
 
-        detail::QRCodeGenerator::QRCodeGenerator(infra::Bitmap& modules, infra::Bitmap& isFunction, BitBuffer& codewords, infra::ByteRange alignPosition, uint8_t version, QRCodeEcc ecc)
+        uint32_t PenaltyScoreBalance(const infra::Bitmap& bitmap)
+        {
+            uint32_t penalty = 0;
+
+            uint16_t numDark = 0;
+            for (uint8_t y = 0; y != bitmap.size.deltaY; ++y)
+                for (uint8_t x = 0; x != bitmap.size.deltaX; ++x)
+                    if (bitmap.BlackAndWhitePixel(infra::Point(x, y)));
+                        ++numDark;
+
+            // Find smallest k such that (45-5k)% <= dark/total <= (55+5k)%
+            uint16_t total = bitmap.size.deltaX * bitmap.size.deltaY;
+            for (uint16_t k = 0; numDark * 20 < (9 - k) * total || numDark * 20 > (11 + k) * total; ++k)
+                penalty += 10;
+
+            return penalty;
+        }
+
+        // Calculates and returns the penalty score based on the state of this QR Code's current modules.
+        // This is used by the automatic mask choice algorithm to find the mask pattern that yields the lowest score.
+        uint32_t PenaltyScore(const infra::Bitmap& bitmap)
+        {
+            return PenaltyScoreRowRuns(bitmap) + PenaltyScoreColumnRuns(bitmap) + PenaltyScoreBlocks(bitmap) + PenaltyScoreFinderLike(bitmap) + PenaltyScoreBalance(bitmap);
+        }
+
+        QRCodeGenerator::QRCodeGenerator(infra::Bitmap& modules, infra::Bitmap& isFunction, BitBuffer& codewords, infra::ByteRange alignPosition, uint8_t version, QRCodeEcc ecc)
             : version(version)
             , ecc(ecc)
             , modules(modules)
@@ -423,25 +451,19 @@ namespace services
         {
             codewords.Generate(text);
 
-            // Draw function patterns, draw all codewords, do masking
             DrawFunctionPatterns();
             DrawCodewords();
 
-            // Find the best (lowest penalty) mask
             uint8_t mask = BestMask();
-
-            // Overwrite old format bits
             DrawFormatBits(mask);
-
-            // Apply the final choice of mask
             ApplyMask(mask);
         }
 
-        uint8_t detail::QRCodeGenerator::BestMask()
+        uint8_t QRCodeGenerator::BestMask()
         {
             uint8_t mask = 0;
 
-            int32_t minPenalty = INT32_MAX;
+            int32_t minPenalty = std::numeric_limits<int32_t>::max();
             for (uint8_t i = 0; i != 8; ++i)
             {
                 DrawFormatBits(i);
@@ -452,7 +474,7 @@ namespace services
                     mask = i;
                     minPenalty = penalty;
                 }
-                ApplyMask(i); // Undoes the mask due to XOR
+                ApplyMask(i); // Removes the mask due to XOR
             }
 
             return mask;
@@ -462,7 +484,7 @@ namespace services
         // properties, calling ApplyMask(m) twice with the same value is equivalent to no change at all.
         // This means it is possible to apply a mask, undo it, and try another mask. Note that a final
         // well-formed QR Code symbol needs exactly one mask applied (not zero, not two, etc.).
-        void detail::QRCodeGenerator::ApplyMask(uint8_t mask)
+        void QRCodeGenerator::ApplyMask(uint8_t mask)
         {
             uint8_t size = modules.size.deltaX;
 
@@ -500,11 +522,12 @@ namespace services
                         break;
                 }
 
-                Invert(modules, position, invert);
+                if (invert)
+                    modules.SetBlackAndWhitePixel(position, !modules.BlackAndWhitePixel(position));
             }
         }
 
-        void detail::QRCodeGenerator::DrawFunctionPatterns()
+        void QRCodeGenerator::DrawFunctionPatterns()
         {
             uint8_t size = modules.size.deltaX;
 
@@ -552,7 +575,7 @@ namespace services
 
         // Draws two copies of the version bits (with its own error correction code),
         // based on this object's version field (which only has an effect for 7 <= version <= 40).
-        void detail::QRCodeGenerator::DrawVersion()
+        void QRCodeGenerator::DrawVersion()
         {
             int8_t size = modules.size.deltaX;
 
@@ -578,7 +601,7 @@ namespace services
         }
 
         // Draws a 9*9 finder pattern including the border separator, with the center module at (x, y).
-        void detail::QRCodeGenerator::DrawFinderPattern(infra::Point position)
+        void QRCodeGenerator::DrawFinderPattern(infra::Point position)
         {
             auto bitmapRegion = infra::Region(infra::Point(), modules.size);
             auto finderRegion = infra::Region(infra::Point(-4, -4), infra::Point(5, 5)) >> (position - infra::Point());
@@ -591,7 +614,7 @@ namespace services
         }
 
         // Draws a 5*5 alignment pattern, with the center module at (x, y).
-        void detail::QRCodeGenerator::DrawAlignmentPattern(infra::Point position)
+        void QRCodeGenerator::DrawAlignmentPattern(infra::Point position)
         {
             auto alignmentRegion = infra::Region(infra::Point(-2, -2), infra::Point(3, 3)) >> (position - infra::Point());
 
@@ -601,7 +624,7 @@ namespace services
 
         // Draws the given sequence of 8-bit codewords (data and error correction) onto the entire
         // data area of this QR Code symbol. Function modules need to be marked off before this is called.
-        void detail::QRCodeGenerator::DrawCodewords()
+        void QRCodeGenerator::DrawCodewords()
         {
             uint8_t size = modules.size.deltaX;
 
@@ -639,7 +662,7 @@ namespace services
 
         // Draws two copies of the format bits (with its own error correction code)
         // based on the given mask and this object's error correction level field.
-        void detail::QRCodeGenerator::DrawFormatBits(uint8_t mask)
+        void QRCodeGenerator::DrawFormatBits(uint8_t mask)
         {
             static constexpr std::array<uint8_t, 4> eccFormatBits{
                 0x01, 0x00, 0x03, 0x02
@@ -677,7 +700,7 @@ namespace services
             SetFunctionModule(infra::Point(8, size - 8), true);
         }
 
-        void detail::QRCodeGenerator::SetFunctionModule(infra::Point position, bool on)
+        void QRCodeGenerator::SetFunctionModule(infra::Point position, bool on)
         {
             modules.SetBlackAndWhitePixel(position, on);
             isFunction.SetBlackAndWhitePixel(position, true);
