@@ -397,7 +397,7 @@ namespace services
             uint16_t numDark = 0;
             for (uint8_t y = 0; y != bitmap.size.deltaY; ++y)
                 for (uint8_t x = 0; x != bitmap.size.deltaX; ++x)
-                    if (bitmap.BlackAndWhitePixel(infra::Point(x, y)));
+                    if (bitmap.BlackAndWhitePixel(infra::Point(x, y)))
                         ++numDark;
 
             // Find smallest k such that (45-5k)% <= dark/total <= (55+5k)%

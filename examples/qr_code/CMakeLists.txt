@@ -1,4 +1,8 @@
-add_executable(examples.qr_code)
+if (EMIL_BUILD_WIN OR TARGET_MCU STREQUAL stm32f746)
+    add_executable(examples.qr_code)
+else()
+    add_library(examples.qr_code INTERFACE) # Other platforms have no sources
+endif()
 emil_build_for(examples.qr_code HOST Windows TARGET_MCU stm32f746 PREREQUISITE_BOOL PREVIEW_BUILD_EXAMPLES)
 
 set_target_properties(examples.qr_code PROPERTIES WIN32_EXECUTABLE $<BOOL:${EMIL_BUILD_WIN}>)
