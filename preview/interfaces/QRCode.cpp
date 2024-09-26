@@ -7,7 +7,7 @@ namespace services
 {
     namespace detail
     {
-        BitBuffer::BitBuffer(infra::ByteRange data, infra::ByteRange result, infra::ByteRange coeff, uint8_t version, QRCodeEcc ecc)
+        TextEncoder::TextEncoder(infra::ByteRange data, infra::ByteRange result, infra::ByteRange coeff, uint8_t version, QrCodeEcc ecc)
             : version(version)
             , ecc(ecc)
             , moduleCount(numRawDataModulesForVersion[version])
@@ -16,7 +16,7 @@ namespace services
             , reedSolomon(coeff)
         {}
 
-        void BitBuffer::Generate(infra::BoundedConstString text)
+        void TextEncoder::Encode(infra::BoundedConstString text)
         {
             uint16_t dataCapacity = moduleCount / 8 - numErrorCorrectionCodewords[static_cast<uint8_t>(ecc)][version - 1];
 
@@ -35,23 +35,23 @@ namespace services
             PerformErrorCorrection(ecc);
         }
 
-        uint16_t BitBuffer::Length() const
+        uint16_t TextEncoder::Length() const
         {
             return bitOffset;
         }
 
-        bool BitBuffer::Bit(uint16_t index) const
+        bool TextEncoder::Bit(uint16_t index) const
         {
             return ((result[index >> 3] >> (7 - (index & 7))) & 1) != 0;
         }
 
-        void BitBuffer::Append(uint32_t val, uint8_t length)
+        void TextEncoder::Append(uint32_t val, uint8_t length)
         {
             for (int8_t i = length - 1; i >= 0; --i, ++bitOffset)
                 data[bitOffset >> 3] |= ((val >> i) & 1) << (7 - (bitOffset & 7));
         }
 
-        void BitBuffer::EncodeDataCodewords(infra::BoundedConstString text)
+        void TextEncoder::EncodeDataCodewords(infra::BoundedConstString text)
         {
             if (IsNumeric(text))
                 EncodeNumeric(text);
@@ -61,7 +61,7 @@ namespace services
                 EncodeLatin1(text);
         }
 
-        void BitBuffer::EncodeNumeric(infra::BoundedConstString text)
+        void TextEncoder::EncodeNumeric(infra::BoundedConstString text)
         {
             assert(text.size() <= MaxSizeNumeric(version, ecc));
             Append(1 << numeric, 4);
@@ -86,7 +86,7 @@ namespace services
                 Append(accumData, accumCount * 3 + 1);
         }
 
-        void BitBuffer::EncodeAlphanumeric(infra::BoundedConstString text)
+        void TextEncoder::EncodeAlphanumeric(infra::BoundedConstString text)
         {
             assert(text.size() <= MaxSizeAlphanumeric(version, ecc));
             Append(1 << alphanumeric, 4);
@@ -110,7 +110,7 @@ namespace services
                 Append(accumData, 6);
         }
 
-        void BitBuffer::EncodeLatin1(infra::BoundedConstString text)
+        void TextEncoder::EncodeLatin1(infra::BoundedConstString text)
         {
             assert(text.size() <= MaxSizeLatin1(version, ecc));
             Append(1 << latin1, 4);
@@ -119,7 +119,7 @@ namespace services
                 Append(c, 8);
         }
 
-        void BitBuffer::PerformErrorCorrection(QRCodeEcc ecc)
+        void TextEncoder::PerformErrorCorrection(QrCodeEcc ecc)
         {
             // See: http://www.thonky.com/qr-code-tutorial/structure-final-message
             uint8_t numBlocks = numErrorCorrectionBlocks[static_cast<uint8_t>(ecc)][version - 1];
@@ -177,7 +177,7 @@ namespace services
             bitOffset = moduleCount;
         }
 
-        int8_t BitBuffer::GetAlphanumeric(char c)
+        int8_t TextEncoder::GetAlphanumeric(char c)
         {
             if (c >= '0' && c <= '9')
                 return (c - '0');
@@ -209,7 +209,7 @@ namespace services
             }
         }
 
-        bool BitBuffer::IsAlphanumeric(infra::BoundedConstString text)
+        bool TextEncoder::IsAlphanumeric(infra::BoundedConstString text)
         {
             for (auto c : text)
                 if (GetAlphanumeric(c) == -1)
@@ -218,7 +218,7 @@ namespace services
             return true;
         }
 
-        bool BitBuffer::IsNumeric(infra::BoundedConstString text)
+        bool TextEncoder::IsNumeric(infra::BoundedConstString text)
         {
             for (auto c : text)
                 if (c < '0' || c > '9')
@@ -227,7 +227,7 @@ namespace services
             return true;
         }
 
-        BitBuffer::ReedSolomon::ReedSolomon(infra::ByteRange coeff)
+        TextEncoder::ReedSolomon::ReedSolomon(infra::ByteRange coeff)
             : coeff(coeff)
         {
             coeff.back() = 1;
@@ -249,7 +249,7 @@ namespace services
             }
         }
 
-        void BitBuffer::ReedSolomon::Remainder(uint8_t* data, uint8_t length, uint8_t* result, uint8_t stride) const
+        void TextEncoder::ReedSolomon::Remainder(uint8_t* data, uint8_t length, uint8_t* result, uint8_t stride) const
         {
             // Compute the remainder by performing polynomial division
             for (uint8_t i = 0; i != length; ++i)
@@ -265,7 +265,7 @@ namespace services
             }
         }
 
-        uint8_t BitBuffer::ReedSolomon::Multiply(uint8_t x, uint8_t y) const
+        uint8_t TextEncoder::ReedSolomon::Multiply(uint8_t x, uint8_t y) const
         {
             // Russian peasant multiplication
             // See: https://en.wikipedia.org/wiki/Ancient_Egyptian_multiplication
@@ -415,18 +415,18 @@ namespace services
             return PenaltyScoreRowRuns(bitmap) + PenaltyScoreColumnRuns(bitmap) + PenaltyScoreBlocks(bitmap) + PenaltyScoreFinderLike(bitmap) + PenaltyScoreBalance(bitmap);
         }
 
-        QRCodeGenerator::QRCodeGenerator(infra::Bitmap& modules, infra::Bitmap& isFunction, BitBuffer& codewords, infra::ByteRange alignPosition, uint8_t version, QRCodeEcc ecc)
+        QrCodeGenerator::QrCodeGenerator(infra::Bitmap& modules, infra::Bitmap& isFunction, TextEncoder& encoder, infra::ByteRange alignPosition, uint8_t version, QrCodeEcc ecc)
             : version(version)
             , ecc(ecc)
             , modules(modules)
             , isFunction(isFunction)
-            , codewords(codewords)
+            , encoder(encoder)
             , alignPosition(alignPosition)
         {}
 
-        void QRCodeGenerator::Generate(infra::BoundedConstString text)
+        void QrCodeGenerator::Generate(infra::BoundedConstString text)
         {
-            codewords.Generate(text);
+            encoder.Encode(text);
 
             DrawFunctionPatterns();
             DrawCodewords();
@@ -436,7 +436,7 @@ namespace services
             ApplyMask(mask);
         }
 
-        uint8_t QRCodeGenerator::BestMask()
+        uint8_t QrCodeGenerator::BestMask()
         {
             uint8_t mask = 0;
 
@@ -461,7 +461,7 @@ namespace services
         // properties, calling ApplyMask(m) twice with the same value is equivalent to no change at all.
         // This means it is possible to apply a mask, undo it, and try another mask. Note that a final
         // well-formed QR Code symbol needs exactly one mask applied (not zero, not two, etc.).
-        void QRCodeGenerator::ApplyMask(uint8_t mask)
+        void QrCodeGenerator::ApplyMask(uint8_t mask)
         {
             uint8_t size = modules.size.deltaX;
 
@@ -504,7 +504,7 @@ namespace services
             }
         }
 
-        void QRCodeGenerator::DrawFunctionPatterns()
+        void QrCodeGenerator::DrawFunctionPatterns()
         {
             uint8_t size = modules.size.deltaX;
 
@@ -552,7 +552,7 @@ namespace services
 
         // Draws two copies of the version bits (with its own error correction code),
         // based on this object's version field (which only has an effect for 7 <= version <= 40).
-        void QRCodeGenerator::DrawVersion()
+        void QrCodeGenerator::DrawVersion()
         {
             int8_t size = modules.size.deltaX;
 
@@ -578,7 +578,7 @@ namespace services
         }
 
         // Draws a 9*9 finder pattern including the border separator, with the center module at (x, y).
-        void QRCodeGenerator::DrawFinderPattern(infra::Point position)
+        void QrCodeGenerator::DrawFinderPattern(infra::Point position)
         {
             auto bitmapRegion = infra::Region(infra::Point(), modules.size);
             auto finderRegion = infra::Region(infra::Point(-4, -4), infra::Point(5, 5)) >> (position - infra::Point());
@@ -591,7 +591,7 @@ namespace services
         }
 
         // Draws a 5*5 alignment pattern, with the center module at (x, y).
-        void QRCodeGenerator::DrawAlignmentPattern(infra::Point position)
+        void QrCodeGenerator::DrawAlignmentPattern(infra::Point position)
         {
             auto alignmentRegion = infra::Region(infra::Point(-2, -2), infra::Point(3, 3)) >> (position - infra::Point());
 
@@ -601,7 +601,7 @@ namespace services
 
         // Draws the given sequence of 8-bit codewords (data and error correction) onto the entire
         // data area of this QR Code symbol. Function modules need to be marked off before this is called.
-        void QRCodeGenerator::DrawCodewords()
+        void QrCodeGenerator::DrawCodewords()
         {
             uint8_t size = modules.size.deltaX;
 
@@ -624,10 +624,10 @@ namespace services
                         auto position = infra::Point(x, y);
                         if (!isFunction.BlackAndWhitePixel(position))
                         {
-                            modules.SetBlackAndWhitePixel(position, codewords.Bit(i));
+                            modules.SetBlackAndWhitePixel(position, encoder.Bit(i));
                             ++i;
 
-                            if (i == codewords.Length())
+                            if (i == encoder.Length())
                                 return;
                         }
                         // If there are any remainder bits (0 to 7), they are already
@@ -639,7 +639,7 @@ namespace services
 
         // Draws two copies of the format bits (with its own error correction code)
         // based on the given mask and this object's error correction level field.
-        void QRCodeGenerator::DrawFormatBits(uint8_t mask)
+        void QrCodeGenerator::DrawFormatBits(uint8_t mask)
         {
             static constexpr std::array<uint8_t, 4> eccFormatBits{
                 0x01, 0x00, 0x03, 0x02
@@ -677,7 +677,7 @@ namespace services
             SetFunctionModule(infra::Point(8, size - 8), true);
         }
 
-        void QRCodeGenerator::SetFunctionModule(infra::Point position, bool on)
+        void QrCodeGenerator::SetFunctionModule(infra::Point position, bool on)
         {
             modules.SetBlackAndWhitePixel(position, on);
             isFunction.SetBlackAndWhitePixel(position, true);

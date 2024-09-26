@@ -9,7 +9,7 @@
 
 namespace services
 {
-    enum class QRCodeEcc : uint8_t
+    enum class QrCodeEcc : uint8_t
     {
         low,
         medium,
@@ -17,11 +17,11 @@ namespace services
         high
     };
 
-    template<uint8_t Version, QRCodeEcc Ecc>
-    struct QRCode
+    template<uint8_t Version, QrCodeEcc Ecc>
+    struct QrCode
         : infra::Bitmap::BlackAndWhite<Version * 4 + 17, Version * 4 + 17>
     {
-        QRCode(infra::BoundedConstString text);
+        QrCode(infra::BoundedConstString text);
 
         void Update(infra::BoundedConstString text);
 
@@ -34,7 +34,7 @@ namespace services
 
     namespace detail
     {
-        class BitBuffer
+        class TextEncoder
         {
         private:
             static constexpr std::array<uint16_t, 41> numRawDataModulesForVersion{
@@ -73,14 +73,14 @@ namespace services
                 return (bits + 7) / 8;
             }
 
-            static constexpr uint8_t BlockEccLen(uint8_t version, QRCodeEcc ecc)
+            static constexpr uint8_t BlockEccLen(uint8_t version, QrCodeEcc ecc)
             {
                 uint8_t numBlocks = numErrorCorrectionBlocks[static_cast<uint8_t>(ecc)][version - 1];
                 uint16_t totalEcc = numErrorCorrectionCodewords[static_cast<uint8_t>(ecc)][version - 1];
                 return totalEcc / numBlocks;
             }
 
-            static constexpr uint8_t BitBuffer::ModeBitsNumeric(uint8_t version)
+            static constexpr uint8_t ModeBitsNumeric(uint8_t version)
             {
                 if (version <= 9)
                     return 10;
@@ -89,7 +89,7 @@ namespace services
                 return 14;
             }
 
-            static constexpr uint8_t BitBuffer::ModeBitsAlphanumeric(uint8_t version)
+            static constexpr uint8_t ModeBitsAlphanumeric(uint8_t version)
             {
                 if (version <= 9)
                     return 9;
@@ -98,7 +98,7 @@ namespace services
                 return 13;
             }
 
-            static constexpr uint8_t BitBuffer::ModeBitsLatin1(uint8_t version)
+            static constexpr uint8_t ModeBitsLatin1(uint8_t version)
             {
                 if (version <= 9)
                     return 8;
@@ -107,7 +107,7 @@ namespace services
                 return 16;
             }
 
-            static constexpr std::size_t MaxSizeNumeric(uint8_t version, QRCodeEcc ecc)
+            static constexpr std::size_t MaxSizeNumeric(uint8_t version, QrCodeEcc ecc)
             {
                 uint16_t moduleCount = numRawDataModulesForVersion[version];
                 uint16_t dataCapacityInBytes = moduleCount / 8 - numErrorCorrectionCodewords[static_cast<uint8_t>(ecc)][version - 1];
@@ -120,7 +120,7 @@ namespace services
                                                                             : 0);
             }
 
-            static constexpr std::size_t MaxSizeAlphanumeric(uint8_t version, QRCodeEcc ecc)
+            static constexpr std::size_t MaxSizeAlphanumeric(uint8_t version, QrCodeEcc ecc)
             {
                 uint16_t moduleCount = numRawDataModulesForVersion[version];
                 uint16_t dataCapacityInBytes = moduleCount / 8 - numErrorCorrectionCodewords[static_cast<uint8_t>(ecc)][version - 1];
@@ -132,7 +132,7 @@ namespace services
                 return blocksOf2 * 2 + digitBits / 6;
             }
 
-            static constexpr std::size_t MaxSizeLatin1(uint8_t version, QRCodeEcc ecc)
+            static constexpr std::size_t MaxSizeLatin1(uint8_t version, QrCodeEcc ecc)
             {
                 uint16_t moduleCount = numRawDataModulesForVersion[version];
                 uint16_t dataCapacityInBytes = moduleCount / 8 - numErrorCorrectionCodewords[static_cast<uint8_t>(ecc)][version - 1];
@@ -142,12 +142,12 @@ namespace services
             }
 
         public:
-            template<uint8_t Version, QRCodeEcc ecc>
+            template<uint8_t Version, QrCodeEcc ecc>
             struct ForVersionAndEcc;
 
-            BitBuffer(infra::ByteRange data, infra::ByteRange result, infra::ByteRange coeff, uint8_t version, QRCodeEcc ecc);
+            TextEncoder(infra::ByteRange data, infra::ByteRange result, infra::ByteRange coeff, uint8_t version, QrCodeEcc ecc);
 
-            void Generate(infra::BoundedConstString text);
+            void Encode(infra::BoundedConstString text);
 
             uint16_t Length() const;
             bool Bit(uint16_t index) const;
@@ -163,7 +163,7 @@ namespace services
             void EncodeNumeric(infra::BoundedConstString text);
             void EncodeAlphanumeric(infra::BoundedConstString text);
             void EncodeLatin1(infra::BoundedConstString text);
-            void PerformErrorCorrection(QRCodeEcc ecc);
+            void PerformErrorCorrection(QrCodeEcc ecc);
 
             static int8_t GetAlphanumeric(char c);
             static bool IsAlphanumeric(infra::BoundedConstString text);
@@ -186,7 +186,7 @@ namespace services
 
         private:
             uint8_t version;
-            QRCodeEcc ecc;
+            QrCodeEcc ecc;
             uint16_t moduleCount;
             uint16_t bitOffset = 0;
             infra::ByteRange data;
@@ -194,8 +194,8 @@ namespace services
             ReedSolomon reedSolomon;
         };
 
-        template<uint8_t Version, QRCodeEcc Ecc>
-        struct BitBuffer::ForVersionAndEcc
+        template<uint8_t Version, QrCodeEcc Ecc>
+        struct TextEncoder::ForVersionAndEcc
         {
             ForVersionAndEcc();
 
@@ -204,16 +204,16 @@ namespace services
             std::array<uint8_t, RoundBitsToByte(moduleCount)> result{};
             std::array<uint8_t, BlockEccLen(Version, Ecc)> coeff{};
 
-            BitBuffer buffer;
+            TextEncoder buffer;
         };
 
-        class QRCodeGenerator
+        class QrCodeGenerator
         {
         public:
-            template<uint8_t Version, QRCodeEcc ecc>
+            template<uint8_t Version, QrCodeEcc ecc>
             struct ForVersionAndEcc;
 
-            QRCodeGenerator(infra::Bitmap& modules, infra::Bitmap& isFunction, BitBuffer& codewords, infra::ByteRange alignPosition, uint8_t version, QRCodeEcc ecc);
+            QrCodeGenerator(infra::Bitmap& modules, infra::Bitmap& isFunction, TextEncoder& encoder, infra::ByteRange alignPosition, uint8_t version, QrCodeEcc ecc);
 
             void Generate(infra::BoundedConstString text);
 
@@ -231,24 +231,24 @@ namespace services
 
         private:
             uint8_t version;
-            QRCodeEcc ecc;
+            QrCodeEcc ecc;
 
             infra::Bitmap& modules;
             infra::Bitmap& isFunction;
 
-            BitBuffer& codewords;
+            TextEncoder& encoder;
 
             infra::ByteRange alignPosition;
         };
 
-        template<uint8_t Version, QRCodeEcc Ecc>
-        struct QRCodeGenerator::ForVersionAndEcc
-            : QRCodeGenerator
+        template<uint8_t Version, QrCodeEcc Ecc>
+        struct QrCodeGenerator::ForVersionAndEcc
+            : QrCodeGenerator
         {
             ForVersionAndEcc(infra::Bitmap& modules);
 
-            typename QRCode<Version, Ecc>::BitmapType isFunction;
-            BitBuffer::ForVersionAndEcc<Version, Ecc> codewords;
+            typename QrCode<Version, Ecc>::BitmapType isFunction;
+            TextEncoder::ForVersionAndEcc<Version, Ecc> encoder;
             std::array<uint8_t, Version / 7 + 2> alignPosition;
         };
     }
@@ -257,49 +257,49 @@ namespace services
 
     namespace detail
     {
-        template<uint8_t Version, QRCodeEcc Ecc>
-        BitBuffer::ForVersionAndEcc<Version, Ecc>::ForVersionAndEcc()
+        template<uint8_t Version, QrCodeEcc Ecc>
+        TextEncoder::ForVersionAndEcc<Version, Ecc>::ForVersionAndEcc()
             : buffer(data, result, coeff, Version, Ecc)
         {}
 
-        template<uint8_t Version, QRCodeEcc Ecc>
-        QRCodeGenerator::ForVersionAndEcc<Version, Ecc>::ForVersionAndEcc(infra::Bitmap& modules)
-            : QRCodeGenerator(modules, isFunction, codewords.buffer, alignPosition, Version, Ecc)
+        template<uint8_t Version, QrCodeEcc Ecc>
+        QrCodeGenerator::ForVersionAndEcc<Version, Ecc>::ForVersionAndEcc(infra::Bitmap& modules)
+            : QrCodeGenerator(modules, isFunction, encoder.buffer, alignPosition, Version, Ecc)
         {
             isFunction.Clear();
         }
     }
 
-    template<uint8_t Version, QRCodeEcc Ecc>
-    QRCode<Version, Ecc>::QRCode(infra::BoundedConstString text)
+    template<uint8_t Version, QrCodeEcc Ecc>
+    QrCode<Version, Ecc>::QrCode(infra::BoundedConstString text)
     {
         Update(text);
     }
 
-    template<uint8_t Version, QRCodeEcc Ecc>
-    void QRCode<Version, Ecc>::Update(infra::BoundedConstString text)
+    template<uint8_t Version, QrCodeEcc Ecc>
+    void QrCode<Version, Ecc>::Update(infra::BoundedConstString text)
     {
         Clear();
-        detail::QRCodeGenerator::ForVersionAndEcc<Version, Ecc> generator(*this);
+        detail::QrCodeGenerator::ForVersionAndEcc<Version, Ecc> generator(*this);
         generator.Generate(text);
     }
 
-    template<uint8_t Version, QRCodeEcc Ecc>
-    constexpr std::size_t QRCode<Version, Ecc>::MaxSizeNumeric()
+    template<uint8_t Version, QrCodeEcc Ecc>
+    constexpr std::size_t QrCode<Version, Ecc>::MaxSizeNumeric()
     {
-        return BitBuffer::MaxSizeNumeric(Version, Ecc);
+        return TextEncoder::MaxSizeNumeric(Version, Ecc);
     }
 
-    template<uint8_t Version, QRCodeEcc Ecc>
-    constexpr std::size_t QRCode<Version, Ecc>::MaxSizeAlphanumeric()
+    template<uint8_t Version, QrCodeEcc Ecc>
+    constexpr std::size_t QrCode<Version, Ecc>::MaxSizeAlphanumeric()
     {
-        return BitBuffer::MaxSizeAlphanumeric(Version, Ecc);
+        return TextEncoder::MaxSizeAlphanumeric(Version, Ecc);
     }
 
-    template<uint8_t Version, QRCodeEcc Ecc>
-    constexpr std::size_t QRCode<Version, Ecc>::MaxSizeLatin1()
+    template<uint8_t Version, QrCodeEcc Ecc>
+    constexpr std::size_t QrCode<Version, Ecc>::MaxSizeLatin1()
     {
-        return BitBuffer::MaxSizeLatin1(Version, Ecc);
+        return TextEncoder::MaxSizeLatin1(Version, Ecc);
     }
 }
 
