@@ -287,19 +287,19 @@ namespace services
     template<uint8_t Version, QrCodeEcc Ecc>
     constexpr std::size_t QrCode<Version, Ecc>::MaxSizeNumeric()
     {
-        return TextEncoder::MaxSizeNumeric(Version, Ecc);
+        return detail::TextEncoder::MaxSizeNumeric(Version, Ecc);
     }
 
     template<uint8_t Version, QrCodeEcc Ecc>
     constexpr std::size_t QrCode<Version, Ecc>::MaxSizeAlphanumeric()
     {
-        return TextEncoder::MaxSizeAlphanumeric(Version, Ecc);
+        return detail::TextEncoder::MaxSizeAlphanumeric(Version, Ecc);
     }
 
     template<uint8_t Version, QrCodeEcc Ecc>
     constexpr std::size_t QrCode<Version, Ecc>::MaxSizeLatin1()
     {
-        return TextEncoder::MaxSizeLatin1(Version, Ecc);
+        return detail::TextEncoder::MaxSizeLatin1(Version, Ecc);
     }
 }
 
