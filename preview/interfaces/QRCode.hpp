@@ -25,6 +25,10 @@ namespace services
 
         void Update(infra::BoundedConstString text);
 
+        static constexpr std::size_t MaxSizeNumeric();
+        static constexpr std::size_t MaxSizeAlphanumeric();
+        static constexpr std::size_t MaxSizeLatin1();
+
         using BitmapType = infra::Bitmap::BlackAndWhite<Version * 4 + 17, Version * 4 + 17>;
     };
 
@@ -76,6 +80,67 @@ namespace services
                 return totalEcc / numBlocks;
             }
 
+            static constexpr uint8_t BitBuffer::ModeBitsNumeric(uint8_t version)
+            {
+                if (version <= 9)
+                    return 10;
+                if (version <= 26)
+                    return 12;
+                return 14;
+            }
+
+            static constexpr uint8_t BitBuffer::ModeBitsAlphanumeric(uint8_t version)
+            {
+                if (version <= 9)
+                    return 9;
+                if (version <= 26)
+                    return 11;
+                return 13;
+            }
+
+            static constexpr uint8_t BitBuffer::ModeBitsLatin1(uint8_t version)
+            {
+                if (version <= 9)
+                    return 8;
+                if (version <= 26)
+                    return 16;
+                return 16;
+            }
+
+            static constexpr std::size_t MaxSizeNumeric(uint8_t version, QRCodeEcc ecc)
+            {
+                uint16_t moduleCount = numRawDataModulesForVersion[version];
+                uint16_t dataCapacityInBytes = moduleCount / 8 - numErrorCorrectionCodewords[static_cast<uint8_t>(ecc)][version - 1];
+                uint16_t digitBits = dataCapacityInBytes * 8 - 4 - ModeBitsNumeric(version);
+
+                uint16_t blocksOf3 = digitBits / 10;
+                digitBits -= blocksOf3 * 10;
+
+                return blocksOf3 * 3 + (digitBits >= 7 ? 2 : digitBits >= 4 ? 1
+                                                                            : 0);
+            }
+
+            static constexpr std::size_t MaxSizeAlphanumeric(uint8_t version, QRCodeEcc ecc)
+            {
+                uint16_t moduleCount = numRawDataModulesForVersion[version];
+                uint16_t dataCapacityInBytes = moduleCount / 8 - numErrorCorrectionCodewords[static_cast<uint8_t>(ecc)][version - 1];
+                uint16_t digitBits = dataCapacityInBytes * 8 - 4 - ModeBitsAlphanumeric(version);
+
+                uint16_t blocksOf2 = digitBits / 11;
+                digitBits -= blocksOf2 * 11;
+
+                return blocksOf2 * 2 + digitBits / 6;
+            }
+
+            static constexpr std::size_t MaxSizeLatin1(uint8_t version, QRCodeEcc ecc)
+            {
+                uint16_t moduleCount = numRawDataModulesForVersion[version];
+                uint16_t dataCapacityInBytes = moduleCount / 8 - numErrorCorrectionCodewords[static_cast<uint8_t>(ecc)][version - 1];
+                uint16_t digitBits = dataCapacityInBytes * 8 - 4 - ModeBitsLatin1(version);
+
+                return digitBits / 8;
+            }
+
         public:
             template<uint8_t Version, QRCodeEcc ecc>
             struct ForVersionAndEcc;
@@ -97,12 +162,8 @@ namespace services
             void EncodeDataCodewords(infra::BoundedConstString text);
             void EncodeNumeric(infra::BoundedConstString text);
             void EncodeAlphanumeric(infra::BoundedConstString text);
-            void EncodeBinary(infra::BoundedConstString text);
+            void EncodeLatin1(infra::BoundedConstString text);
             void PerformErrorCorrection(QRCodeEcc ecc);
-
-            uint8_t ModeBitsNumeric() const;
-            uint8_t ModeBitsAlphanumeric() const;
-            uint8_t ModeBitsLatin1() const;
 
             static int8_t GetAlphanumeric(char c);
             static bool IsAlphanumeric(infra::BoundedConstString text);
@@ -221,6 +282,24 @@ namespace services
         Clear();
         detail::QRCodeGenerator::ForVersionAndEcc<Version, Ecc> generator(*this);
         generator.Generate(text);
+    }
+
+    template<uint8_t Version, QRCodeEcc Ecc>
+    constexpr std::size_t QRCode<Version, Ecc>::MaxSizeNumeric()
+    {
+        return BitBuffer::MaxSizeNumeric(Version, Ecc);
+    }
+
+    template<uint8_t Version, QRCodeEcc Ecc>
+    constexpr std::size_t QRCode<Version, Ecc>::MaxSizeAlphanumeric()
+    {
+        return BitBuffer::MaxSizeAlphanumeric(Version, Ecc);
+    }
+
+    template<uint8_t Version, QRCodeEcc Ecc>
+    constexpr std::size_t QRCode<Version, Ecc>::MaxSizeLatin1()
+    {
+        return BitBuffer::MaxSizeLatin1(Version, Ecc);
     }
 }
 

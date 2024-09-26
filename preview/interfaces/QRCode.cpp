@@ -1,5 +1,6 @@
 #include "preview/interfaces/QRCode.hpp"
 #include <algorithm>
+#include <cassert>
 #include <limits>
 
 namespace services
@@ -57,13 +58,14 @@ namespace services
             else if (IsAlphanumeric(text))
                 EncodeAlphanumeric(text);
             else
-                EncodeBinary(text);
+                EncodeLatin1(text);
         }
 
         void BitBuffer::EncodeNumeric(infra::BoundedConstString text)
         {
+            assert(text.size() <= MaxSizeNumeric(version, ecc));
             Append(1 << numeric, 4);
-            Append(text.size(), ModeBitsNumeric());
+            Append(text.size(), ModeBitsNumeric(version));
 
             uint16_t accumData = 0;
             uint8_t accumCount = 0;
@@ -86,8 +88,9 @@ namespace services
 
         void BitBuffer::EncodeAlphanumeric(infra::BoundedConstString text)
         {
+            assert(text.size() <= MaxSizeAlphanumeric(version, ecc));
             Append(1 << alphanumeric, 4);
-            Append(text.size(), ModeBitsAlphanumeric());
+            Append(text.size(), ModeBitsAlphanumeric(version));
 
             uint16_t accumData = 0;
             uint8_t accumCount = 0;
@@ -107,10 +110,11 @@ namespace services
                 Append(accumData, 6);
         }
 
-        void BitBuffer::EncodeBinary(infra::BoundedConstString text)
+        void BitBuffer::EncodeLatin1(infra::BoundedConstString text)
         {
+            assert(text.size() <= MaxSizeLatin1(version, ecc));
             Append(1 << latin1, 4);
-            Append(text.size(), ModeBitsLatin1());
+            Append(text.size(), ModeBitsLatin1(version));
             for (auto c : text)
                 Append(c, 8);
         }
@@ -171,33 +175,6 @@ namespace services
             }
 
             bitOffset = moduleCount;
-        }
-
-        uint8_t BitBuffer::ModeBitsNumeric() const
-        {
-            if (version <= 9)
-                return 10;
-            if (version <= 26)
-                return 12;
-            return 14;
-        }
-
-        uint8_t BitBuffer::ModeBitsAlphanumeric() const
-        {
-            if (version <= 9)
-                return 9;
-            if (version <= 26)
-                return 11;
-            return 13;
-        }
-
-        uint8_t BitBuffer::ModeBitsLatin1() const
-        {
-            if (version <= 9)
-                return 8;
-            if (version <= 26)
-                return 16;
-            return 16;
         }
 
         int8_t BitBuffer::GetAlphanumeric(char c)
