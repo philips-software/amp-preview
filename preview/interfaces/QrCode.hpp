@@ -279,7 +279,7 @@ namespace services
     template<uint8_t Version, QrCodeEcc Ecc>
     void QrCode<Version, Ecc>::Update(infra::BoundedConstString text)
     {
-        Clear();
+        this->Clear();
         detail::QrCodeGenerator::ForVersionAndEcc<Version, Ecc> generator(*this);
         generator.Generate(text);
     }
