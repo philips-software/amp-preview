@@ -236,7 +236,7 @@ namespace services
             // drop the highest term, and store the rest of the coefficients in order of descending powers.
             // Note that r = 0x02, which is a generator element of this field GF(2^8/0x11D).
             uint16_t root = 1;
-            for (uint8_t i = 0; i < coeff.size(); i++)
+            for (uint8_t i = 0; i != coeff.size(); ++i)
             {
                 // Multiply the current product by (x - r^i)
                 for (uint8_t j = 0; j != coeff.size(); ++j)

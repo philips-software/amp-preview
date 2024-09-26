@@ -107,6 +107,7 @@ namespace services
                 return 16;
             }
 
+        public:
             static constexpr std::size_t MaxSizeNumeric(uint8_t version, QrCodeEcc ecc)
             {
                 uint16_t moduleCount = numRawDataModulesForVersion[version];
