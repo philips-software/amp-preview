@@ -1,4 +1,3 @@
-#include "examples/clicking_scrolling/TouchViewClickingScrolling.hpp"
 #include "hal/generic/TimerServiceGeneric.hpp"
 #include "infra/event/LowPowerEventDispatcher.hpp"
 #include "preview/interfaces/QRCode.hpp"

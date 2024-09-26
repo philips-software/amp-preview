@@ -1,4 +1,3 @@
-#include "examples/clicking_scrolling/TouchViewClickingScrolling.hpp"
 #include "generated/stm32fxxx/PinoutTableDefault.hpp"
 #include "hal_st/stm32fxxx/DefaultClockDiscoveryF746G.hpp"
 #include "hal_st/stm32fxxx/GpioStm.hpp"
@@ -6,11 +5,12 @@
 #include "hal_st/stm32fxxx/SdRamStm.hpp"
 #include "hal_st/stm32fxxx/SystemTickTimerService.hpp"
 #include "infra/event/EventDispatcherWithWeakPtr.hpp"
+#include "preview/interfaces/QRCode.hpp"
 #include "preview/interfaces/ViewPainterDoubleBufferDisplay.hpp"
 #include "preview/interfaces/ViewRepainter.hpp"
 #include "preview/stm32fxxx/BitmapPainterStm.hpp"
 #include "preview/stm32fxxx/LcdStm.hpp"
-#include "preview/touch/TouchFt5x06.hpp"
+#include "preview/views/ViewBitmap.hpp"
 #include "services/util/DebugLed.hpp"
 
 unsigned int hse_value = 25000000;
@@ -32,19 +32,6 @@ namespace main_
         infra::Bitmap bitmap1{ lcdBuffer1, infra::Vector(480, 272), infra::PixelFormat::rgb565 };
         hal::LcdStmDoubleBuffer display{ lcdPins, displayEnable, backlightEnable, lcdBuffer0, lcdBuffer1, hal::stm32f7discoveryLcdConfig };
     };
-
-    struct Touch
-    {
-        Touch(services::TouchRecipient& touchRecipient)
-            : touch(i2c, lcdInt, touchRecipient)
-        {}
-
-        hal::GpioPinStm scl{ hal::Port::H, 7 };
-        hal::GpioPinStm sda{ hal::Port::H, 8 };
-        hal::I2cStm i2c{ 3, scl, sda };
-        hal::GpioPinStm lcdInt{ hal::Port::I, 13 };
-        services::TouchFt5x06OnTouchRecipient touch;
-    };
 }
 
 int main()
@@ -57,14 +44,15 @@ int main()
     static hal::GpioStm gpio(hal::pinoutTableDefaultStm);
     static hal::SystemTickTimerService systemTick;
 
-    static application::TouchViewClickingScrolling touchView;
-    static main_::Touch touch(touchView);
-
     static main_::Lcd lcd;
     static hal::BitmapPainterStm bitmapPainter;
     static services::ViewPainterDoubleBufferDisplay painter(lcd.display, bitmapPainter);
-    static services::ViewRepainterPaintWhenDirty repainter(painter, touchView.GetView());
-    touchView.GetView().ResetLayout(lcd.display.DisplaySize());
+
+    services::QrCode<3, services::QrCodeEcc::low> qrcode("https://github.com/philips-software/amp-preview");
+    services::ViewBitmap viewBitmap(qrcode);
+
+    static services::ViewRepainterPaintWhenDirty repainter(painter, viewBitmap);
+    viewBitmap.ResetLayout(lcd.display.DisplaySize());
 
     eventDispatcher.Run();
     __builtin_unreachable();
