@@ -5,7 +5,7 @@
 #include "hal_st/stm32fxxx/SdRamStm.hpp"
 #include "hal_st/stm32fxxx/SystemTickTimerService.hpp"
 #include "infra/event/EventDispatcherWithWeakPtr.hpp"
-#include "preview/interfaces/QRCode.hpp"
+#include "preview/interfaces/QrCode.hpp"
 #include "preview/interfaces/ViewPainterDoubleBufferDisplay.hpp"
 #include "preview/interfaces/ViewRepainter.hpp"
 #include "preview/stm32fxxx/BitmapPainterStm.hpp"

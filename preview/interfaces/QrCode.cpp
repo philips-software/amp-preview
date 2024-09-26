@@ -1,4 +1,4 @@
-#include "preview/interfaces/QRCode.hpp"
+#include "preview/interfaces/QrCode.hpp"
 #include <algorithm>
 #include <cassert>
 #include <limits>

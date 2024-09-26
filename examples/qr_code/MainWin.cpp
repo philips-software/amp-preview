@@ -1,6 +1,6 @@
 #include "hal/generic/TimerServiceGeneric.hpp"
 #include "infra/event/LowPowerEventDispatcher.hpp"
-#include "preview/interfaces/QRCode.hpp"
+#include "preview/interfaces/QrCode.hpp"
 #include "preview/interfaces/ViewPainterDirectDisplay.hpp"
 #include "preview/interfaces/ViewRepainter.hpp"
 #include "preview/sdl/DirectDisplaySdl.hpp"
