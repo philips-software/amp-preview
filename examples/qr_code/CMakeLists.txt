@@ -6,7 +6,9 @@ endif()
 emil_build_for(examples.qr_code HOST Windows TARGET_MCU stm32f746 PREREQUISITE_BOOL PREVIEW_BUILD_EXAMPLES)
 
 set_target_properties(examples.qr_code PROPERTIES WIN32_EXECUTABLE $<BOOL:${EMIL_BUILD_WIN}>)
-target_compile_definitions(examples.qr_code PUBLIC NOMINMAX)
+if (EMIL_BUILD_WIN)
+    target_compile_definitions(examples.qr_code PUBLIC NOMINMAX)
+endif()
 
 target_include_directories(examples.qr_code PUBLIC
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/../..>"
