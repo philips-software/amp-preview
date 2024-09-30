@@ -343,7 +343,7 @@ namespace hal
                     for (auto x = 0; x != sourceBitmap.size.deltaX; ++x)
                     {
                         auto i = y * sourceBitmap.size.deltaX + x;
-                        auto colour = (sourceBitmap.buffer[i / 8] & (1 << (7 - i % 8))) == 0 ? infra::Colour::black : infra::Colour::white;
+                        auto colour = (sourceBitmap.buffer[i / 8] & (1 << (i % 8))) == 0 ? infra::Colour::black : infra::Colour::white;
                         DrawPixel(destination.TopLeft() + infra::Vector(x, y), colour, boundingBox);
                     }
             }

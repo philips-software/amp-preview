@@ -20,6 +20,8 @@ namespace infra
 
         Bitmap(infra::ByteRange buffer, infra::Vector size, PixelFormat pixelFormat);
 
+        void Clear();
+
         const uint8_t* BufferAddress(infra::Point position) const;
         uint8_t* BufferAddress(infra::Point position);
         void SetBlackAndWhitePixel(infra::Point position, bool pixel);

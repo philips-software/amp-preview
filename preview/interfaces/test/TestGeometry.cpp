@@ -207,6 +207,16 @@ TEST(GeometryTest, RegionOffset)
     EXPECT_EQ(infra::Region(infra::Point(1, 2), infra::Vector(3, 4)), infra::Region(infra::Point(1, 2), infra::Vector(3, 4)) + infra::RegionOffset({ 1, 0 }, { 1, 50 }, { 1, 0 }, { 1, 50 }) - infra::RegionOffset({ 1, 0 }, { 1, 50 }, { 1, 0 }, { 1, 50 }));
 }
 
+TEST(GeometryTest, RowFirstPoints)
+{
+    std::vector<infra::Point> points;
+
+    for (auto i : infra::RowFirstPoints(infra::Region(infra::Point(1, 2), infra::Point(3, 5))))
+        points.push_back(i);
+
+    EXPECT_EQ((std::vector<infra::Point>{ { 1, 2 }, { 2, 2 }, { 1, 3 }, { 2, 3 }, { 1, 4 }, { 2, 4 } }), points);
+}
+
 TEST(GeometryTest, RestrictedSum)
 {
     EXPECT_EQ(9, infra::RestrictedInt16Sum(5, 4));
@@ -228,6 +238,16 @@ TEST(GeometryTest, ManhattanDistance)
     EXPECT_EQ(10, infra::ManhattanDistance(infra::Point(10, 0), infra::Point()));
     EXPECT_EQ(10, infra::ManhattanDistance(infra::Point(0, 10), infra::Point()));
     EXPECT_EQ(20, infra::ManhattanDistance(infra::Point(10, 10), infra::Point()));
+}
+
+TEST(GeometryTest, ChebyshevDistance)
+{
+    EXPECT_EQ(0, infra::ChebyshevDistance(infra::Point(), infra::Point()));
+    EXPECT_EQ(10, infra::ChebyshevDistance(infra::Point(), infra::Point(10, 0)));
+    EXPECT_EQ(10, infra::ChebyshevDistance(infra::Point(), infra::Point(0, 10)));
+    EXPECT_EQ(10, infra::ChebyshevDistance(infra::Point(10, 0), infra::Point()));
+    EXPECT_EQ(10, infra::ChebyshevDistance(infra::Point(0, 10), infra::Point()));
+    EXPECT_EQ(10, infra::ChebyshevDistance(infra::Point(10, 10), infra::Point()));
 }
 
 TEST(GeometryTest, Aligned)

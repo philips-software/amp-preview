@@ -1,1 +1,2 @@
 add_subdirectory(clicking_scrolling)
+add_subdirectory(qr_code)
