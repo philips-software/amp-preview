@@ -26,7 +26,7 @@ namespace services
 
     private:
         infra::RegionOffset regionOffset;
-        infra::Optional<ViewOffsetRegion::WithView<ViewFramedText>> popOut;
+        std::optional<ViewOffsetRegion::WithView<ViewFramedText>> popOut;
     };
 }
 

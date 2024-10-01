@@ -19,7 +19,7 @@ namespace services
         , to(to)
         , circular(circular)
         , distancePerIncrement(distancePerIncrement)
-        , width(infra::MakeOptional(width))
+        , width(std::make_optional(width))
     {}
 
     void TouchSpinInteger::StartTouch(infra::Point point)
@@ -49,7 +49,7 @@ namespace services
 
     void TouchSpinInteger::StopTouch()
     {
-        startTouch = infra::none;
+        startTouch = std::nullopt;
     }
 
     void TouchSpinInteger::Swipe(Direction direction)
@@ -104,7 +104,7 @@ namespace services
     {
         valueString.clear();
         infra::StringOutputStream stream(valueString);
-        if (width != infra::none)
+        if (width != std::nullopt)
             stream << infra::Width(*width, '0') << value;
         else
             stream << value;

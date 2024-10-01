@@ -31,14 +31,14 @@ namespace services
             DrawLine(TextRegion(), canvas, boundingRegion);
 
             auto fadingRegion = FadingRegion();
-            if (fadingRegion != infra::none)
+            if (fadingRegion != std::nullopt)
                 DrawLine(*fadingRegion, canvas, boundingRegion);
         }
     }
 
     void ViewDisableableFadingText::Enable(bool newEnabled)
     {
-        Dirty(TextRegion() | FadingRegion().ValueOr(infra::Region()));
+        Dirty(TextRegion() | FadingRegion().value_or(infra::Region()));
         enabled = newEnabled;
     }
 

@@ -18,7 +18,7 @@ namespace services
         if (!measurementBusy)
         {
             measurementBusy = true;
-            touchScreen.Measure([this](infra::Optional<infra::Point> position)
+            touchScreen.Measure([this](std::optional<infra::Point> position)
                 {
                     if (position)
                     {

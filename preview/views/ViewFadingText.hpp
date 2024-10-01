@@ -32,7 +32,7 @@ namespace services
         void FadeIn(infra::BoundedConstString newText, Direction from);
 
         infra::Region TextRegion() const;
-        infra::Optional<infra::Region> FadingRegion() const;
+        std::optional<infra::Region> FadingRegion() const;
 
     private:
         infra::BoundedString& buffer1;

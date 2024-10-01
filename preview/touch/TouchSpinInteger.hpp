@@ -53,9 +53,9 @@ namespace services
         int32_t to;
         bool circular;
         uint16_t distancePerIncrement;
-        infra::Optional<uint8_t> width;
+        std::optional<uint8_t> width;
 
-        infra::Optional<infra::Point> startTouch;
+        std::optional<infra::Point> startTouch;
         int32_t stepsReported = 0;
 
         infra::BoundedString::WithStorage<12> valueString;
