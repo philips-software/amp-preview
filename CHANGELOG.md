@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/philips-software/amp-preview/compare/v1.1.0...v1.2.0) (2024-10-09)
+
+
+### Features
+
+* Add QR code generator ([#191](https://github.com/philips-software/amp-preview/issues/191)) ([23eb42e](https://github.com/philips-software/amp-preview/commit/23eb42ede2c508821ca8868e09e08130aa920e2b))
+
 ## [1.1.0](https://github.com/philips-software/amp-preview/compare/v1.0.0...v1.1.0) (2024-01-30)
 
 
