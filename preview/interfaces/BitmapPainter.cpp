@@ -297,19 +297,26 @@ namespace hal
 
     void BitmapPainterCanonical::DrawBitmap(infra::Bitmap& bitmap, infra::Point position, const infra::Bitmap& sourceBitmap, infra::Region boundingBox)
     {
-        assert(bitmap.pixelFormat == sourceBitmap.pixelFormat);
         auto bitmapDestination = infra::Region(position, sourceBitmap.size);
         auto boundedDestination = bitmapDestination & boundingBox;
 
         if (!boundedDestination.Empty())
         {
             WaitUntilDrawingFinished();
-            for (auto y = boundedDestination.Top() - bitmapDestination.Top(); y != boundedDestination.Bottom() - bitmapDestination.Top(); ++y)
-                for (auto x = boundedDestination.Left() - bitmapDestination.Left(); x != boundedDestination.Right() - bitmapDestination.Left(); ++x)
-                {
-                    auto colour = sourceBitmap.PixelColour(infra::Point(x, y));
-                    DrawPixel(bitmap, bitmapDestination.TopLeft() + infra::Vector(x, y), colour);
-                }
+            if (bitmap.pixelFormat == infra::PixelFormat::blackandwhite)
+                for (auto y = boundedDestination.Top() - bitmapDestination.Top(); y != boundedDestination.Bottom() - bitmapDestination.Top(); ++y)
+                    for (auto x = boundedDestination.Left() - bitmapDestination.Left(); x != boundedDestination.Right() - bitmapDestination.Left(); ++x)
+                    {
+                        bool colour = sourceBitmap.BlackAndWhitePixel(infra::Point(x, y));
+                        DrawPixel(bitmap, bitmapDestination.TopLeft() + infra::Vector(x, y), colour);
+                    }
+            else
+                for (auto y = boundedDestination.Top() - bitmapDestination.Top(); y != boundedDestination.Bottom() - bitmapDestination.Top(); ++y)
+                    for (auto x = boundedDestination.Left() - bitmapDestination.Left(); x != boundedDestination.Right() - bitmapDestination.Left(); ++x)
+                    {
+                        auto colour = sourceBitmap.PixelColour(infra::Point(x, y));
+                        DrawPixel(bitmap, bitmapDestination.TopLeft() + infra::Vector(x, y), colour);
+                    }
         }
     }
 
