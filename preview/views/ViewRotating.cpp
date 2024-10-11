@@ -36,7 +36,8 @@ namespace services
         if (subView)
         {
             subView->ResetSize();
-            ResizeWithoutTrigger(infra::RotatedVectorInRegion(subView->ViewRegion().Size(), angle, rotatedRegion));
+            rotatedRegion = infra::RotatedRegionInRegion(subView->ViewRegion(), -angle, subView->ViewRegion());
+            ResizeWithoutTrigger(rotatedRegion.Size());
         }
         else
             ResizeWithoutTrigger(infra::Vector());
@@ -125,17 +126,17 @@ namespace services
 
     void ViewRotating::CanvasRotating::DrawBitmap(infra::Point position, const infra::Bitmap& sourceBitmap, infra::Region boundingBox)
     {
-        canvas.DrawBitmap(Rotated(position), sourceBitmap, Rotated(boundingBox));
+        canvas.DrawBitmap(Rotated(infra::Region(position, sourceBitmap.size)).TopLeft(), sourceBitmap, Rotated(boundingBox));
     }
 
     void ViewRotating::CanvasRotating::DrawTransparentBitmap(infra::Point position, const infra::Bitmap& sourceBitmap, uint32_t transparencyColour, infra::Region boundingBox)
     {
-        canvas.DrawTransparentBitmap(Rotated(position), sourceBitmap, transparencyColour, Rotated(boundingBox));
+        canvas.DrawTransparentBitmap(Rotated(infra::Region(position, sourceBitmap.size)).TopLeft(), sourceBitmap, transparencyColour, Rotated(boundingBox));
     }
 
     void ViewRotating::CanvasRotating::DrawIcon(infra::Point position, const infra::Bitmap& sourceBitmap, infra::Colour colour, infra::Region boundingBox)
     {
-        canvas.DrawIcon(Rotated(position), sourceBitmap, colour, Rotated(boundingBox));
+        canvas.DrawIcon(Rotated(infra::Region(position, sourceBitmap.size)).TopLeft(), sourceBitmap, colour, Rotated(boundingBox));
     }
 
     void ViewRotating::CanvasRotating::DrawString(infra::Point position, infra::BoundedConstString string, const infra::Font& font, infra::Colour colour, infra::RightAngle direction, infra::Region boundingBox)
