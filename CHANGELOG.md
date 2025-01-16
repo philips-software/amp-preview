@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.2.0](https://github.com/philips-software/amp-preview/compare/v1.1.0...v1.2.0) (2025-01-16)
+
+
+### Features
+
+* Add QR code generator ([#191](https://github.com/philips-software/amp-preview/issues/191)) ([23eb42e](https://github.com/philips-software/amp-preview/commit/23eb42ede2c508821ca8868e09e08130aa920e2b))
+
+
+### Bug Fixes
+
+* Rotate bitmaps over the correct corner ([#200](https://github.com/philips-software/amp-preview/issues/200)) ([3ad1593](https://github.com/philips-software/amp-preview/commit/3ad15939b76d0702cb1b709b42277c7699cfbe91))
+
 ## [1.1.0](https://github.com/philips-software/amp-preview/compare/v1.0.0...v1.1.0) (2024-01-30)
 
 
