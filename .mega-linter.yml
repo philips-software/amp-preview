@@ -26,4 +26,4 @@ SARIF_REPORTER: true
 PRINT_ALPACA: false
 SHOW_SKIPPED_LINTERS: false
 JSON_JSONLINT_ARGUMENTS: --mode cjson
-CPP_CPPLINT_ARGUMENTS: --check-level=exhaustive
+CPP_CPPCHECK_ARGUMENTS: --check-level=exhaustive
