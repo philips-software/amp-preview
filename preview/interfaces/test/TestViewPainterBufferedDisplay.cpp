@@ -22,7 +22,7 @@ public:
     testing::StrictMock<hal::BufferedDisplayMock> display;
     testing::StrictMock<hal::BitmapPainterMock> bitmapPainter;
     testing::StrictMock<services::ViewMock> view;
-    infra::Optional<services::ViewPainterBufferedDisplay> viewPainter;
+    std::optional<services::ViewPainterBufferedDisplay> viewPainter;
 };
 
 TEST_F(ViewPainterBufferedDisplayTest, Paint)

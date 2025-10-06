@@ -51,7 +51,7 @@ namespace services
         struct LayoutViewInfo
         {
             View* view;
-            infra::Optional<VerticalAlignment> alignment; // No alignment means fill up the available space in the vertical direction
+            std::optional<VerticalAlignment> alignment; // No alignment means fill up the available space in the vertical direction
             uint16_t proportion;
             uint8_t paintOrder;
             infra::Region drawRegion;

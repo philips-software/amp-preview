@@ -13,7 +13,7 @@ namespace services
         , touchDelta(touchDelta)
     {}
 
-    void TouchScreen::Measure(const infra::Function<void(infra::Optional<infra::Point> position)>& onTouched)
+    void TouchScreen::Measure(const infra::Function<void(std::optional<infra::Point> position)>& onTouched)
     {
         assert(this->onTouched == nullptr);
         this->onTouched = onTouched;
@@ -50,12 +50,12 @@ namespace services
     {
         if (xTouchResult >= yTouchResult + touchScreen.touchDelta)
         {
-            touchScreen.onTouched(infra::none);
+            touchScreen.onTouched(std::nullopt);
             touchScreen.state.Emplace<StateIdle>();
         }
         else if (finalMeasurement)
         {
-            touchScreen.onTouched(infra::MakeOptional(infra::Point(touchScreen.xResult, touchScreen.yResult)));
+            touchScreen.onTouched(std::make_optional(infra::Point(touchScreen.xResult, touchScreen.yResult)));
             touchScreen.state.Emplace<StateIdle>();
         }
         else

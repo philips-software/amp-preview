@@ -96,20 +96,20 @@ namespace services
 
     void HorizontalLayout::Add(View& view, uint16_t proportion, VerticalAlignment alignment)
     {
-        views.push_back(detail::LayoutViewInfo{ &view, infra::MakeOptional(alignment), proportion, static_cast<uint8_t>(views.size()) });
+        views.push_back(detail::LayoutViewInfo{ &view, std::make_optional(alignment), proportion, static_cast<uint8_t>(views.size()) });
         view.SetParent(*this);
     }
 
     void HorizontalLayout::AddFill(View& view, uint16_t proportion)
     {
-        views.push_back(detail::LayoutViewInfo{ &view, infra::none, proportion, static_cast<uint8_t>(views.size()) });
+        views.push_back(detail::LayoutViewInfo{ &view, std::nullopt, proportion, static_cast<uint8_t>(views.size()) });
         view.SetParent(*this);
     }
 
     void HorizontalLayout::AddDummy(uint16_t proportion)
     {
         assert(proportion != 0);
-        views.push_back(detail::LayoutViewInfo{ nullptr, infra::none, proportion, static_cast<uint8_t>(views.size()) });
+        views.push_back(detail::LayoutViewInfo{ nullptr, std::nullopt, proportion, static_cast<uint8_t>(views.size()) });
     }
 
     void HorizontalLayout::BringToFront(View& view)
