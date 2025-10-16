@@ -93,7 +93,7 @@ namespace services
         return ViewText::TextRegion();
     }
 
-    infra::Optional<infra::Region> ViewFadingText::FadingRegion() const
+    std::optional<infra::Region> ViewFadingText::FadingRegion() const
     {
         if (fadeTimer.Armed())
         {
@@ -107,10 +107,10 @@ namespace services
                 if (fadeDirection == Direction::down || fadeDirection == Direction::right)
                     deltaBuffer = -deltaBuffer;
 
-                return infra::MakeOptional(ViewText::TextRegion() >> deltaBuffer);
+                return std::make_optional(ViewText::TextRegion() >> deltaBuffer);
             }
         }
 
-        return infra::none;
+        return std::nullopt;
     }
 }

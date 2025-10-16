@@ -20,7 +20,7 @@ namespace services
 
         TouchScreen(hal::GpioPin& xPlus, hal::GpioPin& xMinus, hal::GpioPin& yPlus, hal::GpioPin& yMinus, infra::CreatorBase<AnalogToDigitalPin, void()>& xPlusAnalogPin, infra::CreatorBase<AnalogToDigitalPin, void()>& yPlusAnalogPin, uint32_t touchDelta);
 
-        void Measure(const infra::Function<void(infra::Optional<infra::Point> position)>& onTouched);
+        void Measure(const infra::Function<void(std::optional<infra::Point> position)>& onTouched);
 
     private:
         class State
@@ -103,7 +103,7 @@ namespace services
         infra::CreatorBase<AnalogToDigitalPin, void()>& yPlusAnalogPin;
         uint32_t touchDelta;
 
-        infra::AutoResetFunction<void(infra::Optional<infra::Point> position)> onTouched;
+        infra::AutoResetFunction<void(std::optional<infra::Point> position)> onTouched;
         infra::PolymorphicVariant<State, StateIdle, StateTouchMeasurement, StateXMeasurement, StateYMeasurement> state;
 
         uint32_t xResult;

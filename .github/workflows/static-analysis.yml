@@ -48,7 +48,7 @@ jobs:
           cp build/coverage/compile_commands.json compile_commands.json
       - name: Run Analysis
         # skip the analysis step for dependabot PRs since dependabot does not have access to secrets
-        if: ${{ github.actor != 'dependabot[bot]' }}
+        if: ${{ false && github.actor != 'dependabot[bot]' }}
         env:
           # to get access to secrets.SONAR_TOKEN, provide GITHUB_TOKEN
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

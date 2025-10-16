@@ -12,7 +12,7 @@ namespace services
         ViewFramedTextButton::Activate();
 
         FramedTextButtonAttributes attributes = Attributes();
-        popOut.Emplace(regionOffset, FramedTextAttributes{ attributes.frameColour, attributes.activatedBackgroundColour, attributes.textColour, attributes.font }, Text());
+        popOut.emplace(regionOffset, FramedTextAttributes{ attributes.frameColour, attributes.activatedBackgroundColour, attributes.textColour, attributes.font }, Text());
         popOut->SetParent(*this);
         popOut->SetViewRegion(ViewRegion());
         Dirty(popOut->ViewRegion());
@@ -21,7 +21,7 @@ namespace services
     void ViewFramedTextButtonWithPopOut::Deactivate()
     {
         Dirty(popOut->DrawRegion());
-        popOut = infra::none;
+        popOut.reset();
 
         ViewFramedTextButton::Deactivate();
     }
@@ -46,7 +46,7 @@ namespace services
     {
         ViewFramedTextButton::ViewRegionChanged();
 
-        if (popOut != infra::none)
+        if (popOut != std::nullopt)
             popOut->SetViewRegion(ViewRegion());
     }
 }
