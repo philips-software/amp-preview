@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.0](https://github.com/philips-software/amp-preview/compare/v1.2.0...v1.3.0) (2025-11-21)
+
+
+### Features
+
+* Update to remove infra optional ([#260](https://github.com/philips-software/amp-preview/issues/260)) ([793f904](https://github.com/philips-software/amp-preview/commit/793f904fd603e79ea5020f47520316f080d4f01f))
+
 ## [1.2.0](https://github.com/philips-software/amp-preview/compare/v1.1.0...v1.2.0) (2025-01-16)
 
 
