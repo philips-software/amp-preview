@@ -50,9 +50,9 @@ jobs:
         # skip the analysis step for dependabot PRs since dependabot does not have access to secrets
         if: ${{ false && github.actor != 'dependabot[bot]' }}
         env:
-          # to get access to secrets.SONAR_TOKEN, provide GITHUB_TOKEN
+          # to get access to secrets.TMP_SONAR_TOKEN, provide GITHUB_TOKEN
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.TMP_SONAR_TOKEN }}
         run: sonar-scanner -D sonar.host.url="${{ env.SONAR_SERVER_URL }}"
   codeql:
     name: CodeQL
