@@ -5,10 +5,10 @@
 #include "hal/interfaces/Gpio.hpp"
 #include "infra/timer/Timer.hpp"
 #include "infra/util/AutoResetFunction.hpp"
-#include "infra/util/Optional.hpp"
 #include "infra/util/PolymorphicVariant.hpp"
 #include "infra/util/ProxyCreator.hpp"
 #include "preview/interfaces/Geometry.hpp"
+#include <optional>
 
 namespace services
 {

@@ -3,9 +3,9 @@
 
 #include "hal/interfaces/I2c.hpp"
 #include "infra/util/AutoResetFunction.hpp"
-#include "infra/util/Optional.hpp"
 #include "preview/interfaces/BufferedDisplay.hpp"
 #include "preview/interfaces/ViewPainter.hpp"
+#include <optional>
 
 namespace services
 {
