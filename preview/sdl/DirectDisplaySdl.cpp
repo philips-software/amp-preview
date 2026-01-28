@@ -1,12 +1,15 @@
 #include "preview/sdl/DirectDisplaySdl.hpp"
 #include "preview/interfaces/Colour.hpp"
-#include <SDL.h>
+#include "SDL3/SDL.h"
+#include "preview/interfaces/Colour.hpp"
 
 namespace
 {
-    SDL_Rect Convert(infra::Region region)
+    SDL_FRect Convert(infra::Region region)
     {
-        return SDL_Rect{ region.TopLeft().x, region.TopLeft().y, region.Width(), region.Height() };
+        SDL_FRect result;
+        SDL_RectToFRect(&SDL_Rect{ region.TopLeft().x, region.TopLeft().y, region.Width(), region.Height() }, &result);
+        return result;
     }
 }
 
@@ -20,7 +23,7 @@ namespace hal
 
         SDL_Init(SDL_INIT_VIDEO);
 
-        SDL_CreateWindowAndRenderer(size.deltaX, size.deltaY, SDL_WINDOW_SHOWN, &rawWindow, &rawRenderer);
+        SDL_CreateWindowAndRenderer("", size.deltaX, size.deltaY, 0, &rawWindow, &rawRenderer);
 
         window = std::unique_ptr<SDL_Window, std::function<void(SDL_Window*)>>(rawWindow, SDL_DestroyWindow);
         renderer = std::unique_ptr<SDL_Renderer, std::function<void(SDL_Renderer*)>>(rawRenderer, SDL_DestroyRenderer);
@@ -118,7 +121,7 @@ namespace hal
 
         if (!destination.Empty())
         {
-            SDL_Rect rectangle = Convert(destination);
+            SDL_FRect rectangle = Convert(destination);
 
             SetRenderColour(colour);
             SDL_RenderFillRect(renderer.get(), &rectangle);
@@ -443,7 +446,7 @@ namespace hal
         if (deltaX > 0)
         {
             SetRenderColour(colour);
-            SDL_RenderDrawLine(renderer.get(), from.x, from.y, from.x + deltaX, from.y);
+            SDL_RenderLine(renderer.get(), from.x, from.y, from.x + deltaX, from.y);
         }
     }
 
@@ -463,7 +466,7 @@ namespace hal
         if (deltaY > 0)
         {
             SetRenderColour(colour);
-            SDL_RenderDrawLine(renderer.get(), from.x, from.y, from.x, from.y + deltaY);
+            SDL_RenderLine(renderer.get(), from.x, from.y, from.x, from.y + deltaY);
         }
     }
 
@@ -500,6 +503,6 @@ namespace hal
     void DirectDisplaySdl::DrawPixel(infra::Point position, infra::Colour colour)
     {
         SetRenderColour(colour);
-        SDL_RenderDrawPoint(renderer.get(), position.x, position.y);
+        SDL_RenderPoint(renderer.get(), position.x, position.y);
     }
 }
