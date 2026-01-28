@@ -4,7 +4,7 @@ if (EMIL_BUILD_WIN AND PREVIEW_INCLUDE_SDL)
     FetchContent_Declare(
         sdl
         GIT_REPOSITORY https://github.com/libsdl-org/SDL
-        GIT_TAG        f070c83a6059c604cbd098680ddaee391b0a7341 # v2.26.2
+        GIT_TAG        a962f40bbba175e9716557a25d5d7965f134a3d3 # v3.4.0
     )
 
     FetchContent_MakeAvailable(sdl)
@@ -20,7 +20,7 @@ if (EMIL_BUILD_WIN AND PREVIEW_INCLUDE_SDL)
 
     target_link_libraries(preview.sdl PUBLIC
         preview.interfaces
-        SDL2::SDL2-static
+        SDL3::SDL3-static
     )
 
     target_sources(preview.sdl PRIVATE
