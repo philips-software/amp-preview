@@ -1,6 +1,7 @@
 #include "preview/sdl/DirectDisplaySdl.hpp"
 #include "preview/interfaces/Colour.hpp"
 #include "SDL3/SDL.h"
+#include "preview/interfaces/Colour.hpp"
 
 namespace
 {
