@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.3.0](https://github.com/philips-software/amp-preview/compare/v1.2.0...v1.3.0) (2026-02-27)
+
+
+### Features
+
+* Replace infra::Variant with std::variant ([#289](https://github.com/philips-software/amp-preview/issues/289)) ([f48b5d4](https://github.com/philips-software/amp-preview/commit/f48b5d47dede75cfdffb6e720a2c56257b8f15c4))
+* Update to remove infra optional ([#260](https://github.com/philips-software/amp-preview/issues/260)) ([793f904](https://github.com/philips-software/amp-preview/commit/793f904fd603e79ea5020f47520316f080d4f01f))
+
 ## [1.2.0](https://github.com/philips-software/amp-preview/compare/v1.1.0...v1.2.0) (2025-01-16)
 
 
