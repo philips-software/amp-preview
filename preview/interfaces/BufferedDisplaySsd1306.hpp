@@ -31,7 +31,7 @@ namespace services
         hal::I2cAddress address;
         bool initializing = true;
 
-        std::optional<infra::Bitmap> bitmap;
+        std::optional<infra::SimpleBitmap> bitmap;
         infra::Point position;
         infra::AutoResetFunction<void()> onDone;
 

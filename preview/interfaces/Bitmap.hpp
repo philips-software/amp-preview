@@ -18,7 +18,19 @@ namespace infra
         template<int32_t width, int32_t height>
         using BlackAndWhite = WithStorage<width, height, PixelFormat::blackandwhite>;
 
-        Bitmap(infra::ByteRange buffer, infra::Vector size, PixelFormat pixelFormat);
+        Bitmap(infra::Vector size);
+
+        virtual uint32_t PixelColour(infra::Point position) const = 0;
+
+        infra::Vector size;
+        bool isSimple = false;  // A special case is made for SimpleBitmap, since that enables performance optimizations, like hardware accelleration
+                                // A pure object oriented solution does not fit here, since that would defeat the performance aspect
+    };
+
+    struct SimpleBitmap
+        : Bitmap
+    {
+        SimpleBitmap(infra::ByteRange buffer, infra::Vector size, PixelFormat pixelFormat);
 
         void Clear();
 
@@ -26,10 +38,9 @@ namespace infra
         uint8_t* BufferAddress(infra::Point position);
         void SetBlackAndWhitePixel(infra::Point position, bool pixel);
         bool BlackAndWhitePixel(infra::Point position) const;
-        uint32_t PixelColour(infra::Point position) const;
+        uint32_t PixelColour(infra::Point position) const override;
 
         infra::ByteRange buffer;
-        infra::Vector size;
         PixelFormat pixelFormat;
 
         static constexpr uint32_t BufferSize(int32_t width, int32_t height, PixelFormat pixelFormat);
@@ -38,13 +49,13 @@ namespace infra
         uint32_t BufferSize();
 
         bool operator==(const Bitmap& other) const;
-        void ConvertToBlackAndWhiteFromRgb565(Bitmap& colorBitmap);
-        void ConvertToBlackAndWhiteFromRgb888(Bitmap& colorBitmap);
+        void ConvertToBlackAndWhiteFromRgb565(SimpleBitmap& colorBitmap);
+        void ConvertToBlackAndWhiteFromRgb888(SimpleBitmap& colorBitmap);
     };
 
     template<int32_t width_, int32_t height_, PixelFormat pixelFormat_>
     struct Bitmap::WithStorage
-        : Bitmap
+        : SimpleBitmap
     {
     public:
         WithStorage();
@@ -57,15 +68,15 @@ namespace infra
 
     template<int32_t width_, int32_t height_, PixelFormat pixelFormat_>
     Bitmap::WithStorage<width_, height_, pixelFormat_>::WithStorage()
-        : Bitmap(storage, infra::Vector(width_, height_), pixelFormat_)
+        : SimpleBitmap(storage, infra::Vector(width_, height_), pixelFormat_)
     {}
 
-    constexpr uint32_t Bitmap::BufferSize(int32_t width, int32_t height, PixelFormat pixelFormat)
+    constexpr uint32_t SimpleBitmap::BufferSize(int32_t width, int32_t height, PixelFormat pixelFormat)
     {
         return pixelFormat == PixelFormat::blackandwhite ? BufferSizeBlackAndWhite(width, height) : static_cast<std::size_t>(width * height) * PixelSize(pixelFormat);
     }
 
-    constexpr uint32_t Bitmap::BufferSizeBlackAndWhite(int32_t width, int32_t height)
+    constexpr uint32_t SimpleBitmap::BufferSizeBlackAndWhite(int32_t width, int32_t height)
     {
         return static_cast<std::size_t>((width * height) / 8 + (((width * height) % 8) == 0 ? 0 : 1));
     }

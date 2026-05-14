@@ -34,6 +34,12 @@ target_sources(preview.interfaces PRIVATE
     Font.hpp
     Geometry.cpp
     Geometry.hpp
+    Hub75Bitmap.cpp
+    Hub75Bitmap.hpp
+    Hub75BitmapCanvas.cpp
+    Hub75BitmapCanvas.cpp
+    Hub75BitmapPainter.cpp
+    Hub75BitmapPainter.cpp
     MultiBufferDisplay.hpp
     QrCode.cpp
     QrCode.hpp

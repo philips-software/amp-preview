@@ -5,34 +5,38 @@
 
 namespace infra
 {
-    Bitmap::Bitmap(infra::ByteRange buffer, infra::Vector size, PixelFormat pixelFormat)
-        : buffer(buffer)
-        , size(size)
+    Bitmap::Bitmap(infra::Vector size)
+        : size(size)
+    {}
+
+    SimpleBitmap::SimpleBitmap(infra::ByteRange buffer, infra::Vector size, PixelFormat pixelFormat)
+        : Bitmap(size)
+        , buffer(buffer)
         , pixelFormat(pixelFormat)
     {
         assert(buffer.size() == BufferSize(size.deltaX, size.deltaY, pixelFormat));
     }
 
-    void Bitmap::Clear()
+    void SimpleBitmap::Clear()
     {
         std::fill(buffer.begin(), buffer.end(), 0);
     }
 
-    const uint8_t* Bitmap::BufferAddress(infra::Point position) const
+    const uint8_t* SimpleBitmap::BufferAddress(infra::Point position) const
     {
         assert(pixelFormat != PixelFormat::blackandwhite);
 
         return buffer.begin() + PixelSize(pixelFormat) * (position.y * size.deltaX + position.x);
     }
 
-    uint8_t* Bitmap::BufferAddress(infra::Point position)
+    uint8_t* SimpleBitmap::BufferAddress(infra::Point position)
     {
         assert(pixelFormat != PixelFormat::blackandwhite);
 
         return buffer.begin() + PixelSize(pixelFormat) * (position.y * size.deltaX + position.x);
     }
 
-    void Bitmap::SetBlackAndWhitePixel(infra::Point position, bool pixel)
+    void SimpleBitmap::SetBlackAndWhitePixel(infra::Point position, bool pixel)
     {
         assert(pixelFormat == PixelFormat::blackandwhite);
 
@@ -40,7 +44,7 @@ namespace infra
         infra::ReplaceBit(buffer[bitIndex / 8], pixel, bitIndex & 7);
     }
 
-    bool Bitmap::BlackAndWhitePixel(infra::Point position) const
+    bool SimpleBitmap::BlackAndWhitePixel(infra::Point position) const
     {
         assert(pixelFormat == PixelFormat::blackandwhite);
 
@@ -48,7 +52,7 @@ namespace infra
         return (buffer[bitIndex / 8] & (1 << (bitIndex % 8))) != 0;
     }
 
-    uint32_t Bitmap::PixelColour(infra::Point position) const
+    uint32_t SimpleBitmap::PixelColour(infra::Point position) const
     {
         auto pixel = BufferAddress(position);
         uint32_t colour = 0;
@@ -70,17 +74,17 @@ namespace infra
         return colour;
     }
 
-    uint32_t Bitmap::BufferSize(infra::Vector size, PixelFormat pixelFormat)
+    uint32_t SimpleBitmap::BufferSize(infra::Vector size, PixelFormat pixelFormat)
     {
         return BufferSize(size.deltaX, size.deltaY, pixelFormat);
     }
 
-    uint32_t Bitmap::BufferSize()
+    uint32_t SimpleBitmap::BufferSize()
     {
         return buffer.size();
     }
 
-    void Bitmap::ConvertToBlackAndWhiteFromRgb565(Bitmap& colorBitmap)
+    void SimpleBitmap::ConvertToBlackAndWhiteFromRgb565(SimpleBitmap& colorBitmap)
     {
         if (pixelFormat != PixelFormat::blackandwhite || colorBitmap.pixelFormat != PixelFormat::rgb565)
             std::abort();
@@ -101,7 +105,7 @@ namespace infra
             }
     }
 
-    void Bitmap::ConvertToBlackAndWhiteFromRgb888(Bitmap& colorBitmap)
+    void SimpleBitmap::ConvertToBlackAndWhiteFromRgb888(SimpleBitmap& colorBitmap)
     {
         if (pixelFormat != PixelFormat::blackandwhite || colorBitmap.pixelFormat != PixelFormat::rgb888)
             std::abort();
@@ -123,7 +127,7 @@ namespace infra
             }
     }
 
-    bool Bitmap::operator==(const Bitmap& other) const
+    bool SimpleBitmap::operator==(const SimpleBitmap& other) const
     {
         return other.size == size && other.buffer == buffer && other.pixelFormat == pixelFormat;
     }
