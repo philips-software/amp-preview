@@ -15,7 +15,7 @@ namespace hal
         ~MultiBufferDisplay() = default;
 
     public:
-        virtual void SetBitmap(const infra::Bitmap& bitmap, const infra::Function<void()>& onDone) = 0;
+        virtual void SetBitmap(const infra::SimpleBitmap& bitmap, const infra::Function<void()>& onDone) = 0;
     };
 }
 

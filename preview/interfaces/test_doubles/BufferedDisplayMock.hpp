@@ -12,7 +12,7 @@ namespace hal
     public:
         MOCK_CONST_METHOD0(DisplayRegion, infra::Region());
         MOCK_CONST_METHOD0(PixelFormat, infra::PixelFormat());
-        MOCK_METHOD3(DrawBitmap, void(const infra::Bitmap& bitmap, infra::Point position, infra::Function<void()> onDone));
+        MOCK_METHOD3(DrawBitmap, void(const infra::SimpleBitmap& bitmap, infra::Point position, infra::Function<void()> onDone));
     };
 }
 

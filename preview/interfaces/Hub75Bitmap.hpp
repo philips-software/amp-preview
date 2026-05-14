@@ -3,12 +3,12 @@
 
 #include "infra/util/ByteRange.hpp"
 #include "preview/interfaces/Bitmap.hpp"
-#include "preview/interfaces/Colour.hpp"
 #include "preview/interfaces/Geometry.hpp"
 
 namespace infra
 {
     struct Hub75Bitmap
+        : public Bitmap
     {
         template<int32_t width, int32_t height>
         struct WithStorage;
@@ -17,8 +17,12 @@ namespace infra
 
         void Clear();
 
+        infra::Colour PixelColour(infra::Point position) const override;
+        void DrawPixel(infra::Point position, infra::Colour colour) override;
+
         infra::ByteRange buffer;
         infra::Vector size;
+        uint16_t blockSize;
 
         static constexpr uint32_t BufferSize(int32_t width, int32_t height);
         static uint32_t BufferSize(infra::Vector size);
@@ -47,7 +51,9 @@ namespace infra
 
     constexpr uint32_t Hub75Bitmap::BufferSize(int32_t width, int32_t height)
     {
-        return static_cast<std::size_t>(width * height) / 2;
+        // Each byte contains 2 times 3 bits for two pixels, plus clock, plus one address,
+        // each byte is repeated with clock low and clock high
+        return static_cast<std::size_t>(width * height);
     }
 }
 

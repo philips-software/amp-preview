@@ -32,9 +32,9 @@ namespace hal
         void DrawCircle(infra::Point centre, int16_t r, infra::Colour colour, infra::Region boundingBox) override final;
         void DrawCircle(infra::Point centre, int16_t rSmall, int16_t rLarge, infra::Colour colour, infra::Region boundingBox) override final;
         void DrawFilledCircle(infra::Point centre, int16_t r, infra::Colour colour, infra::Region boundingBox) override final;
-        void DrawBitmap(infra::Point position, const infra::Bitmap& sourceBitmap, infra::Region boundingBox) override final;
-        void DrawTransparentBitmap(infra::Point position, const infra::Bitmap& sourceBitmap, uint32_t transparencyColour, infra::Region boundingBox) override final;
-        void DrawIcon(infra::Point position, const infra::Bitmap& sourceBitmap, infra::Colour colour, infra::Region boundingBox) override final;
+        void DrawBitmap(infra::Point position, const infra::SimpleBitmap& sourceBitmap, infra::Region boundingBox) override final;
+        void DrawTransparentBitmap(infra::Point position, const infra::SimpleBitmap& sourceBitmap, uint32_t transparencyColour, infra::Region boundingBox) override final;
+        void DrawIcon(infra::Point position, const infra::SimpleBitmap& sourceBitmap, infra::Colour colour, infra::Region boundingBox) override final;
         void DrawString(infra::Point position, infra::BoundedConstString string, const infra::Font& font, infra::Colour colour, infra::RightAngle direction, infra::Region boundingBox) override final;
 
         // From hal::DirectDisplay

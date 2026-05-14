@@ -14,8 +14,8 @@ namespace hal
               })
         , layers{ { { *LTDC_Layer1, buffer0, layers[1] }, { *LTDC_Layer2, buffer1, layers[0] } } }
     {
-        assert(buffer0.size() == infra::Bitmap::BufferSize(config.width, config.height, config.pixelFormat));
-        assert(buffer1.size() == infra::Bitmap::BufferSize(config.width, config.height, config.pixelFormat));
+        assert(buffer0.size() == infra::SimpleBitmap::BufferSize(config.width, config.height, config.pixelFormat));
+        assert(buffer1.size() == infra::SimpleBitmap::BufferSize(config.width, config.height, config.pixelFormat));
 
         InitLtdc(config);
         InitLayers(config);
@@ -58,7 +58,7 @@ namespace hal
 
     void LcdStm::SwapLayers(infra::ConstByteRange newActiveBuffer, const infra::Function<void()>& onDone)
     {
-        assert(newActiveBuffer.size() == infra::Bitmap::BufferSize(ltdcHandle.LayerCfg->ImageWidth, ltdcHandle.LayerCfg->ImageHeight, infra::PixelFormat::rgb565));
+        assert(newActiveBuffer.size() == infra::SimpleBitmap::BufferSize(ltdcHandle.LayerCfg->ImageWidth, ltdcHandle.LayerCfg->ImageHeight, infra::PixelFormat::rgb565));
         currentLayer->layer.CFBAR = reinterpret_cast<uint32_t>(newActiveBuffer.begin());
 
         SwapLayers(onDone);
@@ -151,17 +151,17 @@ namespace hal
         LcdStm::SwapLayers(onDone);
     }
 
-    infra::Bitmap& LcdStmDoubleBuffer::DrawingBitmap()
+    infra::SimpleBitmap& LcdStmDoubleBuffer::DrawingBitmap()
     {
         return currentLayer->bitmap;
     }
 
-    const infra::Bitmap& LcdStmDoubleBuffer::ViewingBitmap() const
+    const infra::SimpleBitmap& LcdStmDoubleBuffer::ViewingBitmap() const
     {
         return currentLayer->other.bitmap;
     }
 
-    void LcdStmMultiBuffer::SetBitmap(const infra::Bitmap& bitmap, const infra::Function<void()>& onDone)
+    void LcdStmMultiBuffer::SetBitmap(const infra::SimpleBitmap& bitmap, const infra::Function<void()>& onDone)
     {
         SwapLayers(bitmap.buffer, onDone);
     }

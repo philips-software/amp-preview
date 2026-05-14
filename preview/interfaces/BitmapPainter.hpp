@@ -25,9 +25,9 @@ namespace hal
         virtual void DrawCircle(infra::Bitmap& bitmap, infra::Point centre, int16_t r, infra::Colour colour, infra::Region boundingBox) = 0;
         virtual void DrawCircle(infra::Bitmap& bitmap, infra::Point centre, int16_t rSmall, int16_t rLarge, infra::Colour colour, infra::Region boundingBox) = 0;
         virtual void DrawFilledCircle(infra::Bitmap& bitmap, infra::Point centre, int16_t r, infra::Colour colour, infra::Region boundingBox) = 0;
-        virtual void DrawBitmap(infra::Bitmap& bitmap, infra::Point position, const infra::Bitmap& sourceBitmap, infra::Region boundingBox) = 0;
-        virtual void DrawTransparentBitmap(infra::Bitmap& bitmap, infra::Point position, const infra::Bitmap& sourceBitmap, uint32_t transparencyColour, infra::Region boundingBox) = 0;
-        virtual void DrawIcon(infra::Bitmap& bitmap, infra::Point position, const infra::Bitmap& sourceBitmap, infra::Colour colour, infra::Region boundingBox) = 0;
+        virtual void DrawBitmap(infra::Bitmap& bitmap, infra::Point position, const infra::SimpleBitmap& sourceBitmap, infra::Region boundingBox) = 0;
+        virtual void DrawTransparentBitmap(infra::Bitmap& bitmap, infra::Point position, const infra::SimpleBitmap& sourceBitmap, uint32_t transparencyColour, infra::Region boundingBox) = 0;
+        virtual void DrawIcon(infra::Bitmap& bitmap, infra::Point position, const infra::SimpleBitmap& sourceBitmap, infra::Colour colour, infra::Region boundingBox) = 0;
         virtual void DrawString(infra::Bitmap& bitmap, infra::Point position, infra::BoundedConstString string, const infra::Font& font, infra::Colour colour, infra::RightAngle direction, infra::Region boundingBox) = 0;
         virtual void WaitUntilDrawingFinished() const = 0;
     };
@@ -45,19 +45,23 @@ namespace hal
         void DrawCircle(infra::Bitmap& bitmap, infra::Point centre, int16_t r, infra::Colour colour, infra::Region boundingBox) override;
         void DrawCircle(infra::Bitmap& bitmap, infra::Point centre, int16_t rSmall, int16_t rLarge, infra::Colour colour, infra::Region boundingBox) override;
         void DrawFilledCircle(infra::Bitmap& bitmap, infra::Point centre, int16_t r, infra::Colour colour, infra::Region boundingBox) override;
-        void DrawBitmap(infra::Bitmap& bitmap, infra::Point position, const infra::Bitmap& sourceBitmap, infra::Region boundingBox) override;
-        void DrawTransparentBitmap(infra::Bitmap& bitmap, infra::Point position, const infra::Bitmap& sourceBitmap, uint32_t transparencyColour, infra::Region boundingBox) override;
-        void DrawIcon(infra::Bitmap& bitmap, infra::Point position, const infra::Bitmap& sourceBitmap, infra::Colour colour, infra::Region boundingBox) override;
+        void DrawBitmap(infra::Bitmap& bitmap, infra::Point position, const infra::SimpleBitmap& sourceBitmap, infra::Region boundingBox) override;
+        void DrawTransparentBitmap(infra::Bitmap& bitmap, infra::Point position, const infra::SimpleBitmap& sourceBitmap, uint32_t transparencyColour, infra::Region boundingBox) override;
+        void DrawIcon(infra::Bitmap& bitmap, infra::Point position, const infra::SimpleBitmap& sourceBitmap, infra::Colour colour, infra::Region boundingBox) override;
         void DrawString(infra::Bitmap& bitmap, infra::Point position, infra::BoundedConstString string, const infra::Font& font, infra::Colour colour, infra::RightAngle direction, infra::Region boundingBox) override;
         void WaitUntilDrawingFinished() const override;
 
     protected:
+        void DrawBitmap(infra::SimpleBitmap& bitmap, infra::Point position, const infra::SimpleBitmap& sourceBitmap, infra::Region bitmapDestination, infra::Region boundedDestination);
         void DrawHorizontalLine(infra::Bitmap& bitmap, infra::Point from, uint16_t deltaX, infra::Colour colour, infra::Region boundingBox);
-        virtual void DrawHorizontalLine(infra::Bitmap& bitmap, infra::Point from, uint16_t deltaX, infra::Colour colour);
+        void DrawHorizontalLine(infra::Bitmap& bitmap, infra::Point from, uint16_t deltaX, infra::Colour colour);
+        virtual void DrawHorizontalLine(infra::SimpleBitmap& bitmap, infra::Point from, uint16_t deltaX, infra::Colour colour);
         void DrawVerticalLine(infra::Bitmap& bitmap, infra::Point from, uint16_t deltaY, infra::Colour colour, infra::Region boundingBox);
-        virtual void DrawVerticalLine(infra::Bitmap& bitmap, infra::Point from, uint16_t deltaY, infra::Colour colour);
+        void DrawVerticalLine(infra::Bitmap& bitmap, infra::Point from, uint16_t deltaY, infra::Colour colour);
+        virtual void BitmapPainterCanonical::DrawVerticalLine(infra::SimpleBitmap& bitmap, infra::Point from, uint16_t deltaY, infra::Colour colour);
         infra::Point DrawCharacter(infra::Bitmap& bitmap, infra::Point position, char c, const infra::Font& font, infra::Colour colour, infra::RightAngle direction, infra::Region boundingBox);
-        void DrawPixel(infra::Bitmap& bitmap, infra::Point position, uint32_t colour);
+        void DrawPixel(infra::Bitmap& bitmap, infra::Point position, infra::Colour colour);
+        void DrawPixel(infra::SimpleBitmap& bitmap, infra::Point position, uint32_t colour);
     };
 }
 

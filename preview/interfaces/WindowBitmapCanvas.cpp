@@ -59,17 +59,17 @@ namespace services
         bitmapPainter.DrawFilledCircle(bitmap, centre + shift, r, colour, (boundingBox >> shift) & infra::Region(infra::Point(), bitmap.size));
     }
 
-    void WindowBitmapCanvas::DrawBitmap(infra::Point position, const infra::Bitmap& sourceBitmap, infra::Region boundingBox)
+    void WindowBitmapCanvas::DrawBitmap(infra::Point position, const infra::SimpleBitmap& sourceBitmap, infra::Region boundingBox)
     {
         bitmapPainter.DrawBitmap(bitmap, position + shift, sourceBitmap, (boundingBox >> shift) & infra::Region(infra::Point(), bitmap.size));
     }
 
-    void WindowBitmapCanvas::DrawTransparentBitmap(infra::Point position, const infra::Bitmap& sourceBitmap, uint32_t transparencyColour, infra::Region boundingBox)
+    void WindowBitmapCanvas::DrawTransparentBitmap(infra::Point position, const infra::SimpleBitmap& sourceBitmap, uint32_t transparencyColour, infra::Region boundingBox)
     {
         bitmapPainter.DrawTransparentBitmap(bitmap, position + shift, sourceBitmap, transparencyColour, (boundingBox >> shift) & infra::Region(infra::Point(), bitmap.size));
     }
 
-    void WindowBitmapCanvas::DrawIcon(infra::Point position, const infra::Bitmap& sourceBitmap, infra::Colour colour, infra::Region boundingBox)
+    void WindowBitmapCanvas::DrawIcon(infra::Point position, const infra::SimpleBitmap& sourceBitmap, infra::Colour colour, infra::Region boundingBox)
     {
         bitmapPainter.DrawIcon(bitmap, position + shift, sourceBitmap, colour, (boundingBox >> shift) & infra::Region(infra::Point(), bitmap.size));
     }

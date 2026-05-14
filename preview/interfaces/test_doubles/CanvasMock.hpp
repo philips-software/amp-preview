@@ -20,9 +20,9 @@ namespace hal
         MOCK_METHOD4(DrawCircle, void(infra::Point centre, int16_t r, infra::Colour colour, infra::Region boundingBox));
         MOCK_METHOD5(DrawCircle, void(infra::Point centre, int16_t rSmall, int16_t rLarge, infra::Colour colour, infra::Region boundingBox));
         MOCK_METHOD4(DrawFilledCircle, void(infra::Point centre, int16_t r, infra::Colour colour, infra::Region boundingBox));
-        MOCK_METHOD3(DrawBitmap, void(infra::Point position, const infra::Bitmap& sourceBitmap, infra::Region boundingBox));
-        MOCK_METHOD4(DrawTransparentBitmap, void(infra::Point position, const infra::Bitmap& sourceBitmap, uint32_t transparencyColour, infra::Region boundingBox));
-        MOCK_METHOD4(DrawIcon, void(infra::Point position, const infra::Bitmap& sourceBitmap, infra::Colour colour, infra::Region boundingBox));
+        MOCK_METHOD3(DrawBitmap, void(infra::Point position, const infra::SimpleBitmap& sourceBitmap, infra::Region boundingBox));
+        MOCK_METHOD4(DrawTransparentBitmap, void(infra::Point position, const infra::SimpleBitmap& sourceBitmap, uint32_t transparencyColour, infra::Region boundingBox));
+        MOCK_METHOD4(DrawIcon, void(infra::Point position, const infra::SimpleBitmap& sourceBitmap, infra::Colour colour, infra::Region boundingBox));
         MOCK_METHOD6(DrawString, void(infra::Point position, infra::BoundedConstString string, const infra::Font& font, infra::Colour colour, infra::RightAngle direction, infra::Region boundingBox));
     };
 }

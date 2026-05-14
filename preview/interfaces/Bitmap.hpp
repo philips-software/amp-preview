@@ -20,7 +20,8 @@ namespace infra
 
         Bitmap(infra::Vector size);
 
-        virtual uint32_t PixelColour(infra::Point position) const = 0;
+        virtual infra::Colour PixelColour(infra::Point position) const = 0;
+        virtual void DrawPixel(infra::Point position, infra::Colour colour) = 0;
 
         infra::Vector size;
         bool isSimple = false;  // A special case is made for SimpleBitmap, since that enables performance optimizations, like hardware accelleration
@@ -38,7 +39,9 @@ namespace infra
         uint8_t* BufferAddress(infra::Point position);
         void SetBlackAndWhitePixel(infra::Point position, bool pixel);
         bool BlackAndWhitePixel(infra::Point position) const;
-        uint32_t PixelColour(infra::Point position) const override;
+        infra::Colour PixelColour(infra::Point position) const override;
+        uint32_t RawPixelColour(infra::Point position) const;
+        void DrawPixel(infra::Point position, infra::Colour colour) override;
 
         infra::ByteRange buffer;
         PixelFormat pixelFormat;
@@ -48,7 +51,7 @@ namespace infra
         static uint32_t BufferSize(infra::Vector size, PixelFormat pixelFormat);
         uint32_t BufferSize();
 
-        bool operator==(const Bitmap& other) const;
+        bool operator==(const SimpleBitmap& other) const;
         void ConvertToBlackAndWhiteFromRgb565(SimpleBitmap& colorBitmap);
         void ConvertToBlackAndWhiteFromRgb888(SimpleBitmap& colorBitmap);
     };

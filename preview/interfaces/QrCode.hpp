@@ -214,7 +214,7 @@ namespace services
             template<uint8_t Version, QrCodeEcc ecc>
             struct ForVersionAndEcc;
 
-            QrCodeGenerator(infra::Bitmap& modules, infra::Bitmap& isFunction, TextEncoder& encoder, infra::ByteRange alignPosition, uint8_t version, QrCodeEcc ecc);
+            QrCodeGenerator(infra::SimpleBitmap& modules, infra::SimpleBitmap& isFunction, TextEncoder& encoder, infra::ByteRange alignPosition, uint8_t version, QrCodeEcc ecc);
 
             void Generate(infra::BoundedConstString text);
 
@@ -234,8 +234,8 @@ namespace services
             uint8_t version;
             QrCodeEcc ecc;
 
-            infra::Bitmap& modules;
-            infra::Bitmap& isFunction;
+            infra::SimpleBitmap& modules;
+            infra::SimpleBitmap& isFunction;
 
             TextEncoder& encoder;
 
@@ -246,7 +246,7 @@ namespace services
         struct QrCodeGenerator::ForVersionAndEcc
             : QrCodeGenerator
         {
-            ForVersionAndEcc(infra::Bitmap& modules);
+            ForVersionAndEcc(infra::SimpleBitmap& modules);
 
             typename QrCode<Version, Ecc>::BitmapType isFunction;
             TextEncoder::ForVersionAndEcc<Version, Ecc> encoder;
@@ -264,7 +264,7 @@ namespace services
         {}
 
         template<uint8_t Version, QrCodeEcc Ecc>
-        QrCodeGenerator::ForVersionAndEcc<Version, Ecc>::ForVersionAndEcc(infra::Bitmap& modules)
+        QrCodeGenerator::ForVersionAndEcc<Version, Ecc>::ForVersionAndEcc(infra::SimpleBitmap& modules)
             : QrCodeGenerator(modules, isFunction, encoder.buffer, alignPosition, Version, Ecc)
         {
             isFunction.Clear();

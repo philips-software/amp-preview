@@ -21,7 +21,7 @@ namespace services
         infra::PixelFormat PixelFormat() const override;
 
         // Additional restrictions: bitmap width and position.x must be a multiple of 8, position.y must be a multiple of 16
-        void DrawBitmap(const infra::Bitmap& bitmap, infra::Point position, infra::Function<void()> onDone) override;
+        void DrawBitmap(const infra::SimpleBitmap& bitmap, infra::Point position, infra::Function<void()> onDone) override;
 
     private:
         void DoDrawBitmap();

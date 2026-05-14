@@ -7,7 +7,7 @@ namespace hal
         if (boundingBox.Contains(position))
         {
             WaitUntilDrawingFinished();
-            DrawPixel(bitmap, position, infra::ConvertRgb888To(colour, bitmap.pixelFormat));
+            DrawPixel(bitmap, position, colour);
         }
     }
 
@@ -295,7 +295,7 @@ namespace hal
         }
     }
 
-    void BitmapPainterCanonical::DrawBitmap(infra::Bitmap& bitmap, infra::Point position, const infra::Bitmap& sourceBitmap, infra::Region boundingBox)
+    void BitmapPainterCanonical::DrawBitmap(infra::Bitmap& bitmap, infra::Point position, const infra::SimpleBitmap& sourceBitmap, infra::Region boundingBox)
     {
         auto bitmapDestination = infra::Region(position, sourceBitmap.size);
         auto boundedDestination = bitmapDestination & boundingBox;
@@ -303,26 +303,17 @@ namespace hal
         if (!boundedDestination.Empty())
         {
             WaitUntilDrawingFinished();
-            if (bitmap.pixelFormat == infra::PixelFormat::blackandwhite)
-                for (auto y = boundedDestination.Top() - bitmapDestination.Top(); y != boundedDestination.Bottom() - bitmapDestination.Top(); ++y)
-                    for (auto x = boundedDestination.Left() - bitmapDestination.Left(); x != boundedDestination.Right() - bitmapDestination.Left(); ++x)
-                    {
-                        bool colour = sourceBitmap.BlackAndWhitePixel(infra::Point(x, y));
-                        DrawPixel(bitmap, bitmapDestination.TopLeft() + infra::Vector(x, y), colour);
-                    }
+
+            if (bitmap.isSimple)
+                DrawBitmap(static_cast<infra::SimpleBitmap&>(bitmap), position, sourceBitmap, bitmapDestination, boundedDestination);
             else
-                for (auto y = boundedDestination.Top() - bitmapDestination.Top(); y != boundedDestination.Bottom() - bitmapDestination.Top(); ++y)
-                    for (auto x = boundedDestination.Left() - bitmapDestination.Left(); x != boundedDestination.Right() - bitmapDestination.Left(); ++x)
-                    {
-                        auto colour = sourceBitmap.PixelColour(infra::Point(x, y));
-                        DrawPixel(bitmap, bitmapDestination.TopLeft() + infra::Vector(x, y), colour);
-                    }
+                std::abort(); // todo
         }
     }
 
-    void BitmapPainterCanonical::DrawTransparentBitmap(infra::Bitmap& bitmap, infra::Point position, const infra::Bitmap& sourceBitmap, uint32_t transparencyColour, infra::Region boundingBox)
+    void BitmapPainterCanonical::DrawTransparentBitmap(infra::Bitmap& bitmap, infra::Point position, const infra::SimpleBitmap& sourceBitmap, uint32_t transparencyColour, infra::Region boundingBox)
     {
-        assert(bitmap.pixelFormat == sourceBitmap.pixelFormat);
+        assert(bitmap.isSimple && static_cast<infra::SimpleBitmap&>(bitmap).pixelFormat == sourceBitmap.pixelFormat);
         auto bitmapDestination = infra::Region(position, sourceBitmap.size);
         auto boundedDestination = bitmapDestination & boundingBox;
 
@@ -332,28 +323,29 @@ namespace hal
             for (auto y = boundedDestination.Top() - bitmapDestination.Top(); y != boundedDestination.Bottom() - bitmapDestination.Top(); ++y)
                 for (auto x = boundedDestination.Left() - bitmapDestination.Left(); x != boundedDestination.Right() - bitmapDestination.Left(); ++x)
                 {
-                    auto colour = sourceBitmap.PixelColour(infra::Point(x, y));
+                    auto colour = sourceBitmap.RawPixelColour(infra::Point(x, y));
                     if (colour != transparencyColour)
-                        DrawPixel(bitmap, bitmapDestination.TopLeft() + infra::Vector(x, y), colour);
+                        DrawPixel(static_cast<infra::SimpleBitmap&>(bitmap), bitmapDestination.TopLeft() + infra::Vector(x, y), colour);
                 }
         }
     }
 
-    void BitmapPainterCanonical::DrawIcon(infra::Bitmap& bitmap, infra::Point position, const infra::Bitmap& sourceBitmap, infra::Colour colour, infra::Region boundingBox)
+    void BitmapPainterCanonical::DrawIcon(infra::Bitmap& bitmap, infra::Point position, const infra::SimpleBitmap& sourceBitmap, infra::Colour colour, infra::Region boundingBox)
     {
+        assert(bitmap.isSimple);
         assert(sourceBitmap.pixelFormat == infra::PixelFormat::blackandwhite);
         auto iconDestination = infra::Region(position, sourceBitmap.size);
         auto boundedDestination = iconDestination & boundingBox;
 
         if (!boundedDestination.Empty())
         {
-            auto convertedColour = infra::ConvertRgb888To(colour, bitmap.pixelFormat);
+            auto convertedColour = infra::ConvertRgb888To(colour, static_cast<infra::SimpleBitmap&>(bitmap).pixelFormat);
             WaitUntilDrawingFinished();
             for (auto y = boundedDestination.Top() - iconDestination.Top(); y != boundedDestination.Bottom() - iconDestination.Top(); ++y)
                 for (auto x = boundedDestination.Left() - iconDestination.Left(); x != boundedDestination.Right() - iconDestination.Left(); ++x)
                 {
                     if (sourceBitmap.BlackAndWhitePixel(infra::Point(x, y)))
-                        DrawPixel(bitmap, iconDestination.TopLeft() + infra::Vector(x, y), convertedColour);
+                        DrawPixel(static_cast<infra::SimpleBitmap&>(bitmap), iconDestination.TopLeft() + infra::Vector(x, y), convertedColour);
                 }
         }
     }
@@ -366,6 +358,24 @@ namespace hal
 
     void BitmapPainterCanonical::WaitUntilDrawingFinished() const
     {}
+
+    void BitmapPainterCanonical::DrawBitmap(infra::SimpleBitmap& bitmap, infra::Point position, const infra::SimpleBitmap& sourceBitmap, infra::Region bitmapDestination, infra::Region boundedDestination)
+    {
+        if (bitmap.pixelFormat == infra::PixelFormat::blackandwhite)
+            for (auto y = boundedDestination.Top() - bitmapDestination.Top(); y != boundedDestination.Bottom() - bitmapDestination.Top(); ++y)
+                for (auto x = boundedDestination.Left() - bitmapDestination.Left(); x != boundedDestination.Right() - bitmapDestination.Left(); ++x)
+                {
+                    bool colour = sourceBitmap.BlackAndWhitePixel(infra::Point(x, y));
+                    DrawPixel(bitmap, bitmapDestination.TopLeft() + infra::Vector(x, y), colour);
+                }
+        else
+            for (auto y = boundedDestination.Top() - bitmapDestination.Top(); y != boundedDestination.Bottom() - bitmapDestination.Top(); ++y)
+                for (auto x = boundedDestination.Left() - bitmapDestination.Left(); x != boundedDestination.Right() - bitmapDestination.Left(); ++x)
+                {
+                    auto colour = sourceBitmap.RawPixelColour(infra::Point(x, y));
+                    DrawPixel(bitmap, bitmapDestination.TopLeft() + infra::Vector(x, y), colour);
+                }
+    }
 
     void BitmapPainterCanonical::DrawHorizontalLine(infra::Bitmap& bitmap, infra::Point from, uint16_t deltaX, infra::Colour colour, infra::Region boundingBox)
     {
@@ -384,25 +394,34 @@ namespace hal
         {
             WaitUntilDrawingFinished();
 
-            for (auto x = 0; x != deltaX; ++x)
+            if (bitmap.isSimple)
+                DrawHorizontalLine(static_cast<infra::SimpleBitmap&>(bitmap), from, deltaX, colour);
+            else
+                for (auto x = 0; x != deltaX; ++x)
+                    DrawPixel(bitmap, from + infra::DeltaX(x), colour);
+        }
+    }
+
+    void BitmapPainterCanonical::DrawHorizontalLine(infra::SimpleBitmap& bitmap, infra::Point from, uint16_t deltaX, infra::Colour colour)
+    {
+        for (auto x = 0; x != deltaX; ++x)
+        {
+            switch (bitmap.pixelFormat)
             {
-                switch (bitmap.pixelFormat)
+                case infra::PixelFormat::rgb565:
                 {
-                    case infra::PixelFormat::rgb565:
-                    {
-                        auto convertedColour = infra::ConvertRgb888ToRgb565(colour);
-                        std::memcpy(bitmap.BufferAddress(from + infra::DeltaX(x)), &convertedColour, 2);
-                        break;
-                    }
-                    case infra::PixelFormat::rgb888:
-                        std::memcpy(bitmap.BufferAddress(from + infra::DeltaX(x)), &colour, 3);
-                        break;
-                    case infra::PixelFormat::blackandwhite:
-                        DrawPixel(bitmap, from + infra::DeltaX(x), infra::ConvertRgb888ToBlackAndWhite(colour));
-                        break;
-                    default:
-                        std::abort();
+                    auto convertedColour = infra::ConvertRgb888ToRgb565(colour);
+                    std::memcpy(bitmap.BufferAddress(from + infra::DeltaX(x)), &convertedColour, 2);
+                    break;
                 }
+                case infra::PixelFormat::rgb888:
+                    std::memcpy(bitmap.BufferAddress(from + infra::DeltaX(x)), &colour, 3);
+                    break;
+                case infra::PixelFormat::blackandwhite:
+                    DrawPixel(bitmap, from + infra::DeltaX(x), infra::ConvertRgb888ToBlackAndWhite(colour));
+                    break;
+                default:
+                    std::abort();
             }
         }
     }
@@ -424,31 +443,41 @@ namespace hal
         {
             WaitUntilDrawingFinished();
 
-            for (auto y = 0; y != deltaY; ++y)
+            if (bitmap.isSimple)
+                DrawVerticalLine(static_cast<infra::SimpleBitmap&>(bitmap), from, deltaY, colour);
+            else
+                for (auto y = 0; y != deltaY; ++y)
+                    DrawPixel(bitmap, from + infra::DeltaY(y), colour);
+        }
+    }
+
+    void BitmapPainterCanonical::DrawVerticalLine(infra::SimpleBitmap& bitmap, infra::Point from, uint16_t deltaY, infra::Colour colour)
+    {
+        for (auto y = 0; y != deltaY; ++y)
+        {
+            switch (bitmap.pixelFormat)
             {
-                switch (bitmap.pixelFormat)
+                case infra::PixelFormat::rgb565:
                 {
-                    case infra::PixelFormat::rgb565:
-                    {
-                        auto convertedColour = infra::ConvertRgb888ToRgb565(colour);
-                        std::memcpy(bitmap.BufferAddress(from + infra::DeltaY(y)), &convertedColour, 2);
-                        break;
-                    }
-                    case infra::PixelFormat::rgb888:
-                        std::memcpy(bitmap.BufferAddress(from + infra::DeltaY(y)), &colour, 3);
-                        break;
-                    case infra::PixelFormat::blackandwhite:
-                        DrawPixel(bitmap, from + infra::DeltaY(y), infra::ConvertRgb888ToBlackAndWhite(colour));
-                        break;
-                    default:
-                        std::abort();
+                    auto convertedColour = infra::ConvertRgb888ToRgb565(colour);
+                    std::memcpy(bitmap.BufferAddress(from + infra::DeltaY(y)), &convertedColour, 2);
+                    break;
                 }
+                case infra::PixelFormat::rgb888:
+                    std::memcpy(bitmap.BufferAddress(from + infra::DeltaY(y)), &colour, 3);
+                    break;
+                case infra::PixelFormat::blackandwhite:
+                    DrawPixel(bitmap, from + infra::DeltaY(y), infra::ConvertRgb888ToBlackAndWhite(colour));
+                    break;
+                default:
+                    std::abort();
             }
         }
     }
 
     infra::Point BitmapPainterCanonical::DrawCharacter(infra::Bitmap& bitmap, infra::Point position, char c, const infra::Font& font, infra::Colour colour, infra::RightAngle direction, infra::Region boundingBox)
     {
+        assert(bitmap.isSimple);
         if (c < font.begin || c >= font.end)
             return position;
 
@@ -464,7 +493,7 @@ namespace hal
         {
             uint32_t bitIndex = 0;
             infra::ConstByteRange buffer = glyph.buffer;
-            uint32_t bitmapColour = infra::ConvertRgb888To(colour, bitmap.pixelFormat);
+            uint32_t bitmapColour = infra::ConvertRgb888To(colour, static_cast<infra::SimpleBitmap&>(bitmap).pixelFormat);
 
             WaitUntilDrawingFinished();
 
@@ -473,14 +502,22 @@ namespace hal
                 {
                     auto pixelPosition = infra::RotatedPointInRegion(unrotatedGlyphRegion.TopLeft() + infra::Vector(x, y), direction, backRotatedBitmapRegion);
                     if (boundingBox.Contains(pixelPosition) && (buffer[bitIndex >> 3] & (1 << (7 - (bitIndex % 8)))) != 0)
-                        DrawPixel(bitmap, pixelPosition, bitmapColour);
+                        DrawPixel(static_cast<infra::SimpleBitmap&>(bitmap), pixelPosition, bitmapColour);
                 }
         }
 
         return position + infra::Rotated(infra::Vector(glyph.advanceCursor, 0), -direction);
     }
 
-    void BitmapPainterCanonical::DrawPixel(infra::Bitmap& bitmap, infra::Point position, uint32_t colour)
+    void BitmapPainterCanonical::DrawPixel(infra::Bitmap& bitmap, infra::Point position, infra::Colour colour)
+    {
+        if (bitmap.isSimple)
+            DrawPixel(static_cast<infra::SimpleBitmap&>(bitmap), position, infra::ConvertRgb888To(colour, static_cast<infra::SimpleBitmap&>(bitmap).pixelFormat));
+        else
+            bitmap.DrawPixel(position, colour);
+    }
+
+    void BitmapPainterCanonical::DrawPixel(infra::SimpleBitmap& bitmap, infra::Point position, uint32_t colour)
     {
         if (bitmap.pixelFormat == infra::PixelFormat::blackandwhite)
             bitmap.SetBlackAndWhitePixel(position, colour != 0);

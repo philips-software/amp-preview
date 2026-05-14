@@ -14,6 +14,7 @@ namespace infra
         , buffer(buffer)
         , pixelFormat(pixelFormat)
     {
+        isSimple = true;
         assert(buffer.size() == BufferSize(size.deltaX, size.deltaY, pixelFormat));
     }
 
@@ -52,7 +53,12 @@ namespace infra
         return (buffer[bitIndex / 8] & (1 << (bitIndex % 8))) != 0;
     }
 
-    uint32_t SimpleBitmap::PixelColour(infra::Point position) const
+    infra::Colour SimpleBitmap::PixelColour(infra::Point position) const
+    {
+        return infra::ConvertToRgb888(RawPixelColour(position), pixelFormat);
+    }
+
+    uint32_t SimpleBitmap::RawPixelColour(infra::Point position) const
     {
         auto pixel = BufferAddress(position);
         uint32_t colour = 0;
@@ -72,6 +78,27 @@ namespace infra
         }
 
         return colour;
+    }
+
+    void SimpleBitmap::DrawPixel(infra::Point position, infra::Colour colour)
+    {
+        switch (pixelFormat)
+        {
+            case infra::PixelFormat::rgb565:
+            {
+                auto convertedColour = infra::ConvertRgb888ToRgb565(colour);
+                std::memcpy(BufferAddress(position), &convertedColour, 2);
+                break;
+            }
+            case infra::PixelFormat::rgb888:
+                std::memcpy(BufferAddress(position), &colour, 3);
+                break;
+            case infra::PixelFormat::blackandwhite:
+                SetBlackAndWhitePixel(position, infra::ConvertRgb888ToBlackAndWhite(colour));
+                break;
+            default:
+                std::abort();
+        }
     }
 
     uint32_t SimpleBitmap::BufferSize(infra::Vector size, PixelFormat pixelFormat)
