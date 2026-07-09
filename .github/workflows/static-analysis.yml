@@ -36,6 +36,10 @@ jobs:
         with:
           key: ${{ github.job }}
           max-size: 2G
+      - name: Install SDL X11 dependencies
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends libx11-dev libxext-dev libxrandr-dev libxcursor-dev libxi-dev libxfixes-dev
       - name: Build & Collect Coverage
         run: |
           cmake --preset coverage -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
@@ -70,6 +74,10 @@ jobs:
       - uses: github/codeql-action/init@8aad20d150bbac5944a9f9d289da16a4b0d87c1e # v4.36.2
         with:
           languages: cpp
+      - name: Install SDL X11 dependencies
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends libx11-dev libxext-dev libxrandr-dev libxcursor-dev libxi-dev libxfixes-dev
       - uses: lukka/run-cmake@5d55ea7949e25f69f0ecb516d8d572297e03a956 # v10.9
         with:
           configurePreset: "continuous-integration"
