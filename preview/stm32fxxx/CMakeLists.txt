@@ -14,6 +14,8 @@ target_link_libraries(preview.stm32fxxx PUBLIC
 target_sources(preview.stm32fxxx PRIVATE
     BitmapPainterStm.cpp
     BitmapPainterStm.hpp
+    Hub75BitmapDisplayStm.cpp
+    Hub75BitmapDisplayStm.hpp
     LcdStm.cpp
     LcdStm.hpp
 )

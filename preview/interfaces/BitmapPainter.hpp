@@ -58,7 +58,7 @@ namespace hal
         virtual void DrawHorizontalLine(infra::SimpleBitmap& bitmap, infra::Point from, uint16_t deltaX, infra::Colour colour);
         void DrawVerticalLine(infra::Bitmap& bitmap, infra::Point from, uint16_t deltaY, infra::Colour colour, infra::Region boundingBox);
         void DrawVerticalLine(infra::Bitmap& bitmap, infra::Point from, uint16_t deltaY, infra::Colour colour);
-        virtual void BitmapPainterCanonical::DrawVerticalLine(infra::SimpleBitmap& bitmap, infra::Point from, uint16_t deltaY, infra::Colour colour);
+        virtual void DrawVerticalLine(infra::SimpleBitmap& bitmap, infra::Point from, uint16_t deltaY, infra::Colour colour);
         infra::Point DrawCharacter(infra::Bitmap& bitmap, infra::Point position, char c, const infra::Font& font, infra::Colour colour, infra::RightAngle direction, infra::Region boundingBox);
         void DrawPixel(infra::Bitmap& bitmap, infra::Point position, infra::Colour colour);
         void DrawPixel(infra::SimpleBitmap& bitmap, infra::Point position, uint32_t colour);

@@ -12,6 +12,8 @@ namespace infra
     {
         assert(size.deltaY % 32 == 0);
         assert(buffer.size() == BufferSize(size.deltaX, size.deltaY));
+
+        Clear();
     }
 
     void Hub75Bitmap::Clear()
