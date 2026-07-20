@@ -1,12 +1,23 @@
 #include "preview/stm32fxxx/Hub75BitmapDisplayStm.hpp"
+#include "hal_st/stm32fxxx/GpioStm.hpp"
 #include "infra/event/EventDispatcher.hpp"
 #include "preview/interfaces/BitmapCanvas.hpp"
 #include "preview/interfaces/BitmapPainter.hpp"
+#include "services/tracer/GlobalTracer.hpp"
 
 namespace hal
 {
     Hub75BitmapDisplayStm::Hub75BitmapDisplayStm()
-    {}
+    {
+        outputEnable.SetPulse(95, 100);
+        timerPwmOutputEnable.StartTimer();
+        outputEnable.Start();
+
+        timerDisplay.Start([this]()
+            {
+                DisplayStep();
+            });
+    }
 
     Hub75BitmapDisplayStm::~Hub75BitmapDisplayStm()
     {}
@@ -19,6 +30,30 @@ namespace hal
         view.Paint(canvas, region);
         painter.WaitUntilDrawingFinished();
 
-        //infra::EventDispatcher::Instance().Schedule(onDone);
+        infra::EventDispatcher::Instance().Schedule(onDone);
+    }
+
+    void Hub75BitmapDisplayStm::DisplayStep()
+    {
+        outputEnable.SetDuty(100);
+
+        a.Set((block & 1) != 0);
+        b.Set((block & 2) != 0);
+        c.Set((block & 4) != 0);
+        d.Set((block & 8) != 0);
+
+        auto blockRange = infra::Head(infra::DiscardHead(bitmap.buffer, block * blockSize), blockSize);
+
+        for (auto i : blockRange)
+            reinterpret_cast<__IO uint8_t&>(GPIOD->ODR) = i;
+
+        lat.Set(true);
+        lat.Set(false);
+
+        ++block;
+        if (block == blockCount)
+            block = 0;
+
+        outputEnable.SetDuty(95);
     }
 }

@@ -477,7 +477,6 @@ namespace hal
 
     infra::Point BitmapPainterCanonical::DrawCharacter(infra::Bitmap& bitmap, infra::Point position, char c, const infra::Font& font, infra::Colour colour, infra::RightAngle direction, infra::Region boundingBox)
     {
-        assert(bitmap.isSimple);
         if (c < font.begin || c >= font.end)
             return position;
 
@@ -493,7 +492,6 @@ namespace hal
         {
             uint32_t bitIndex = 0;
             infra::ConstByteRange buffer = glyph.buffer;
-            uint32_t bitmapColour = infra::ConvertRgb888To(colour, static_cast<infra::SimpleBitmap&>(bitmap).pixelFormat);
 
             WaitUntilDrawingFinished();
 
@@ -502,7 +500,7 @@ namespace hal
                 {
                     auto pixelPosition = infra::RotatedPointInRegion(unrotatedGlyphRegion.TopLeft() + infra::Vector(x, y), direction, backRotatedBitmapRegion);
                     if (boundingBox.Contains(pixelPosition) && (buffer[bitIndex >> 3] & (1 << (7 - (bitIndex % 8)))) != 0)
-                        DrawPixel(static_cast<infra::SimpleBitmap&>(bitmap), pixelPosition, bitmapColour);
+                        DrawPixel(bitmap, pixelPosition, colour);
                 }
         }
 

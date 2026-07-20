@@ -8,7 +8,7 @@ namespace infra
     Hub75Bitmap::Hub75Bitmap(infra::ByteRange buffer, infra::Vector size)
         : infra::Bitmap(size)
         , buffer(buffer)
-        , blockSize(size.deltaY / 32)
+        , blockSize(size.deltaX / 32)
     {
         assert(size.deltaY % 32 == 0);
         assert(buffer.size() == BufferSize(size.deltaX, size.deltaY));
@@ -18,12 +18,10 @@ namespace infra
 
     void Hub75Bitmap::Clear()
     {
-        for (auto i = 0; i != blockSize; ++i)
+        for (auto i = 0; i != buffer.size() / 2; ++i)
         {
-            buffer[i + 0] = 0x00;
-            buffer[i + 1] = 0x40;
-            buffer[i + 2] = 0x80;
-            buffer[i + 3] = 0xc0;
+            buffer[i * 2 + 0] = 0x00;
+            buffer[i * 2 + 1] = 0x40;
         }
     }
 
@@ -31,7 +29,7 @@ namespace infra
     {
         uint8_t mask = 7;
         uint8_t shift = 0;
-        auto bufferPosition = position.y / 32 * blockSize + position.x;
+        auto bufferPosition = position.y * 32 * blockSize + position.x;
 
         if (position.y % 32 >= 16)
         {
@@ -52,16 +50,17 @@ namespace infra
 
         uint8_t bitColourPattern = (red ? 1 : 0) | (green ? 2 : 0) | (blue ? 4 : 0);
         uint8_t mask = 7;
-        auto bufferPosition = position.y / 32 * blockSize + position.x;
+        auto bufferPosition = (position.y * 32 * blockSize + position.x) * 2;
 
         if (position.y % 32 >= 16)
         {
             bitColourPattern <<= 3;
-            mask <<= 3;
-            bufferPosition /= 2;
+            mask = 0x38;
+            bufferPosition -= buffer.size();
         }
 
         buffer[bufferPosition] = (buffer[bufferPosition] & ~mask) | bitColourPattern;
+        buffer[bufferPosition + 1] = (buffer[bufferPosition + 1] & ~mask) | bitColourPattern;
     }
 
     uint32_t Hub75Bitmap::BufferSize(infra::Vector size)

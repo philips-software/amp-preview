@@ -51,7 +51,7 @@ namespace infra
 
     constexpr uint32_t Hub75Bitmap::BufferSize(int32_t width, int32_t height)
     {
-        // Each byte contains 2 times 3 bits for two pixels, plus clock, plus one address,
+        // Each byte contains 2 times 3 bits for two pixels, plus clock
         // each byte is repeated with clock low and clock high
         return static_cast<std::size_t>(width * height);
     }
