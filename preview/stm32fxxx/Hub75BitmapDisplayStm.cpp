@@ -1,4 +1,5 @@
 #include "preview/stm32fxxx/Hub75BitmapDisplayStm.hpp"
+#include "hal/interfaces/Gpio.hpp"
 #include "hal_st/stm32fxxx/GpioStm.hpp"
 #include "infra/event/EventDispatcher.hpp"
 #include "preview/interfaces/BitmapCanvas.hpp"
@@ -34,7 +35,8 @@ namespace hal
 
     void Hub75BitmapDisplayStm::DisplayStep()
     {
-        outputEnable.SetDuty(100);
+        goe.ResetConfig();
+        goe.Config(hal::PinConfigType::output, true);
 
         a.Set((block & 1) != 0);
         b.Set((block & 2) != 0);
@@ -58,6 +60,7 @@ namespace hal
         if (block == blockCount)
             block = 0;
 
-        outputEnable.SetDuty(95);
+        goe.ResetConfig();
+        goe.ConfigPeripheral(hal::PinConfigTypeStm::timerChannel1, 1);
     }
 }
