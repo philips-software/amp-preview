@@ -7,20 +7,19 @@
 
 namespace hal
 {
-    Hub75BitmapDisplayStm::Hub75BitmapDisplayStm()
+    Hub75BitmapDisplayStm::Hub75BitmapDisplayStm(hal::DmaStm& dma)
+        : dma(dma)
     {
         outputEnable.SetPulse(95, 100);
         timerPwmOutputEnable.StartTimer();
         outputEnable.Start();
 
+        TIM8->DIER |= TIM_DIER_UDE;
         timerDisplay.Start([this]()
             {
                 DisplayStep();
             });
     }
-
-    Hub75BitmapDisplayStm::~Hub75BitmapDisplayStm()
-    {}
 
     void Hub75BitmapDisplayStm::Paint(services::View& view, infra::Region region, infra::Function<void()> onDone)
     {
@@ -42,10 +41,15 @@ namespace hal
         c.Set((block & 4) != 0);
         d.Set((block & 8) != 0);
 
-        auto blockRange = infra::Head(infra::DiscardHead(bitmap.buffer, block * blockSize), blockSize);
+        auto blockRange = infra::Head(infra::DiscardHead(infra::MakeConst(bitmap.buffer), block * blockSize), blockSize);
 
-        for (auto i : blockRange)
-            reinterpret_cast<__IO uint8_t&>(GPIOD->ODR) = i;
+        channel.StartTransmit(blockRange);
+        timerTransmit.Start();
+    }
+
+    void Hub75BitmapDisplayStm::TransferComplete()
+    {
+        timerTransmit.Stop();
 
         lat.Set(true);
         lat.Set(false);
