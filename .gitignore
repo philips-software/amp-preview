@@ -1,4 +1,5 @@
 .cache/
+.megalinter_github_conf/
 .vs/
 .vscode/.cortex-debug.registers.state.json
 [Bb]uild/
