@@ -1,4 +1,4 @@
-if (EMIL_BUILD_WIN AND PREVIEW_INCLUDE_SDL)
+if ((EMIL_BUILD_WIN OR EMIL_BUILD_UNIX) AND PREVIEW_INCLUDE_SDL)
     include(FetchContent)
 
     FetchContent_Declare(

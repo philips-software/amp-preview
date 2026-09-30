@@ -1,5 +1,4 @@
 #include "preview/sdl/DirectDisplaySdl.hpp"
-#include "preview/interfaces/Colour.hpp"
 #include "SDL3/SDL.h"
 #include "preview/interfaces/Colour.hpp"
 
@@ -8,7 +7,8 @@ namespace
     SDL_FRect Convert(infra::Region region)
     {
         SDL_FRect result;
-        SDL_RectToFRect(&SDL_Rect{ region.TopLeft().x, region.TopLeft().y, region.Width(), region.Height() }, &result);
+        SDL_Rect rect{ region.TopLeft().x, region.TopLeft().y, region.Width(), region.Height() };
+        SDL_RectToFRect(&rect, &result);
         return result;
     }
 }
