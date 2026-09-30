@@ -57,17 +57,17 @@ namespace services
         bitmapPainter.DrawFilledCircle(bitmap, centre, r, colour, boundingBox);
     }
 
-    void BitmapCanvas::DrawBitmap(infra::Point position, const infra::Bitmap& sourceBitmap, infra::Region boundingBox)
+    void BitmapCanvas::DrawBitmap(infra::Point position, const infra::SimpleBitmap& sourceBitmap, infra::Region boundingBox)
     {
         bitmapPainter.DrawBitmap(bitmap, position, sourceBitmap, boundingBox);
     }
 
-    void BitmapCanvas::DrawTransparentBitmap(infra::Point position, const infra::Bitmap& sourceBitmap, uint32_t transparencyColour, infra::Region boundingBox)
+    void BitmapCanvas::DrawTransparentBitmap(infra::Point position, const infra::SimpleBitmap& sourceBitmap, uint32_t transparencyColour, infra::Region boundingBox)
     {
         bitmapPainter.DrawTransparentBitmap(bitmap, position, sourceBitmap, transparencyColour, boundingBox);
     }
 
-    void BitmapCanvas::DrawIcon(infra::Point position, const infra::Bitmap& sourceBitmap, infra::Colour colour, infra::Region boundingBox)
+    void BitmapCanvas::DrawIcon(infra::Point position, const infra::SimpleBitmap& sourceBitmap, infra::Colour colour, infra::Region boundingBox)
     {
         bitmapPainter.DrawIcon(bitmap, position, sourceBitmap, colour, boundingBox);
     }

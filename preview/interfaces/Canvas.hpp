@@ -27,9 +27,9 @@ namespace hal
         virtual void DrawCircle(infra::Point centre, int16_t r, infra::Colour colour, infra::Region boundingBox) = 0;
         virtual void DrawCircle(infra::Point centre, int16_t rSmall, int16_t rLarge, infra::Colour colour, infra::Region boundingBox) = 0;
         virtual void DrawFilledCircle(infra::Point centre, int16_t r, infra::Colour colour, infra::Region boundingBox) = 0;
-        virtual void DrawBitmap(infra::Point position, const infra::Bitmap& sourceBitmap, infra::Region boundingBox) = 0;
-        virtual void DrawTransparentBitmap(infra::Point position, const infra::Bitmap& sourceBitmap, uint32_t transparencyColour, infra::Region boundingBox) = 0;
-        virtual void DrawIcon(infra::Point position, const infra::Bitmap& sourceBitmap, infra::Colour colour, infra::Region boundingBox) = 0;
+        virtual void DrawBitmap(infra::Point position, const infra::SimpleBitmap& sourceBitmap, infra::Region boundingBox) = 0;
+        virtual void DrawTransparentBitmap(infra::Point position, const infra::SimpleBitmap& sourceBitmap, uint32_t transparencyColour, infra::Region boundingBox) = 0;
+        virtual void DrawIcon(infra::Point position, const infra::SimpleBitmap& sourceBitmap, infra::Colour colour, infra::Region boundingBox) = 0;
         virtual void DrawString(infra::Point position, infra::BoundedConstString string, const infra::Font& font, infra::Colour colour, infra::RightAngle direction, infra::Region boundingBox) = 0;
     };
 }
