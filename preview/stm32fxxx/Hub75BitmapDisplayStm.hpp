@@ -6,6 +6,7 @@
 #include "hal_st/stm32fxxx/GpioStm.hpp"
 #include "hal_st/stm32fxxx/TimerPwmStm.hpp"
 #include "hal_st/stm32fxxx/TimerStm.hpp"
+#include "infra/util/WithStorage.hpp"
 #include "preview/interfaces/Hub75Bitmap.hpp"
 #include "preview/interfaces/ViewPainter.hpp"
 #include "stm32f7xx.h"
@@ -17,21 +18,34 @@ namespace hal
         : public services::ViewPainter
     {
     public:
-        Hub75BitmapDisplayStm(hal::DmaStm& dma);
+        template<int32_t width = 64, int32_t height = 32>
+        struct WithDimensions
+            : infra::WithStorage<Hub75BitmapDisplayStm, infra::Hub75Bitmap::WithDimensions<width, height>>
+        {
+            WithDimensions(hal::DmaStm& dma, infra::Vector panelSize = infra::Vector(64, 32))
+                : infra::WithStorage<Hub75BitmapDisplayStm, infra::Hub75Bitmap::WithDimensions<width, height>>(std::in_place, panelSize, dma)
+            {}
+        };
+
+        Hub75BitmapDisplayStm(infra::Hub75Bitmap& bitmap, hal::DmaStm& dma);
 
         virtual void Paint(services::View& view, infra::Region region, infra::Function<void()> onDone) override;
+
+    protected:
+        virtual void SetAddress();
 
     private:
         void DisplayStep();
         void TransferComplete();
 
-    private:
-        hal::DmaStm& dma;
-
-        infra::Hub75Bitmap::WithStorage<64, 32> bitmap;
+    protected:
+        infra::Hub75Bitmap& bitmap;
         uint8_t blockCount = 16;
         uint16_t blockSize = static_cast<uint16_t>(bitmap.buffer.size() / blockCount);
         uint8_t block = 0;
+
+    private:
+        hal::DmaStm& dma;
 
         hal::GpioPinStm gp0{ hal::Port::D, 0 };
         hal::GpioPinStm gp1{ hal::Port::D, 1 };
@@ -74,9 +88,13 @@ namespace hal
 
         // 108MHz transmits
         hal::FreeRunningTimerStm timerTransmit{ 8, hal::TimerBaseStm::Timing{ 1, 1 }, hal::FreeRunningTimerStm::Config{ hal::FreeRunningTimerStm::CounterMode::up } };
+        // For some reason Debug builds need a lower transmission speed
+        // hal::FreeRunningTimerStm timerTransmit{ 8, hal::TimerBaseStm::Timing{ 1, 4 }, hal::FreeRunningTimerStm::Config{ hal::FreeRunningTimerStm::CounterMode::up } };
 
         // // 4kHz display updates in Debug
         // hal::TimerWithInterruptStm timerDisplay{ 2, hal::TimerBaseStm::Timing{ 216 / 4, 250 } };
+        // Even lower display updates in Debug
+        // hal::TimerWithInterruptStm timerDisplay{ 2, hal::TimerBaseStm::Timing{ 216 / 4, 1000 } };
 
         // 5kHz display updates
         hal::TimerWithInterruptStm timerDisplay{ 2, hal::TimerBaseStm::Timing{ 216 / 4, 200 } };
@@ -87,6 +105,29 @@ namespace hal
                 TransferComplete();
             },
             hal::DmaStm::StreamInterruptHandler::immediate };
+    };
+
+    class Hub75EBitmapDisplayStm
+        : public Hub75BitmapDisplayStm
+    {
+    public:
+        template<int32_t width = 128, int32_t height = 64>
+        struct WithDimensions
+            : infra::WithStorage<Hub75EBitmapDisplayStm, infra::Hub75Bitmap::WithDimensions<width, height>>
+        {
+            WithDimensions(hal::DmaStm& dma, infra::Vector panelSize = infra::Vector(128, 64))
+                : infra::WithStorage<Hub75EBitmapDisplayStm, infra::Hub75Bitmap::WithDimensions<width, height>>(std::in_place, panelSize, dma)
+            {}
+        };
+
+        Hub75EBitmapDisplayStm(infra::Hub75Bitmap& bitmap, hal::DmaStm& dma);
+
+    protected:
+        void SetAddress() override;
+
+    private:
+        hal::GpioPinStm ge{ hal::Port::F, 3 };
+        hal::OutputPin e{ ge };
     };
 }
 
