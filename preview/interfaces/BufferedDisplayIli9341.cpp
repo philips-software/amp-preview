@@ -74,7 +74,7 @@ namespace services
         return infra::PixelFormat::rgb565;
     }
 
-    void BufferedDisplayIli9341::DrawBitmap(const infra::Bitmap& bitmap, infra::Point position, infra::Function<void()> onDone)
+    void BufferedDisplayIli9341::DrawBitmap(const infra::SimpleBitmap& bitmap, infra::Point position, infra::Function<void()> onDone)
     {
         this->onDone = onDone;
 

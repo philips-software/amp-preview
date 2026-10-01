@@ -2,7 +2,7 @@
 
 namespace services
 {
-    ViewBitmap::ViewBitmap(const infra::Bitmap& bitmap)
+    ViewBitmap::ViewBitmap(const infra::SimpleBitmap& bitmap)
         : source(bitmap)
     {
         Resize(bitmap.size);
@@ -13,13 +13,13 @@ namespace services
         canvas.DrawBitmap(ViewRegion().TopLeft(), source, ViewRegion() & boundingRegion);
     }
 
-    void ViewBitmap::Source(const infra::Bitmap& source)
+    void ViewBitmap::Source(const infra::SimpleBitmap& source)
     {
         this->source = source;
         Dirty(ViewRegion());
     }
 
-    const infra::Bitmap& ViewBitmap::Source() const
+    const infra::SimpleBitmap& ViewBitmap::Source() const
     {
         return source;
     }

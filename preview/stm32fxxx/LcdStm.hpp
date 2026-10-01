@@ -75,19 +75,19 @@ namespace hal
         LcdStmDoubleBuffer(hal::MultiGpioPinStm& lcdPins, hal::GpioPin& displayEnable, hal::GpioPin& backlightEnable, infra::ByteRange buffer0, infra::ByteRange buffer1, const Config& config);
 
         void SwapLayers(const infra::Function<void()>& onDone) override;
-        infra::Bitmap& DrawingBitmap() override;
-        const infra::Bitmap& ViewingBitmap() const override;
+        infra::SimpleBitmap& DrawingBitmap() override;
+        const infra::SimpleBitmap& ViewingBitmap() const override;
 
     private:
         struct Layer
         {
-            infra::Bitmap& bitmap;
+            infra::SimpleBitmap& bitmap;
             Layer& other;
         };
 
     private:
-        infra::Bitmap bitmap0;
-        infra::Bitmap bitmap1;
+        infra::SimpleBitmap bitmap0;
+        infra::SimpleBitmap bitmap1;
 
         std::array<Layer, 2> layers{ { { bitmap0, layers[1] }, { bitmap1, layers[0] } } };
         Layer* currentLayer{ &layers[0] };
@@ -100,7 +100,7 @@ namespace hal
     public:
         using LcdStm::LcdStm;
 
-        void SetBitmap(const infra::Bitmap& bitmap, const infra::Function<void()>& onDone) override;
+        void SetBitmap(const infra::SimpleBitmap& bitmap, const infra::Function<void()>& onDone) override;
     };
 
     inline constexpr LcdStm::Config stm32f7discoveryLcdConfig = { 480, 272, infra::PixelFormat::rgb565, 41, 32, 13, 10, 2, 2, 5 };

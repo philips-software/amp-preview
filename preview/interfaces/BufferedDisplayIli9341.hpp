@@ -18,7 +18,7 @@ namespace services
     public:
         infra::Region DisplayRegion() const override;
         infra::PixelFormat PixelFormat() const override;
-        void DrawBitmap(const infra::Bitmap& bitmap, infra::Point position, infra::Function<void()> onDone) override;
+        void DrawBitmap(const infra::SimpleBitmap& bitmap, infra::Point position, infra::Function<void()> onDone) override;
 
     private:
         void InitDisplay();
