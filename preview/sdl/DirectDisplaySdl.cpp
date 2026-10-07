@@ -332,7 +332,7 @@ namespace hal
         }
     }
 
-    void DirectDisplaySdl::DrawBitmap(infra::Point position, const infra::Bitmap& sourceBitmap, infra::Region boundingBox)
+    void DirectDisplaySdl::DrawBitmap(infra::Point position, const infra::SimpleBitmap& sourceBitmap, infra::Region boundingBox)
     {
         infra::Region destination = infra::Region(position, sourceBitmap.size) & boundingBox;
 
@@ -355,14 +355,14 @@ namespace hal
                 for (auto y = 0; y != sourceBitmap.size.deltaY; ++y)
                     for (auto x = 0; x != sourceBitmap.size.deltaX; ++x)
                     {
-                        auto colour = sourceBitmap.PixelColour(infra::Point(x, y));
+                        auto colour = sourceBitmap.RawPixelColour(infra::Point(x, y));
                         DrawPixel(destination.TopLeft() + infra::Vector(x, y), infra::ConvertToRgb888(colour, sourceBitmap.pixelFormat));
                     }
             }
         }
     }
 
-    void DirectDisplaySdl::DrawTransparentBitmap(infra::Point position, const infra::Bitmap& sourceBitmap, uint32_t transparencyColour, infra::Region boundingBox)
+    void DirectDisplaySdl::DrawTransparentBitmap(infra::Point position, const infra::SimpleBitmap& sourceBitmap, uint32_t transparencyColour, infra::Region boundingBox)
     {
         infra::Region destination = infra::Region(position, sourceBitmap.size) & boundingBox;
 
@@ -386,7 +386,7 @@ namespace hal
                 for (auto y = 0; y != sourceBitmap.size.deltaY; ++y)
                     for (auto x = 0; x != sourceBitmap.size.deltaX; ++x)
                     {
-                        auto colour = sourceBitmap.PixelColour(infra::Point(x, y));
+                        auto colour = sourceBitmap.RawPixelColour(infra::Point(x, y));
                         if (colour != transparencyColour)
                             DrawPixel(destination.TopLeft() + infra::Vector(x, y), infra::ConvertToRgb888(colour, sourceBitmap.pixelFormat));
                     }
@@ -394,7 +394,7 @@ namespace hal
         }
     }
 
-    void DirectDisplaySdl::DrawIcon(infra::Point position, const infra::Bitmap& sourceBitmap, infra::Colour colour, infra::Region boundingBox)
+    void DirectDisplaySdl::DrawIcon(infra::Point position, const infra::SimpleBitmap& sourceBitmap, infra::Colour colour, infra::Region boundingBox)
     {
         assert(sourceBitmap.pixelFormat == infra::PixelFormat::blackandwhite);
         infra::Region destination = infra::Region(position, sourceBitmap.size) & boundingBox;
