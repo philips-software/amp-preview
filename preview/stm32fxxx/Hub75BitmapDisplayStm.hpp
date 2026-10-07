@@ -87,9 +87,9 @@ namespace hal
             }() };
 
         // 108MHz transmits
-        hal::FreeRunningTimerStm timerTransmit{ 8, hal::TimerBaseStm::Timing{ 1, 1 }, hal::FreeRunningTimerStm::Config{ hal::FreeRunningTimerStm::CounterMode::up } };
+        // hal::FreeRunningTimerStm timerTransmit{ 8, hal::TimerBaseStm::Timing{ 1, 1 }, hal::FreeRunningTimerStm::Config{ hal::FreeRunningTimerStm::CounterMode::up } };
         // For some reason Debug builds need a lower transmission speed
-        // hal::FreeRunningTimerStm timerTransmit{ 8, hal::TimerBaseStm::Timing{ 1, 4 }, hal::FreeRunningTimerStm::Config{ hal::FreeRunningTimerStm::CounterMode::up } };
+        hal::FreeRunningTimerStm timerTransmit{ 8, hal::TimerBaseStm::Timing{ 1, 4 }, hal::FreeRunningTimerStm::Config{ hal::FreeRunningTimerStm::CounterMode::up } };
 
         // // 4kHz display updates in Debug
         // hal::TimerWithInterruptStm timerDisplay{ 2, hal::TimerBaseStm::Timing{ 216 / 4, 250 } };
