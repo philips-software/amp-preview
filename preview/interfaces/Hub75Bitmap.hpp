@@ -11,9 +11,9 @@ namespace infra
         : public Bitmap
     {
         template<int32_t width, int32_t height>
-        struct WithStorage;
+        struct WithDimensions;
 
-        Hub75Bitmap(infra::ByteRange buffer, infra::Vector size);
+        Hub75Bitmap(infra::ByteRange buffer, infra::Vector size, infra::Vector panelSize);
 
         void Clear();
 
@@ -21,22 +21,34 @@ namespace infra
         void DrawPixel(infra::Point position, infra::Colour colour) override;
 
         infra::ByteRange buffer;
-        infra::Vector size;
+        infra::Vector panelSize;
+
+    private:
         uint16_t blockSize;
 
+    public:
         static constexpr uint32_t BufferSize(int32_t width, int32_t height);
         static uint32_t BufferSize(infra::Vector size);
         uint32_t BufferSize();
 
         bool operator==(const Hub75Bitmap& other) const;
+
+    private:
+        struct BitPosition
+        {
+            uint8_t patternShift;
+            uint32_t bufferPosition;
+        };
+
+        BitPosition CalculatePosition(infra::Point position) const;
     };
 
     template<int32_t width_, int32_t height_>
-    struct Hub75Bitmap::WithStorage
+    struct Hub75Bitmap::WithDimensions
         : Hub75Bitmap
     {
     public:
-        WithStorage();
+        WithDimensions(infra::Vector panelSize);
 
     private:
         std::array<uint8_t, BufferSize(width_, height_)> storage;
@@ -45,8 +57,8 @@ namespace infra
     // Implementation
 
     template<int32_t width_, int32_t height_>
-    Hub75Bitmap::WithStorage<width_, height_>::WithStorage()
-        : Hub75Bitmap(storage, infra::Vector(width_, height_))
+    Hub75Bitmap::WithDimensions<width_, height_>::WithDimensions(infra::Vector panelSize)
+        : Hub75Bitmap(storage, infra::Vector(width_, height_), panelSize)
     {}
 
     constexpr uint32_t Hub75Bitmap::BufferSize(int32_t width, int32_t height)

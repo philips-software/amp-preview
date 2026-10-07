@@ -8,10 +8,11 @@
 
 namespace hal
 {
-    Hub75BitmapDisplayStm::Hub75BitmapDisplayStm(hal::DmaStm& dma)
-        : dma(dma)
+    Hub75BitmapDisplayStm::Hub75BitmapDisplayStm(infra::Hub75Bitmap& bitmap, hal::DmaStm& dma)
+        : bitmap(bitmap)
+        , dma(dma)
     {
-        outputEnable.SetPulse(95, 100);
+        outputEnable.SetPulse(50, 100);
         timerPwmOutputEnable.StartTimer();
         outputEnable.Start();
 
@@ -33,15 +34,20 @@ namespace hal
         infra::EventDispatcher::Instance().Schedule(onDone);
     }
 
+    void Hub75BitmapDisplayStm::SetAddress()
+    {
+        a.Set((block & 1) != 0);
+        b.Set((block & 2) != 0);
+        c.Set((block & 4) != 0);
+        d.Set((block & 8) != 0);
+    }
+
     void Hub75BitmapDisplayStm::DisplayStep()
     {
         goe.ResetConfig();
         goe.Config(hal::PinConfigType::output, true);
 
-        a.Set((block & 1) != 0);
-        b.Set((block & 2) != 0);
-        c.Set((block & 4) != 0);
-        d.Set((block & 8) != 0);
+        SetAddress();
 
         auto blockRange = infra::Head(infra::DiscardHead(infra::MakeConst(bitmap.buffer), block * blockSize), blockSize);
 
@@ -62,5 +68,19 @@ namespace hal
 
         goe.ResetConfig();
         goe.ConfigPeripheral(hal::PinConfigTypeStm::timerChannel1, 1);
+    }
+
+    Hub75EBitmapDisplayStm::Hub75EBitmapDisplayStm(infra::Hub75Bitmap& bitmap, hal::DmaStm& dma)
+        : Hub75BitmapDisplayStm(bitmap, dma)
+    {
+        blockCount = 32;
+        blockSize = static_cast<uint16_t>(bitmap.buffer.size() / blockCount);
+    }
+
+    void Hub75EBitmapDisplayStm::SetAddress()
+    {
+        Hub75BitmapDisplayStm::SetAddress();
+
+        e.Set((block & 16) != 0);
     }
 }
