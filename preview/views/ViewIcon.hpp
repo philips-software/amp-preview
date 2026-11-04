@@ -10,16 +10,16 @@ namespace services
         : public View
     {
     public:
-        ViewIcon(const infra::Bitmap& bitmap, infra::Colour colour);
+        ViewIcon(const infra::SimpleBitmap& bitmap, infra::Colour colour);
 
         void Paint(hal::Canvas& canvas, infra::Region boundingRegion) override;
 
-        void Source(const infra::Bitmap& newSource);
-        const infra::Bitmap& Source() const;
+        void Source(const infra::SimpleBitmap& newSource);
+        const infra::SimpleBitmap& Source() const;
         void SetColour(infra::Colour newColour);
 
     private:
-        const infra::Bitmap* source;
+        const infra::SimpleBitmap* source;
         infra::Colour colour;
     };
 }

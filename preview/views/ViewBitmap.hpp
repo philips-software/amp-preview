@@ -10,16 +10,16 @@ namespace services
         : public View
     {
     public:
-        explicit ViewBitmap(const infra::Bitmap& bitmap);
+        explicit ViewBitmap(const infra::SimpleBitmap& bitmap);
 
         // Implementation of View
         void Paint(hal::Canvas& canvas, infra::Region boundingRegion) override;
 
-        void Source(const infra::Bitmap& source);
-        const infra::Bitmap& Source() const;
+        void Source(const infra::SimpleBitmap& source);
+        const infra::SimpleBitmap& Source() const;
 
     private:
-        infra::Bitmap source;
+        infra::SimpleBitmap source;
     };
 }
 

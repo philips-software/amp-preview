@@ -124,17 +124,17 @@ namespace services
         canvas.DrawFilledCircle(Rotated(centre), r, colour, Rotated(boundingBox));
     }
 
-    void ViewRotating::CanvasRotating::DrawBitmap(infra::Point position, const infra::Bitmap& sourceBitmap, infra::Region boundingBox)
+    void ViewRotating::CanvasRotating::DrawBitmap(infra::Point position, const infra::SimpleBitmap& sourceBitmap, infra::Region boundingBox)
     {
         canvas.DrawBitmap(Rotated(infra::Region(position, sourceBitmap.size)).TopLeft(), sourceBitmap, Rotated(boundingBox));
     }
 
-    void ViewRotating::CanvasRotating::DrawTransparentBitmap(infra::Point position, const infra::Bitmap& sourceBitmap, uint32_t transparencyColour, infra::Region boundingBox)
+    void ViewRotating::CanvasRotating::DrawTransparentBitmap(infra::Point position, const infra::SimpleBitmap& sourceBitmap, uint32_t transparencyColour, infra::Region boundingBox)
     {
         canvas.DrawTransparentBitmap(Rotated(infra::Region(position, sourceBitmap.size)).TopLeft(), sourceBitmap, transparencyColour, Rotated(boundingBox));
     }
 
-    void ViewRotating::CanvasRotating::DrawIcon(infra::Point position, const infra::Bitmap& sourceBitmap, infra::Colour colour, infra::Region boundingBox)
+    void ViewRotating::CanvasRotating::DrawIcon(infra::Point position, const infra::SimpleBitmap& sourceBitmap, infra::Colour colour, infra::Region boundingBox)
     {
         canvas.DrawIcon(Rotated(infra::Region(position, sourceBitmap.size)).TopLeft(), sourceBitmap, colour, Rotated(boundingBox));
     }

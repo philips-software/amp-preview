@@ -17,7 +17,7 @@ namespace hal
     public:
         virtual infra::Region DisplayRegion() const = 0;
         virtual infra::PixelFormat PixelFormat() const = 0;
-        virtual void DrawBitmap(const infra::Bitmap& bitmap, infra::Point position, infra::Function<void()> onDone) = 0;
+        virtual void DrawBitmap(const infra::SimpleBitmap& bitmap, infra::Point position, infra::Function<void()> onDone) = 0;
     };
 }
 
