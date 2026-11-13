@@ -16,8 +16,8 @@ namespace hal
 
     public:
         virtual void SwapLayers(const infra::Function<void()>& onDone) = 0;
-        virtual infra::Bitmap& DrawingBitmap() = 0;
-        virtual const infra::Bitmap& ViewingBitmap() const = 0;
+        virtual infra::SimpleBitmap& DrawingBitmap() = 0;
+        virtual const infra::SimpleBitmap& ViewingBitmap() const = 0;
     };
 }
 
