@@ -25,11 +25,11 @@ namespace main_
         hal::MultiGpioPinStm lcdPins{ hal::stm32f7discoveryLcdPins };
         hal::GpioPinStm displayEnable{ hal::Port::I, 12 };
         hal::GpioPinStm backlightEnable{ hal::Port::K, 3 };
-        uint32_t bufferSize{ infra::Bitmap::BufferSize(hal::stm32f7discoveryLcdConfig.width, hal::stm32f7discoveryLcdConfig.height, hal::stm32f7discoveryLcdConfig.pixelFormat) };
+        uint32_t bufferSize{ infra::SimpleBitmap::BufferSize(hal::stm32f7discoveryLcdConfig.width, hal::stm32f7discoveryLcdConfig.height, hal::stm32f7discoveryLcdConfig.pixelFormat) };
         infra::ByteRange lcdBuffer0{ infra::Head(sdRam.Memory(), bufferSize) };
         infra::ByteRange lcdBuffer1{ infra::Head(infra::DiscardHead(sdRam.Memory(), bufferSize), bufferSize) };
-        infra::Bitmap bitmap0{ lcdBuffer0, infra::Vector(480, 272), infra::PixelFormat::rgb565 };
-        infra::Bitmap bitmap1{ lcdBuffer1, infra::Vector(480, 272), infra::PixelFormat::rgb565 };
+        infra::SimpleBitmap bitmap0{ lcdBuffer0, infra::Vector(480, 272), infra::PixelFormat::rgb565 };
+        infra::SimpleBitmap bitmap1{ lcdBuffer1, infra::Vector(480, 272), infra::PixelFormat::rgb565 };
         hal::LcdStmDoubleBuffer display{ lcdPins, displayEnable, backlightEnable, lcdBuffer0, lcdBuffer1, hal::stm32f7discoveryLcdConfig };
     };
 

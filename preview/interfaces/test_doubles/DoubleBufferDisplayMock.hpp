@@ -11,8 +11,8 @@ namespace hal
     {
     public:
         MOCK_METHOD1(SwapLayers, void(const infra::Function<void()>& onDone));
-        MOCK_METHOD0(DrawingBitmap, infra::Bitmap&());
-        MOCK_CONST_METHOD0(ViewingBitmap, const infra::Bitmap&());
+        MOCK_METHOD0(DrawingBitmap, infra::SimpleBitmap&());
+        MOCK_CONST_METHOD0(ViewingBitmap, const infra::SimpleBitmap&());
     };
 }
 

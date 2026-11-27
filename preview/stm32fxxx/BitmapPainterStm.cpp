@@ -1,4 +1,6 @@
 #include "preview/stm32fxxx/BitmapPainterStm.hpp"
+#include "preview/interfaces/Bitmap.hpp"
+#include "preview/interfaces/BitmapPainter.hpp"
 
 namespace hal
 {
@@ -25,48 +27,60 @@ namespace hal
         if (boundingBox.Contains(position))
         {
             WaitUntilDrawingFinished();
-            BitmapPainterCanonical::DrawPixel(bitmap, position, infra::ConvertRgb888To(colour, bitmap.pixelFormat));
+            BitmapPainterCanonical::DrawPixel(bitmap, position, colour);
         }
     }
 
     void BitmapPainterStm::DrawFilledRectangle(infra::Bitmap& bitmap, infra::Region position, infra::Colour colour, infra::Region boundingBox)
     {
-        infra::Region destination = position & boundingBox;
-
-        if (!destination.Empty())
+        if (bitmap.isSimple)
         {
-            WaitUntilDrawingFinished();
+            auto& simpleBitmap = static_cast<infra::SimpleBitmap&>(bitmap);
+            infra::Region destination = position & boundingBox;
 
-            DMA2D->OMAR = reinterpret_cast<uint32_t>(bitmap.BufferAddress(destination.TopLeft()));
-            DMA2D->OOR = bitmap.size.deltaX - destination.Width();
-            DMA2D->OPFCCR = pixelFormatToDma2dColour[static_cast<uint32_t>(bitmap.pixelFormat)];
-            DMA2D->OCOLR = infra::ConvertRgb888To(colour, bitmap.pixelFormat);
+            if (!destination.Empty())
+            {
+                WaitUntilDrawingFinished();
 
-            DMA2D->NLR = destination.Height() | (destination.Width() << POSITION_VAL(DMA2D_NLR_PL));
-            DMA2D->CR = DMA2D_R2M | DMA2D_CR_START;
+                DMA2D->OMAR = reinterpret_cast<uint32_t>(simpleBitmap.BufferAddress(destination.TopLeft()));
+                DMA2D->OOR = simpleBitmap.size.deltaX - destination.Width();
+                DMA2D->OPFCCR = pixelFormatToDma2dColour[static_cast<uint32_t>(simpleBitmap.pixelFormat)];
+                DMA2D->OCOLR = infra::ConvertRgb888To(colour, simpleBitmap.pixelFormat);
+
+                DMA2D->NLR = destination.Height() | (destination.Width() << POSITION_VAL(DMA2D_NLR_PL));
+                DMA2D->CR = DMA2D_R2M | DMA2D_CR_START;
+            }
         }
+        else
+            BitmapPainterCanonical::DrawFilledRectangle(bitmap, position, colour, boundingBox);
     }
 
-    void BitmapPainterStm::DrawBitmap(infra::Bitmap& bitmap, infra::Point position, const infra::Bitmap& sourceBitmap, infra::Region boundingBox)
+    void BitmapPainterStm::DrawBitmap(infra::Bitmap& bitmap, infra::Point position, const infra::SimpleBitmap& sourceBitmap, infra::Region boundingBox)
     {
-        infra::Region destination = infra::Region(position, sourceBitmap.size) & boundingBox;
-
-        if (!destination.Empty())
+        if (bitmap.isSimple)
         {
-            infra::Vector bitmapShift = destination.TopLeft() - position;
-            WaitUntilDrawingFinished();
+            auto& simpleBitmap = static_cast<infra::SimpleBitmap&>(bitmap);
+            infra::Region destination = infra::Region(position, sourceBitmap.size) & boundingBox;
 
-            DMA2D->FGMAR = reinterpret_cast<uint32_t>(sourceBitmap.BufferAddress(infra::Point() + bitmapShift));
-            DMA2D->FGOR = sourceBitmap.size.deltaX - destination.Width();
-            DMA2D->FGPFCCR = pixelFormatToDma2dColour[static_cast<uint32_t>(sourceBitmap.pixelFormat)];
+            if (!destination.Empty())
+            {
+                infra::Vector bitmapShift = destination.TopLeft() - position;
+                WaitUntilDrawingFinished();
 
-            DMA2D->OMAR = reinterpret_cast<uint32_t>(bitmap.BufferAddress(destination.TopLeft()));
-            DMA2D->OOR = bitmap.size.deltaX - destination.Width();
-            DMA2D->OPFCCR = pixelFormatToDma2dColour[static_cast<uint32_t>(bitmap.pixelFormat)];
+                DMA2D->FGMAR = reinterpret_cast<uint32_t>(sourceBitmap.BufferAddress(infra::Point() + bitmapShift));
+                DMA2D->FGOR = sourceBitmap.size.deltaX - destination.Width();
+                DMA2D->FGPFCCR = pixelFormatToDma2dColour[static_cast<uint32_t>(sourceBitmap.pixelFormat)];
 
-            DMA2D->NLR = destination.Height() | (destination.Width() << POSITION_VAL(DMA2D_NLR_PL));
-            DMA2D->CR = (sourceBitmap.pixelFormat == bitmap.pixelFormat ? DMA2D_M2M : DMA2D_M2M_PFC) | DMA2D_CR_START;
+                DMA2D->OMAR = reinterpret_cast<uint32_t>(simpleBitmap.BufferAddress(destination.TopLeft()));
+                DMA2D->OOR = simpleBitmap.size.deltaX - destination.Width();
+                DMA2D->OPFCCR = pixelFormatToDma2dColour[static_cast<uint32_t>(simpleBitmap.pixelFormat)];
+
+                DMA2D->NLR = destination.Height() | (destination.Width() << POSITION_VAL(DMA2D_NLR_PL));
+                DMA2D->CR = (sourceBitmap.pixelFormat == simpleBitmap.pixelFormat ? DMA2D_M2M : DMA2D_M2M_PFC) | DMA2D_CR_START;
+            }
         }
+        else
+            BitmapPainterCanonical::DrawBitmap(bitmap, position, sourceBitmap, boundingBox);
     }
 
     void BitmapPainterStm::WaitUntilDrawingFinished() const
@@ -76,7 +90,7 @@ namespace hal
         }
     }
 
-    void BitmapPainterStm::DrawHorizontalLine(infra::Bitmap& bitmap, infra::Point from, uint16_t deltaX, infra::Colour colour)
+    void BitmapPainterStm::DrawHorizontalLine(infra::SimpleBitmap& bitmap, infra::Point from, uint16_t deltaX, infra::Colour colour)
     {
         if (deltaX > 0)
         {
@@ -92,7 +106,7 @@ namespace hal
         }
     }
 
-    void BitmapPainterStm::DrawVerticalLine(infra::Bitmap& bitmap, infra::Point from, uint16_t deltaY, infra::Colour colour)
+    void BitmapPainterStm::DrawVerticalLine(infra::SimpleBitmap& bitmap, infra::Point from, uint16_t deltaY, infra::Colour colour)
     {
         if (deltaY > 0)
         {

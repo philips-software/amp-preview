@@ -278,7 +278,7 @@ namespace services
             return z;
         }
 
-        uint32_t PenaltyScoreRowRuns(const infra::Bitmap& bitmap)
+        uint32_t PenaltyScoreRowRuns(const infra::SimpleBitmap& bitmap)
         {
             uint32_t penalty = 0;
 
@@ -308,7 +308,7 @@ namespace services
             return penalty;
         }
 
-        uint32_t PenaltyScoreColumnRuns(const infra::Bitmap& bitmap)
+        uint32_t PenaltyScoreColumnRuns(const infra::SimpleBitmap& bitmap)
         {
             uint32_t penalty = 0;
 
@@ -338,7 +338,7 @@ namespace services
             return penalty;
         }
 
-        uint32_t PenaltyScoreBlocks(const infra::Bitmap& bitmap)
+        uint32_t PenaltyScoreBlocks(const infra::SimpleBitmap& bitmap)
         {
             uint32_t penalty = 0;
 
@@ -361,7 +361,7 @@ namespace services
             return penalty;
         }
 
-        uint32_t PenaltyScoreFinderLike(const infra::Bitmap& bitmap)
+        uint32_t PenaltyScoreFinderLike(const infra::SimpleBitmap& bitmap)
         {
             uint32_t penalty = 0;
 
@@ -390,7 +390,7 @@ namespace services
             return penalty;
         }
 
-        uint32_t PenaltyScoreBalance(const infra::Bitmap& bitmap)
+        uint32_t PenaltyScoreBalance(const infra::SimpleBitmap& bitmap)
         {
             uint32_t penalty = 0;
 
@@ -410,12 +410,12 @@ namespace services
 
         // Calculates and returns the penalty score based on the state of this QR Code's current modules.
         // This is used by the automatic mask choice algorithm to find the mask pattern that yields the lowest score.
-        uint32_t PenaltyScore(const infra::Bitmap& bitmap)
+        uint32_t PenaltyScore(const infra::SimpleBitmap& bitmap)
         {
             return PenaltyScoreRowRuns(bitmap) + PenaltyScoreColumnRuns(bitmap) + PenaltyScoreBlocks(bitmap) + PenaltyScoreFinderLike(bitmap) + PenaltyScoreBalance(bitmap);
         }
 
-        QrCodeGenerator::QrCodeGenerator(infra::Bitmap& modules, infra::Bitmap& isFunction, TextEncoder& encoder, infra::ByteRange alignPosition, uint8_t version, QrCodeEcc ecc)
+        QrCodeGenerator::QrCodeGenerator(infra::SimpleBitmap& modules, infra::SimpleBitmap& isFunction, TextEncoder& encoder, infra::ByteRange alignPosition, uint8_t version, QrCodeEcc ecc)
             : version(version)
             , ecc(ecc)
             , modules(modules)
