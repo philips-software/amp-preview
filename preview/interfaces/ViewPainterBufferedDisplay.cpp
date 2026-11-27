@@ -16,8 +16,8 @@ namespace services
 
         if (!region.Empty())
         {
-            infra::ByteRange bitmapBuffer(infra::Head(buffer, infra::Bitmap::BufferSize(region.Size(), display.PixelFormat())));
-            infra::Bitmap bitmap(bitmapBuffer, region.Size(), display.PixelFormat());
+            infra::ByteRange bitmapBuffer(infra::Head(buffer, infra::SimpleBitmap::BufferSize(region.Size(), display.PixelFormat())));
+            infra::SimpleBitmap bitmap(bitmapBuffer, region.Size(), display.PixelFormat());
             services::WindowBitmapCanvas canvas(view.ViewRegion().Size(), bitmap, infra::Point() - region.TopLeft(), bitmapPainter);
 
             view.Paint(canvas, region);

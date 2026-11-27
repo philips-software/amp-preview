@@ -44,7 +44,7 @@ namespace services
         return infra::PixelFormat::blackandwhite;
     }
 
-    void BufferedDisplaySsd1306::DrawBitmap(const infra::Bitmap& bitmap, infra::Point position, infra::Function<void()> onDone)
+    void BufferedDisplaySsd1306::DrawBitmap(const infra::SimpleBitmap& bitmap, infra::Point position, infra::Function<void()> onDone)
     {
         assert(bitmap.pixelFormat == PixelFormat());
         assert(position.x % 8 == 0);

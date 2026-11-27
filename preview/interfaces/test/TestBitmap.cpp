@@ -33,7 +33,7 @@ TEST_F(BitmapTest, construction_from_rgb565_to_blackandwhite)
     *reinterpret_cast<uint16_t*>(bitmapRgb565.BufferAddress(infra::Point(3, 2))) = 0xffff; // white
 
     uint8_t buffer[2];
-    infra::Bitmap bitmapBlackAndWhite(infra::MakeByteRange(buffer), infra::Vector(4, 3), infra::PixelFormat::blackandwhite);
+    infra::SimpleBitmap bitmapBlackAndWhite(infra::MakeByteRange(buffer), infra::Vector(4, 3), infra::PixelFormat::blackandwhite);
     bitmapBlackAndWhite.ConvertToBlackAndWhiteFromRgb565(bitmapRgb565);
 
     // buffer should be 0xc01 after conversion
@@ -94,7 +94,7 @@ TEST_F(BitmapTest, construction_from_rgb888_to_blackandwhite)
     *(reinterpret_cast<volatile uint8_t*>(bitmapRgb888.BufferAddress(infra::Point(3, 2))) + 2) = static_cast<uint8_t>(colour >> 16);
 
     uint8_t buffer[2];
-    infra::Bitmap bitmapBlackAndWhite(infra::MakeByteRange(buffer), infra::Vector(4, 3), infra::PixelFormat::blackandwhite);
+    infra::SimpleBitmap bitmapBlackAndWhite(infra::MakeByteRange(buffer), infra::Vector(4, 3), infra::PixelFormat::blackandwhite);
     bitmapBlackAndWhite.ConvertToBlackAndWhiteFromRgb888(bitmapRgb888);
 
     // buffer should be 0x101 after conversion

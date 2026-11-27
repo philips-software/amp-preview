@@ -2,7 +2,7 @@
 
 namespace services
 {
-    ViewIcon::ViewIcon(const infra::Bitmap& bitmap, infra::Colour colour)
+    ViewIcon::ViewIcon(const infra::SimpleBitmap& bitmap, infra::Colour colour)
         : source(&bitmap)
         , colour(colour)
     {
@@ -14,13 +14,13 @@ namespace services
         canvas.DrawIcon(ViewRegion().TopLeft(), *source, colour, ViewRegion() & boundingRegion);
     }
 
-    void ViewIcon::Source(const infra::Bitmap& newSource)
+    void ViewIcon::Source(const infra::SimpleBitmap& newSource)
     {
         source = &newSource;
         Dirty(ViewRegion());
     }
 
-    const infra::Bitmap& ViewIcon::Source() const
+    const infra::SimpleBitmap& ViewIcon::Source() const
     {
         return *source;
     }
